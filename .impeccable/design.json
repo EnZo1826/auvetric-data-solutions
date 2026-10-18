@@ -1,12 +1,12 @@
 {
-  "name": "Precision Intelligence",
+  "name": "Auvetric Data Solutions",
   "source": "User-pinned brief; implemented src/app/globals.css",
   "tokens": {
     "colors": {
-      "void": "#07090D", "base": "#0D1117", "panel": "#121821", "raised": "#18212D",
-      "line": "#222C39", "lineStrong": "#2F3B4B", "ink": "#F3F6FA", "mute": "#99A8BA", "dim": "#75849A",
-      "engineering": "#DA3633", "engineeringText": "#F2716D", "data": "#00C8D7", "dataText": "#3FDBE6",
-      "positive": "#49D7B1", "warning": "#F0B35A"
+      "void": "#050B18", "base": "#091326", "panel": "#101E34", "raised": "#172B46",
+      "line": "#203651", "lineStrong": "#304D70", "ink": "#F3F7FF", "mute": "#9DAFC8", "dim": "#8298B5",
+      "engineering": "#0069F5", "engineeringText": "#77B5FF", "data": "#00D4EA", "dataText": "#5AE7F2",
+      "danger": "#F16B77", "positive": "#49D7B1", "warning": "#F0B35A"
     },
     "typography": { "display": "Space Grotesk", "body": "Inter", "technical": "JetBrains Mono" },
     "layout": { "maxContent": "1280px", "mobileGutter": "20px", "desktopGutter": "32px", "navHeight": "64px" },

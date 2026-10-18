@@ -84,9 +84,9 @@ export const founders: Founder[] = [
       "Governance improvement",
       "Automation opportunity identification",
     ],
-    links: [],
+    links: [{ label: "GitHub — AL3XNA", href: "https://github.com/AL3XNA" }],
     headshot: null,
-    needsConfirmation: ["Full public name", "Headshot", "LinkedIn / professional links", "Employer naming policy (currently unnamed)"],
+    needsConfirmation: ["Full public name", "Headshot", "LinkedIn (optional)", "Employer naming policy (currently unnamed)"],
   },
 ];
 

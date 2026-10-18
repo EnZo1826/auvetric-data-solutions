@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { agency } from "@/data/agency";
 import { practices } from "@/data/practices";
-import { NexusMark } from "@/components/ui/NexusMark";
+import { AgencyLogo } from "@/components/ui/AgencyLogo";
 import { Container } from "@/components/ui/primitives";
 
 export function SiteFooter() {
@@ -12,8 +12,7 @@ export function SiteFooter() {
       <Container className="grid gap-12 py-16 md:grid-cols-12">
         <div className="md:col-span-4">
           <div className="flex items-center gap-3">
-            <NexusMark />
-            <span className="font-display font-semibold tracking-[0.04em]">NEXUS / INTELLIGENCE</span>
+            <AgencyLogo className="w-56" />
           </div>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-mute">{agency.description}</p>
           <p className="mt-5 font-mono text-xs text-dim">
@@ -68,7 +67,7 @@ export function SiteFooter() {
         </div>
       </Container>
       <Container className="flex flex-col gap-3 border-t border-line py-6 text-xs text-dim sm:flex-row sm:items-center sm:justify-between">
-        <p>© {year} {agency.legalName ?? agency.name}. Working brand — legal entity to be confirmed.</p>
+        <p>© {year} {agency.legalName ?? agency.name}. Legal entity details to be confirmed.</p>
         <p className="flex gap-5">
           <Link href="/privacy" className="hover:text-ink">Privacy</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>

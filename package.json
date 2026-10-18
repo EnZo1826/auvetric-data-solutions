@@ -7,13 +7,14 @@
     "build": "next build",
     "build:pages": "node scripts/build-pages.mjs",
     "verify:pages": "node scripts/verify-pages.mjs",
+    "verify:brand": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-brand.mjs",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "verify:data": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-demo-data.mjs",
     "verify:telemetry": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-telemetry.mjs",
     "verify:contact": "node scripts/verify-contact.mjs",
-    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry"
+    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry && npm run verify:brand"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",

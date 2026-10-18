@@ -1,6 +1,8 @@
-# NEXUS / INTELLIGENCE
+# Auvetric Data Solutions
 
-A working multi-page agency website for Jakes9NA and Alex, Windhoek, Namibia.
+A working multi-page Auvetric Data Solutions agency website for Jakes9NA and Alex, Windhoek, Namibia.
+
+Confirmed future domain: **auvetric.com**. Current GitHub Pages URL and repository remain unchanged until an explicit domain cutover. The supplied logo and its blue/cyan/navy palette replace the former working brand; the approved layout and demonstrations are retained. Alex: https://github.com/AL3XNA.
 
 ## GitHub Pages
 

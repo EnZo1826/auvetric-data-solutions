@@ -36,10 +36,10 @@ export function SectionHeading({ id, title, intro, tone = "converge", align = "l
 
 type BtnVariant = "primary" | "ghost" | "eng" | "data";
 const btn: Record<BtnVariant, string> = {
-  primary: "bg-ink text-void hover:bg-white shadow-[0_8px_30px_-10px_rgba(0,200,215,0.55)]",
+  primary: "bg-ink text-void hover:bg-white shadow-[0_8px_30px_-10px_rgba(0,212,234,0.55)]",
   ghost: "border border-line-strong text-ink hover:border-mute hover:bg-white/[0.03]",
-  eng: "bg-eng text-white hover:bg-[#e64a47]",
-  data: "bg-data text-void hover:bg-[#2fd9e6]",
+  eng: "bg-eng text-white hover:bg-[#207fff]",
+  data: "bg-data text-void hover:bg-[#44e2f1]",
 };
 
 export function ButtonLink({ href, children, variant = "primary", className, external, ...rest }: {

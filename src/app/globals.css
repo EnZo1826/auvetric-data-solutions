@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
-/* ───────────────────────── PRECISION INTELLIGENCE — design tokens ───────────────────────── */
+/* ───────────────────────── AUVETRIC DATA SOLUTIONS — design tokens ───────────────────────── */
 @theme {
-  --color-void: #07090d;
-  --color-base: #0d1117;
-  --color-panel: #121821;
-  --color-raised: #18212d;
-  --color-line: #222c39;
-  --color-line-strong: #2f3b4b;
-  --color-ink: #f3f6fa;
-  --color-mute: #99a8ba;
-  --color-dim: #75849a;
+  --color-void: #050b18;
+  --color-base: #091326;
+  --color-panel: #101e34;
+  --color-raised: #172b46;
+  --color-line: #203651;
+  --color-line-strong: #304d70;
+  --color-ink: #f3f7ff;
+  --color-mute: #9dafc8;
+  --color-dim: #8298b5;
 
-  /* Engineering — crimson. eng for fills/strokes, eng-ink for text (AA on void) */
-  --color-eng: #da3633;
-  --color-eng-ink: #f2716d;
-  --color-eng-deep: #2a1215;
+  /* Engineering — Auvetric electric blue. eng for fills/strokes, eng-ink for text (AA on void) */
+  --color-eng: #0069f5;
+  --color-eng-ink: #77b5ff;
+  --color-eng-deep: #0a2247;
   /* Data intelligence — cyan */
-  --color-data: #00c8d7;
-  --color-data-ink: #3fdbe6;
-  --color-data-deep: #072830;
+  --color-data: #00d4ea;
+  --color-data-ink: #5ae7f2;
+  --color-data-deep: #073040;
+  --color-danger: #f16b77;
+  --color-danger-deep: #321521;
   --color-ok: #49d7b1;
   --color-warn: #f0b35a;
 
@@ -32,7 +34,7 @@
 
 :root {
   color-scheme: dark;
-  --grid-line: rgba(153, 168, 186, 0.055);
+  --grid-line: rgba(157, 175, 200, 0.055);
 }
 
 html {
@@ -50,17 +52,17 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 200, 215, 0.32);
+  background: rgba(0, 212, 234, 0.32);
   color: #ffffff;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2f3b4b transparent;
+  scrollbar-color: #304d70 transparent;
 }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2f3b4b; border-radius: 10px; border: 2px solid var(--color-void); }
+::-webkit-scrollbar-thumb { background: #304d70; border-radius: 10px; border: 2px solid var(--color-void); }
 
 :focus-visible {
   outline: 2px solid var(--color-data);

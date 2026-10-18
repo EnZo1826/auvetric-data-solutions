@@ -16,9 +16,9 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const KIND = {
-  eng: { stroke: "#DA3633", ink: "#F2716D", fill: "#2a1215", text: "text-eng-ink" },
-  data: { stroke: "#00C8D7", ink: "#3FDBE6", fill: "#072830", text: "text-data-ink" },
-  core: { stroke: "#F3F6FA", ink: "#F3F6FA", fill: "#18212D", text: "text-ink" },
+  eng: { stroke: "#0069f5", ink: "#77b5ff", fill: "#0a2247", text: "text-eng-ink" },
+  data: { stroke: "#00d4ea", ink: "#5ae7f2", fill: "#073040", text: "text-data-ink" },
+  core: { stroke: "#f3f7ff", ink: "#f3f7ff", fill: "#172b46", text: "text-ink" },
 } as const;
 
 // SVG geometry (desktop)
@@ -127,19 +127,19 @@ export function ArchitectureLab() {
           <svg viewBox={`0 0 ${VW} ${VH}`} className="w-full" role="group" aria-label={`${arch.name} data flow`}>
             <defs>
               <linearGradient id="labTrack" x1="0" x2="1">
-                <stop offset="0" stopColor="#DA3633" />
-                <stop offset="0.5" stopColor="#F3F6FA" stopOpacity="0.6" />
-                <stop offset="1" stopColor="#00C8D7" />
+                <stop offset="0" stopColor="#0069f5" />
+                <stop offset="0.5" stopColor="#f3f7ff" stopOpacity="0.6" />
+                <stop offset="1" stopColor="#00d4ea" />
               </linearGradient>
             </defs>
             <path d={trackD} stroke="url(#labTrack)" strokeOpacity="0.35" strokeWidth="1.5" fill="none" />
-            <path id="lab-track" d={trackD} stroke="#F3F6FA" strokeOpacity="0.35" fill="none" className="flow-dash-slow" />
+            <path id="lab-track" d={trackD} stroke="#f3f7ff" strokeOpacity="0.35" fill="none" className="flow-dash-slow" />
             {/* progress up to selected node */}
             <path d={`M ${nx(0, n)} ${NY} L ${nx(sel, n)} ${NY}`} stroke="url(#labTrack)" strokeWidth="2.5" fill="none" style={{ transition: "d .6s cubic-bezier(.16,1,.3,1)" }} />
             {!reduced && !fault && (
               <g aria-hidden>
                 {[0, 1, 2].map((p) => (
-                  <circle key={`${archId}-${p}`} r="3" fill="#F3F6FA">
+                  <circle key={`${archId}-${p}`} r="3" fill="#f3f7ff">
                     <animateMotion dur="6s" begin={`${p * 2}s`} repeatCount="indefinite">
                       <mpath href="#lab-track" />
                     </animateMotion>
@@ -164,9 +164,9 @@ export function ArchitectureLab() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); choose(i); } }}
                   className="cursor-pointer outline-none [&:focus-visible_.ring]:opacity-100"
                 >
-                  <circle className="ring" cx={x} cy={NY} r={NR + 8} fill="none" stroke="#00C8D7" strokeWidth="2" opacity="0" />
+                  <circle className="ring" cx={x} cy={NY} r={NR + 8} fill="none" stroke="#00d4ea" strokeWidth="2" opacity="0" />
                   {on && !reduced && <circle cx={x} cy={NY} r={NR} fill="none" stroke={broken ? "#F0B35A" : kk.stroke} className="pulse-ring" />}
-                  <circle cx={x} cy={NY} r={NR} fill={on ? (broken ? "#2b2010" : kk.fill) : "#0D1117"} stroke={broken ? "#F0B35A" : kk.stroke} strokeOpacity={on ? 1 : 0.5} strokeWidth={on ? 2 : 1.2} style={{ transition: "all .4s" }} />
+                  <circle cx={x} cy={NY} r={NR} fill={on ? (broken ? "#2b2010" : kk.fill) : "#091326"} stroke={broken ? "#F0B35A" : kk.stroke} strokeOpacity={on ? 1 : 0.5} strokeWidth={on ? 2 : 1.2} style={{ transition: "all .4s" }} />
                   <Icon className={cx("pointer-events-none", broken ? "text-warn" : on ? "text-ink" : "text-mute")} {...({ x: x - 11, y: NY - 11, width: 22, height: 22 } as object)} />
                   <text x={x} y={NY + NR + 24} textAnchor="middle" fontSize="13" className={cx("font-sans", on ? "fill-ink" : "fill-mute")}>{nd.label}</text>
                   <text x={x} y={NY - NR - 14} textAnchor="middle" fontSize="10" className="fill-dim font-mono">{String(i + 1).padStart(2, "0")}</text>

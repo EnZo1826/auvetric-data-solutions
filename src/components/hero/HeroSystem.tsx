@@ -51,20 +51,20 @@ function pathFor(n: HeroNode, i: number) {
 function StaticCore({ spin }: { spin: boolean }) {
   return (
     <g aria-hidden>
-      <circle cx={CX} cy={CY} r={CORE_R + 14} fill="none" stroke="#F3F6FA" strokeOpacity="0.08" />
+      <circle cx={CX} cy={CY} r={CORE_R + 14} fill="none" stroke="#f3f7ff" strokeOpacity="0.08" />
       <g className={spin ? "spin-slow" : undefined}>
         {Array.from({ length: 96 }).map((_, i) => {
           const a = (i / 96) * Math.PI * 2;
           const r1 = CORE_R + 4, r2 = CORE_R + (i % 8 === 0 ? 16 : 9);
-          return <line key={i} x1={CX + Math.cos(a) * r1} y1={CY + Math.sin(a) * r1} x2={CX + Math.cos(a) * r2} y2={CY + Math.sin(a) * r2} stroke="#F3F6FA" strokeOpacity={i % 8 === 0 ? 0.5 : 0.18} />;
+          return <line key={i} x1={CX + Math.cos(a) * r1} y1={CY + Math.sin(a) * r1} x2={CX + Math.cos(a) * r2} y2={CY + Math.sin(a) * r2} stroke="#f3f7ff" strokeOpacity={i % 8 === 0 ? 0.5 : 0.18} />;
         })}
       </g>
       <g className={spin ? "spin-rev" : undefined}>
-        <ellipse cx={CX} cy={CY} rx={86} ry={30} fill="none" stroke="#DA3633" strokeOpacity="0.8" transform={`rotate(-28 ${CX} ${CY})`} />
-        <ellipse cx={CX} cy={CY} rx={92} ry={36} fill="none" stroke="#00C8D7" strokeOpacity="0.8" transform={`rotate(32 ${CX} ${CY})`} />
+        <ellipse cx={CX} cy={CY} rx={86} ry={30} fill="none" stroke="#0069f5" strokeOpacity="0.8" transform={`rotate(-28 ${CX} ${CY})`} />
+        <ellipse cx={CX} cy={CY} rx={92} ry={36} fill="none" stroke="#00d4ea" strokeOpacity="0.8" transform={`rotate(32 ${CX} ${CY})`} />
       </g>
-      <circle cx={CX} cy={CY} r={42} fill="none" stroke="#F3F6FA" strokeOpacity="0.35" strokeDasharray="2 5" />
-      <circle cx={CX} cy={CY} r={15} fill="#F3F6FA" />
+      <circle cx={CX} cy={CY} r={42} fill="none" stroke="#f3f7ff" strokeOpacity="0.35" strokeDasharray="2 5" />
+      <circle cx={CX} cy={CY} r={15} fill="#f3f7ff" />
       <circle cx={CX} cy={CY} r={26} fill="url(#coreGlow)" />
     </g>
   );
@@ -134,16 +134,16 @@ export function HeroSystem() {
           </desc>
           <defs>
             <radialGradient id="coreGlow">
-              <stop offset="0%" stopColor="#F3F6FA" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#F3F6FA" stopOpacity="0" />
+              <stop offset="0%" stopColor="#f3f7ff" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#f3f7ff" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="engFade" x1="0" x2="1">
-              <stop offset="0%" stopColor="#DA3633" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#DA3633" stopOpacity="0.15" />
+              <stop offset="0%" stopColor="#0069f5" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#0069f5" stopOpacity="0.15" />
             </linearGradient>
             <linearGradient id="dataFade" x1="1" x2="0">
-              <stop offset="0%" stopColor="#00C8D7" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#00C8D7" stopOpacity="0.15" />
+              <stop offset="0%" stopColor="#00d4ea" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#00d4ea" stopOpacity="0.15" />
             </linearGradient>
           </defs>
 
@@ -156,9 +156,9 @@ export function HeroSystem() {
             return (
               <g key={`p-${n.id}`} aria-hidden>
                 <path id={`hp-${n.id}`} d={d} fill="none" stroke={n.side === "eng" ? "url(#engFade)" : "url(#dataFade)"} strokeWidth={hot ? 1.8 : 1} opacity={hot ? 1 : 0.55} />
-                {hot && <path d={d} fill="none" stroke={n.side === "eng" ? "#F2716D" : "#3FDBE6"} strokeWidth="1.2" className="flow-dash" />}
+                {hot && <path d={d} fill="none" stroke={n.side === "eng" ? "#77b5ff" : "#5ae7f2"} strokeWidth="1.2" className="flow-dash" />}
                 {showPackets && (
-                  <circle r={hot ? 3.2 : 2.2} fill={n.side === "eng" ? "#F2716D" : "#3FDBE6"}>
+                  <circle r={hot ? 3.2 : 2.2} fill={n.side === "eng" ? "#77b5ff" : "#5ae7f2"}>
                     <animateMotion dur={`${2.6 + (i % 3) * 0.7}s`} repeatCount="indefinite" begin={`${i * 0.37}s`}>
                       <mpath href={`#hp-${n.id}`} />
                     </animateMotion>
@@ -176,7 +176,7 @@ export function HeroSystem() {
           {indexed.map(({ n, i }) => {
             const p = nodePos(n, i);
             const hot = near === n.id || selected === n.id;
-            const stroke = n.side === "eng" ? "#DA3633" : "#00C8D7";
+            const stroke = n.side === "eng" ? "#0069f5" : "#00d4ea";
             return (
               <g
                 key={n.id}
@@ -191,7 +191,7 @@ export function HeroSystem() {
                 }}
                 onFocus={() => setNear(n.id)}
               >
-                <rect x={p.x} y={p.y} width={PILL_W} height={PILL_H} rx={6} fill={hot ? (n.side === "eng" ? "#2a1215" : "#072830") : "#0D1117"} stroke={stroke} strokeOpacity={hot ? 1 : 0.45} strokeWidth={hot ? 1.5 : 1} style={{ transition: "all .3s cubic-bezier(.16,1,.3,1)" }} />
+                <rect x={p.x} y={p.y} width={PILL_W} height={PILL_H} rx={6} fill={hot ? (n.side === "eng" ? "#0a2247" : "#073040") : "#091326"} stroke={stroke} strokeOpacity={hot ? 1 : 0.45} strokeWidth={hot ? 1.5 : 1} style={{ transition: "all .3s cubic-bezier(.16,1,.3,1)" }} />
                 <circle cx={n.side === "eng" ? p.x + 14 : p.x + PILL_W - 14} cy={p.anchorY} r={3} fill={stroke} />
                 {hot && showPackets && <circle cx={n.side === "eng" ? p.x + 14 : p.x + PILL_W - 14} cy={p.anchorY} r={3} fill="none" stroke={stroke} className="pulse-ring" />}
                 {wide && <text

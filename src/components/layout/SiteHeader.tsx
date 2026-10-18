@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { nav, agency } from "@/data/agency";
-import { NexusMark } from "@/components/ui/NexusMark";
+import { AgencyLogo } from "@/components/ui/AgencyLogo";
 import { cx } from "@/components/ui/primitives";
 
 export function SiteHeader() {
@@ -47,11 +47,7 @@ export function SiteHeader() {
       </a>
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8">
         <Link href="/" className="flex items-center gap-3" aria-label={`${agency.name} — home`}>
-          <NexusMark className="size-7" />
-          <span className="font-display text-[0.95rem] font-semibold tracking-[0.04em] text-ink">
-            NEXUS<span className="text-dim"> / </span>
-            <span className="text-mute">INTELLIGENCE</span>
-          </span>
+          <AgencyLogo />
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">

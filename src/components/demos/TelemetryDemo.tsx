@@ -23,7 +23,7 @@ const SCENARIOS: { id: Scenario; label: string; hint: string }[] = [
 
 const STATUS_TONE: Record<string, string> = {
   ok: "text-ok border-ok/40", normal: "text-ok border-ok/40", syncing: "text-data-ink border-data/40", waiting: "text-warn border-warn/40",
-  down: "text-eng-ink border-eng/50", fault: "text-eng-ink border-eng/50", alarm: "text-eng-ink border-eng/50", unknown: "text-warn border-warn/40",
+  down: "text-danger border-danger/50", fault: "text-danger border-danger/50", alarm: "text-danger border-danger/50", unknown: "text-warn border-warn/40",
 };
 
 export function TelemetryDemo() {
@@ -105,7 +105,7 @@ export function TelemetryDemo() {
             <div>
               <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-dim">Operator view · Pump P-1 discharge pressure</p>
               <p className="mt-1 font-display text-5xl tracking-[-0.03em] tabular">
-                <span className={cx(st.stale ? "text-dim" : st.process === "alarm" ? "text-eng-ink" : last?.v == null ? "text-warn" : "text-ink")}>
+                <span className={cx(st.stale ? "text-dim" : st.process === "alarm" ? "text-danger" : last?.v == null ? "text-warn" : "text-ink")}>
                   {last?.v == null ? "— —" : last.v.toFixed(2)}
                 </span>
                 <span className="ml-2 text-lg text-dim">bar</span>
@@ -121,7 +121,7 @@ export function TelemetryDemo() {
             <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 bg-data" /> Received live</span>
             <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 bg-ok" /> Back-filled from edge buffer</span>
             <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 border-t border-dashed border-mute" /> Edge-side samples</span>
-            <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 bg-eng" /> Alarm limit</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-0.5 w-4 bg-danger" /> Alarm limit</span>
           </div>
 
           <div className="mt-5">
@@ -130,7 +130,7 @@ export function TelemetryDemo() {
               {state.events.slice(0, 12).map((e, i) => (
                 <li key={`${e.t}-${i}-${e.msg}`} className="grid grid-cols-[3.2rem_4.4rem_1fr] gap-2">
                   <span className="text-dim tabular">t+{e.t}s</span>
-                  <span className={cx(e.level === "alarm" ? "text-eng-ink" : e.level === "warn" ? "text-warn" : "text-data-ink")}>{e.source}</span>
+                  <span className={cx(e.level === "alarm" ? "text-danger" : e.level === "warn" ? "text-warn" : "text-data-ink")}>{e.source}</span>
                   <span className="text-mute">{e.msg}</span>
                 </li>
               ))}
@@ -148,24 +148,24 @@ function Schematic({ state, animate }: { state: SimState; animate: boolean }) {
   const needle = v == null ? -120 : -120 + (Math.min(v, 11) / 11) * 240;
   const bufPct = Math.min(1, state.buffer.length / 40);
   const nodes = [
-    { x: 40, label: "SENSOR", sub: "PT-101", c: st.sensor === "ok" ? "#DA3633" : "#F0B35A" },
-    { x: 130, label: "EDGE", sub: "EDGE-01", c: "#DA3633" },
-    { x: 220, label: "MQTT", sub: "broker", c: state.link ? "#F3F6FA" : "#F2716D" },
-    { x: 310, label: "API", sub: "ingest", c: "#00C8D7" },
-    { x: 400, label: "DASH", sub: "operator", c: "#00C8D7" },
+    { x: 40, label: "SENSOR", sub: "PT-101", c: st.sensor === "ok" ? "#0069f5" : "#F0B35A" },
+    { x: 130, label: "EDGE", sub: "EDGE-01", c: "#0069f5" },
+    { x: 220, label: "MQTT", sub: "broker", c: state.link ? "#f3f7ff" : "#f16b77" },
+    { x: 310, label: "API", sub: "ingest", c: "#00d4ea" },
+    { x: 400, label: "DASH", sub: "operator", c: "#00d4ea" },
   ];
   return (
     <svg viewBox="0 0 440 210" className="w-full" role="img" aria-label={`Telemetry path: sensor ${st.sensor}, uplink ${st.mqtt}, ${state.buffer.length} samples buffered at the edge.`}>
       {/* gauge */}
       <g transform="translate(40 58)">
-        <circle r="34" fill="#0D1117" stroke="#2f3b4b" />
+        <circle r="34" fill="#091326" stroke="#304d70" />
         {Array.from({ length: 12 }).map((_, i) => {
           const a = ((-120 + i * (240 / 11)) * Math.PI) / 180;
           const hot = i >= 9;
-          return <line key={i} x1={Math.sin(a) * 27} y1={-Math.cos(a) * 27} x2={Math.sin(a) * 32} y2={-Math.cos(a) * 32} stroke={hot ? "#DA3633" : "#99A8BA"} strokeOpacity={hot ? 0.9 : 0.4} />;
+          return <line key={i} x1={Math.sin(a) * 27} y1={-Math.cos(a) * 27} x2={Math.sin(a) * 32} y2={-Math.cos(a) * 32} stroke={hot ? "#f16b77" : "#9dafc8"} strokeOpacity={hot ? 0.9 : 0.4} />;
         })}
-        <line x1="0" y1="0" x2="0" y2="-25" stroke={v == null ? "#F0B35A" : "#F3F6FA"} strokeWidth="2" strokeLinecap="round" transform={`rotate(${needle})`} style={{ transition: "transform .5s cubic-bezier(.16,1,.3,1)" }} />
-        <circle r="3" fill="#F3F6FA" />
+        <line x1="0" y1="0" x2="0" y2="-25" stroke={v == null ? "#F0B35A" : "#f3f7ff"} strokeWidth="2" strokeLinecap="round" transform={`rotate(${needle})`} style={{ transition: "transform .5s cubic-bezier(.16,1,.3,1)" }} />
+        <circle r="3" fill="#f3f7ff" />
       </g>
       {/* links */}
       {nodes.slice(0, -1).map((n, i) => {
@@ -174,40 +174,40 @@ function Schematic({ state, animate }: { state: SimState; animate: boolean }) {
         const idle = !state.link && i >= 1;
         return (
           <g key={i}>
-            <line x1={x1} y1={y} x2={x2} y2={y} stroke={broken ? "#DA3633" : "#2f3b4b"} strokeDasharray={broken ? "3 4" : undefined} />
+            <line x1={x1} y1={y} x2={x2} y2={y} stroke={broken ? "#f16b77" : "#304d70"} strokeDasharray={broken ? "3 4" : undefined} />
             {!idle && animate && !(i === 0 && !state.sensorOk) && (
-              <circle r="2.6" fill={i < 2 ? "#F2716D" : "#3FDBE6"}>
+              <circle r="2.6" fill={i < 2 ? "#77b5ff" : "#5ae7f2"}>
                 <animate attributeName="cx" from={x1} to={x2} dur="0.9s" repeatCount="indefinite" begin={`${i * 0.15}s`} />
                 <animate attributeName="cy" from={y} to={y} dur="0.9s" repeatCount="indefinite" />
               </circle>
             )}
-            {broken && <g transform={`translate(${(x1 + x2) / 2} ${y})`} stroke="#F2716D" strokeWidth="2"><line x1="-5" y1="-5" x2="5" y2="5" /><line x1="5" y1="-5" x2="-5" y2="5" /></g>}
+            {broken && <g transform={`translate(${(x1 + x2) / 2} ${y})`} stroke="#f16b77" strokeWidth="2"><line x1="-5" y1="-5" x2="5" y2="5" /><line x1="5" y1="-5" x2="-5" y2="5" /></g>}
           </g>
         );
       })}
       {nodes.map((n) => (
         <g key={n.label}>
-          <rect x={n.x - 16} y={134} width="32" height="32" rx="6" fill="#0D1117" stroke={n.c} />
+          <rect x={n.x - 16} y={134} width="32" height="32" rx="6" fill="#091326" stroke={n.c} />
           <text x={n.x} y={182} textAnchor="middle" fontSize="9" letterSpacing="1" className="fill-mute font-mono">{n.label}</text>
           <text x={n.x} y={194} textAnchor="middle" fontSize="8" className="fill-dim font-mono">{n.sub}</text>
         </g>
       ))}
-      <line x1="40" y1="92" x2="40" y2="134" stroke="#2f3b4b" />
+      <line x1="40" y1="92" x2="40" y2="134" stroke="#304d70" />
       {/* edge buffer */}
       <g transform="translate(118 40)">
         <text x="12" y="-6" textAnchor="middle" fontSize="8" className="fill-dim font-mono">BUFFER</text>
-        <rect x="0" y="0" width="24" height="80" rx="3" fill="#0D1117" stroke="#2f3b4b" />
+        <rect x="0" y="0" width="24" height="80" rx="3" fill="#091326" stroke="#304d70" />
         <rect x="2" y={2 + 76 * (1 - bufPct)} width="20" height={76 * bufPct} rx="2" fill={state.link ? "#49D7B1" : "#F0B35A"} style={{ transition: "all .4s" }} />
         <text x="12" y="94" textAnchor="middle" fontSize="9" className="fill-mute font-mono">{state.buffer.length}</text>
       </g>
-      <line x1="130" y1="134" x2="130" y2="126" stroke="#2f3b4b" />
+      <line x1="130" y1="134" x2="130" y2="126" stroke="#304d70" />
       {/* alarm beacon */}
       <g transform="translate(400 70)">
-        <circle r="14" fill={st.process === "alarm" ? "#DA3633" : "#0D1117"} stroke={st.process === "alarm" ? "#DA3633" : "#2f3b4b"} />
-        {st.process === "alarm" && animate && <circle r="14" fill="none" stroke="#DA3633" className="pulse-ring" />}
+        <circle r="14" fill={st.process === "alarm" ? "#f16b77" : "#091326"} stroke={st.process === "alarm" ? "#f16b77" : "#304d70"} />
+        {st.process === "alarm" && animate && <circle r="14" fill="none" stroke="#f16b77" className="pulse-ring" />}
         <text y="30" textAnchor="middle" fontSize="8" className="fill-dim font-mono">ALARM</text>
       </g>
-      <line x1="400" y1="104" x2="400" y2="134" stroke="#2f3b4b" />
+      <line x1="400" y1="104" x2="400" y2="134" stroke="#304d70" />
     </svg>
   );
 }
@@ -240,17 +240,17 @@ function Chart({ state }: { state: SimState }) {
     <svg viewBox={`0 0 ${W} ${H}`} className="mt-4 w-full" role="img" aria-label={`Pressure history, last ${WINDOW} seconds. ${badPts.length} bad-quality samples, ${state.buffer.length} samples waiting in the edge buffer.`}>
       {[0, 2, 4, 6, 8, 10].map((v) => (
         <g key={v}>
-          <line x1={P.l} x2={W - P.r} y1={Y(v)} y2={Y(v)} stroke="#222c39" />
+          <line x1={P.l} x2={W - P.r} y1={Y(v)} y2={Y(v)} stroke="#203651" />
           <text x={P.l - 6} y={Y(v) + 3} textAnchor="end" fontSize="9" className="fill-dim font-mono">{v}</text>
         </g>
       ))}
-      <line x1={P.l} x2={W - P.r} y1={Y(LIMIT)} y2={Y(LIMIT)} stroke="#DA3633" strokeDasharray="4 3" />
+      <line x1={P.l} x2={W - P.r} y1={Y(LIMIT)} y2={Y(LIMIT)} stroke="#f16b77" strokeDasharray="4 3" />
       {badPts.map((p) => <rect key={p.t} x={X(p.t) - 2} y={P.t} width="4" height={H - P.t - P.b} fill="#F0B35A" fillOpacity="0.12" />)}
       {state.buffer.length > 0 && (
         <rect x={X(state.buffer[0].t)} y={P.t} width={Math.max(0, X(state.t) - X(state.buffer[0].t))} height={H - P.t - P.b} fill="#F0B35A" fillOpacity="0.06" stroke="#F0B35A" strokeOpacity="0.3" strokeDasharray="2 3" />
       )}
-      {edgeLines.map((d, i) => <polyline key={`e${i}`} points={d} fill="none" stroke="#99A8BA" strokeOpacity="0.45" strokeDasharray="2 3" />)}
-      {liveLines.map((d, i) => <polyline key={`l${i}`} points={d} fill="none" stroke="#00C8D7" strokeWidth="1.8" />)}
+      {edgeLines.map((d, i) => <polyline key={`e${i}`} points={d} fill="none" stroke="#9dafc8" strokeOpacity="0.45" strokeDasharray="2 3" />)}
+      {liveLines.map((d, i) => <polyline key={`l${i}`} points={d} fill="none" stroke="#00d4ea" strokeWidth="1.8" />)}
       {backfillLines.map((d, i) => <polyline key={`b${i}`} points={d} fill="none" stroke="#49D7B1" strokeWidth="1.8" />)}
       <text x={W - P.r} y={H - 4} textAnchor="end" fontSize="9" className="fill-dim font-mono">now</text>
       <text x={P.l} y={H - 4} fontSize="9" className="fill-dim font-mono">−{WINDOW}s</text>

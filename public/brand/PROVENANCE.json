@@ -1,0 +1,9 @@
+{
+  "source": "User-supplied Avetric Data Solutions Logo.png",
+  "brandSpelling": "Auvetric Data Solutions",
+  "sourceSha256": "0b7c7462befa2b0e953be73e387d8e64bfbb681f2b3ba1044be9b7b5a84d5ce5",
+  "derivatives": {
+    "auvetric-mark.png": "Crop of original symbol; aspect ratio preserved.",
+    "auvetric-lockup-dark.png": "Original symbol plus original wordmark moved into horizontal lockup. Dark navy wordmark pixels lightened for dark-background contrast; no redraw."
+  }
+}

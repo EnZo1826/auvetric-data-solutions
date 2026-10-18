@@ -13,52 +13,52 @@ function Motif({ kind }: { kind: string }) {
   const common = { fill: "none", strokeWidth: 1.2 } as const;
   return (
     <svg viewBox="0 0 220 90" className="h-full w-full" aria-hidden>
-      <g stroke="#99A8BA" strokeOpacity="0.1">{Array.from({ length: 12 }).map((_, i) => <line key={i} x1={i * 20} x2={i * 20} y1="0" y2="90" />)}</g>
+      <g stroke="#9dafc8" strokeOpacity="0.1">{Array.from({ length: 12 }).map((_, i) => <line key={i} x1={i * 20} x2={i * 20} y1="0" y2="90" />)}</g>
       {kind === "retail" && (
         <g {...common}>
-          {[20, 70, 120].map((x, i) => <rect key={x} x={x} y="20" width="34" height="26" rx="3" stroke="#00C8D7" strokeOpacity={0.4 + i * 0.2} />)}
-          <path d="M37 46 V66 H187 M87 46 V66 M137 46 V66" stroke="#00C8D7" className="flow-dash" />
-          <rect x="172" y="56" width="30" height="20" rx="3" stroke="#F3F6FA" />
+          {[20, 70, 120].map((x, i) => <rect key={x} x={x} y="20" width="34" height="26" rx="3" stroke="#00d4ea" strokeOpacity={0.4 + i * 0.2} />)}
+          <path d="M37 46 V66 H187 M87 46 V66 M137 46 V66" stroke="#00d4ea" className="flow-dash" />
+          <rect x="172" y="56" width="30" height="20" rx="3" stroke="#f3f7ff" />
         </g>
       )}
       {kind === "industrial" && (
         <g {...common}>
-          <circle cx="40" cy="45" r="20" stroke="#DA3633" />
-          <path d="M40 25 V45 L54 52" stroke="#F2716D" className="spin-slow" />
-          <path d="M60 45 H120 V25 H180" stroke="#DA3633" className="flow-dash" />
-          <rect x="180" y="15" width="24" height="20" rx="3" stroke="#F3F6FA" />
-          <path d="M120 45 V65 H180" stroke="#00C8D7" strokeOpacity="0.6" />
+          <circle cx="40" cy="45" r="20" stroke="#0069f5" />
+          <path d="M40 25 V45 L54 52" stroke="#77b5ff" className="spin-slow" />
+          <path d="M60 45 H120 V25 H180" stroke="#0069f5" className="flow-dash" />
+          <rect x="180" y="15" width="24" height="20" rx="3" stroke="#f3f7ff" />
+          <path d="M120 45 V65 H180" stroke="#00d4ea" strokeOpacity="0.6" />
         </g>
       )}
       {kind === "fleet" && (
         <g {...common}>
-          <path id="ind-route" d="M10 70 C 50 10, 90 80, 130 30 S 190 40, 210 20" stroke="#DA3633" strokeOpacity="0.6" strokeDasharray="3 4" />
-          <circle r="4" fill="#F3F6FA"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#ind-route" /></animateMotion></circle>
-          {[[60, 40], [130, 30], [190, 28]].map(([x, y]) => <circle key={x} cx={x} cy={y} r="10" stroke="#00C8D7" strokeOpacity="0.4" />)}
+          <path id="ind-route" d="M10 70 C 50 10, 90 80, 130 30 S 190 40, 210 20" stroke="#0069f5" strokeOpacity="0.6" strokeDasharray="3 4" />
+          <circle r="4" fill="#f3f7ff"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#ind-route" /></animateMotion></circle>
+          {[[60, 40], [130, 30], [190, 28]].map(([x, y]) => <circle key={x} cx={x} cy={y} r="10" stroke="#00d4ea" strokeOpacity="0.4" />)}
         </g>
       )}
       {kind === "security" && (
         <g {...common}>
-          <rect x="20" y="25" width="60" height="40" rx="4" stroke="#DA3633" />
-          <path d="M80 45 H130" stroke="#F3F6FA" className="flow-dash" />
-          <path d="M130 30 L150 20 V70 L130 60 Z" stroke="#00C8D7" />
-          <circle cx="185" cy="45" r="16" stroke="#00C8D7" strokeOpacity="0.5" />
-          <circle cx="185" cy="45" r="5" fill="#00C8D7" className="blink-soft" />
+          <rect x="20" y="25" width="60" height="40" rx="4" stroke="#0069f5" />
+          <path d="M80 45 H130" stroke="#f3f7ff" className="flow-dash" />
+          <path d="M130 30 L150 20 V70 L130 60 Z" stroke="#00d4ea" />
+          <circle cx="185" cy="45" r="16" stroke="#00d4ea" strokeOpacity="0.5" />
+          <circle cx="185" cy="45" r="5" fill="#00d4ea" className="blink-soft" />
         </g>
       )}
       {kind === "sme" && (
         <g {...common}>
-          {[0, 1, 2, 3].map((i) => <rect key={i} x={20 + i * 48} y={30} width="34" height="30" rx="4" stroke={i % 2 ? "#00C8D7" : "#DA3633"} strokeOpacity="0.7" />)}
-          <path d="M54 45 H68 M102 45 H116 M150 45 H164" stroke="#F3F6FA" className="flow-dash" />
+          {[0, 1, 2, 3].map((i) => <rect key={i} x={20 + i * 48} y={30} width="34" height="30" rx="4" stroke={i % 2 ? "#00d4ea" : "#0069f5"} strokeOpacity="0.7" />)}
+          <path d="M54 45 H68 M102 45 H116 M150 45 H164" stroke="#f3f7ff" className="flow-dash" />
         </g>
       )}
       {kind === "agri" && (
         <g {...common}>
           <path d="M0 70 Q 55 50 110 70 T 220 70" stroke="#49D7B1" strokeOpacity="0.5" />
-          <path d="M60 60 V25 M50 25 H70" stroke="#DA3633" />
-          <circle cx="60" cy="25" r="10" stroke="#DA3633" className="pulse-ring" />
-          <path d="M70 30 Q 120 0 170 30" stroke="#00C8D7" strokeDasharray="2 5" className="flow-dash" />
-          <rect x="165" y="30" width="30" height="20" rx="3" stroke="#F3F6FA" />
+          <path d="M60 60 V25 M50 25 H70" stroke="#0069f5" />
+          <circle cx="60" cy="25" r="10" stroke="#0069f5" className="pulse-ring" />
+          <path d="M70 30 Q 120 0 170 30" stroke="#00d4ea" strokeDasharray="2 5" className="flow-dash" />
+          <rect x="165" y="30" width="30" height="20" rx="3" stroke="#f3f7ff" />
         </g>
       )}
     </svg>

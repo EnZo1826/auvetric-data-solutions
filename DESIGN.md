@@ -1,7 +1,10 @@
-# PRECISION INTELLIGENCE — design system
+# AUVETRIC DATA SOLUTIONS — design system
 
 ## Visual identity
-User-pinned dark industrial engineering laboratory, crimson physical systems and cyan data intelligence. Convergence is communicated by connected paths, white integration nodes and occasional two-colour rules. The reference images informed the colour contrast, data-dashboard density and system-flow storytelling; they are not copied as shipping assets.
+User-approved existing layout retained. Supplied Auvetric logo governs electric-blue engineering, bright-cyan data and navy surfaces. Convergence is communicated by connected paths, white integration nodes and occasional two-colour rules. The reference images informed the colour contrast, data-dashboard density and system-flow storytelling; they are not copied as shipping assets.
+
+## Logo assets
+Original supplied logo is retained in public/brand/auvetric-logo-original.png. Header/footer use a compact horizontal adaptation made from the original symbol and wordmark pixels, with navy lettering lightened for dark-background contrast. Proportions are preserved; provenance is recorded in public/brand/PROVENANCE.json. No typeface, spacing, section order or interaction redesign is part of this change.
 
 ## Typography
 Self-hosted by `next/font` at build time:
@@ -13,21 +16,22 @@ Display tracking -0.02 to -0.04em; fluid headline sizes; body 16–20px; technic
 ## Tokens (globals.css)
 | Role | Value |
 |---|---|
-| Void / body | #07090D |
-| Base | #0D1117 |
-| Panel | #121821 |
-| Raised | #18212D |
-| Line | #222C39 |
-| Strong line | #2F3B4B |
-| Primary text | #F3F6FA |
-| Secondary text | #99A8BA |
-| Dim text | #75849A |
-| Engineering fill | #DA3633 |
-| Engineering text | #F2716D |
-| Data fill | #00C8D7 |
-| Data text | #3FDBE6 |
+| Void / body | #050B18 |
+| Base | #091326 |
+| Panel | #101E34 |
+| Raised | #172B46 |
+| Line | #203651 |
+| Strong line | #304D70 |
+| Primary text | #F3F7FF |
+| Secondary text | #9DAFC8 |
+| Dim text | #8298B5 |
+| Engineering fill | #0069F5 |
+| Engineering text | #77B5FF |
+| Data fill | #00D4EA |
+| Data text | #5AE7F2 |
 | Positive | #49D7B1 |
 | Warning | #F0B35A |
+| Fault / error | #F16B77 |
 
 ## Layout and components
 1280px maximum content width; 20px mobile / 32px desktop gutters. Main sections 96–128px vertical padding. Desktop hero uses a 5:7 text/topology split; mobile stacks text and simplified diagram with 44px node buttons. Reusable primitives: Container, Section, SectionHeading, ButtonLink, Chip, SyntheticTag, StatusBadge.
@@ -38,7 +42,7 @@ Pill conversion buttons, 12px control radii, 16–24px panel radii; one-pixel bo
 Signature moment: animated nucleus and packets converging from both disciplines. R3F loaded only for capable, wider, motion-enabled clients. Paused outside viewport. SVG fallback for mobile, reduced motion and unavailable WebGL. CSS dash flow, pulse rings and restrained transition easing `cubic-bezier(.16,1,.3,1)`. Reduced-motion CSS collapses animations and suppresses decorative SMIL packets.
 
 ## Content conventions
-Every simulation carries an amber synthetic-data label. Green is only a computed pass/recovery status; amber is warning/manual review; crimson represents engineering or an explicit alarm. Case-study status verification is separate from intended status. No learning technology receives a production-expertise label.
+Every simulation carries an amber synthetic-data label. Green is only a computed pass/recovery status; amber is warning/manual review; electric blue represents engineering; pink/red is reserved for explicit errors and alarms. Case-study status verification is separate from intended status. No learning technology receives a production-expertise label.
 
 ## Review scope
 Desktop 1440×900 and mobile 390×844 manually inspected through the browser. Source/UI checks and tests recorded in docs/VERIFICATION.md. This is not a formal WCAG certification or a measured Lighthouse/Core Web Vitals report.

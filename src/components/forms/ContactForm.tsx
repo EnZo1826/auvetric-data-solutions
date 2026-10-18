@@ -52,8 +52,8 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
     requestAnimationFrame(() => statusRef.current?.focus());
   }
 
-  const err = (k: string) => errors[k] && <p id={`${k}-err`} className="mt-1.5 text-sm text-eng-ink">{errors[k]}</p>;
-  const border = (k: string) => (errors[k] ? "border-eng/70" : "border-line-strong");
+  const err = (k: string) => errors[k] && <p id={`${k}-err`} className="mt-1.5 text-sm text-danger">{errors[k]}</p>;
+  const border = (k: string) => (errors[k] ? "border-danger/70" : "border-line-strong");
   const describe = (k: string) => (errors[k] ? `${k}-err` : undefined);
 
   if (status.kind === "sent")
@@ -74,7 +74,7 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {(Object.keys(INTENTS) as Intent[]).map((k) => (
             <label key={k} className={cx("flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm transition-colors", intent === k ? "border-data/60 bg-data/[0.07] text-ink" : "border-line text-mute hover:text-ink")}>
-              <input type="radio" name="intent-choice" value={k} checked={intent === k} onChange={() => setIntent(k)} className="accent-[#00C8D7]" />
+              <input type="radio" name="intent-choice" value={k} checked={intent === k} onChange={() => setIntent(k)} className="accent-[#00d4ea]" />
               {INTENTS[k]}
             </label>
           ))}
@@ -127,7 +127,7 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
       </div>
 
       <label className="flex items-start gap-3 text-sm text-mute">
-        <input type="checkbox" name="consent" className="mt-1 size-4 accent-[#00C8D7]" aria-invalid={!!errors.consent} aria-describedby={describe("consent")} />
+        <input type="checkbox" name="consent" className="mt-1 size-4 accent-[#00d4ea]" aria-invalid={!!errors.consent} aria-describedby={describe("consent")} />
         <span>I agree that the details I provide may be used to respond to this enquiry, as described in the <a href="/privacy" className="text-ink underline">privacy notice</a>. We do not add you to marketing lists.</span>
       </label>
       {err("consent")}
@@ -136,7 +136,7 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
 
       <div id="form-status" ref={statusRef} tabIndex={-1} role={status.kind === "error" ? "alert" : "status"} className="outline-none">
         {status.kind === "error" && (
-          <div className="rounded-xl border border-eng/50 bg-eng/[0.07] p-4 text-sm text-ink">
+          <div className="rounded-xl border border-danger/50 bg-danger/[0.07] p-4 text-sm text-ink">
             <p>{status.message}</p>
             {FALLBACK_EMAIL && <p className="mt-1 text-mute">You can also email us directly at <a className="text-ink underline" href={`mailto:${FALLBACK_EMAIL}`}>{FALLBACK_EMAIL}</a>.</p>}
           </div>

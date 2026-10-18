@@ -1,13 +1,14 @@
 /**
- * Agency configuration. NEXUS / INTELLIGENCE is a working brand.
- * Replace values here once the final name, legal entity, domain and contact details are confirmed.
+ * Agency configuration. Auvetric Data Solutions is the confirmed public brand.
+ * Legal registration and public contact details still require confirmation.
  * Anything marked `null` is intentionally unpublished until verified.
  */
 export const agency = {
-  name: "NEXUS / INTELLIGENCE",
-  shortName: "NEXUS",
-  legalName: null as string | null, // e.g. "Nexus Intelligence CC" once registered
+  name: "Auvetric Data Solutions",
+  shortName: "Auvetric",
+  legalName: null as string | null, // Set only after legal registration is confirmed
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  futureDomain: "auvetric.com", // Planned migration only; current hosting/canonicals stay unchanged.
   statement: "We connect systems. We engineer intelligence.",
   secondary: [
     "From physical operations to actionable intelligence.",

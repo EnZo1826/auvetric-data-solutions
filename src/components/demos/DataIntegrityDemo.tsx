@@ -109,7 +109,7 @@ export function DataIntegrityDemo() {
           )}
         </div>
         {stage < STAGES.length - 1 && (
-          <button type="button" onClick={() => go(stage + 1)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-data px-5 text-sm font-medium text-void hover:bg-[#2fd9e6]">
+          <button type="button" onClick={() => go(stage + 1)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full bg-data px-5 text-sm font-medium text-void hover:bg-[#44e2f1]">
             Run {STAGES[stage + 1].name} <ChevronRight className="size-4" aria-hidden />
           </button>
         )}
@@ -181,7 +181,7 @@ export function DataIntegrityDemo() {
       )}
       <style>{`
         @keyframes scan { from { transform: translateX(-100%); opacity: 1 } to { transform: translateX(1400%); opacity: 0 } }
-        @keyframes rowin { from { background: rgba(0,200,215,.08) } to { background: transparent } }
+        @keyframes rowin { from { background: rgba(0,212,234,.08) } to { background: transparent } }
       `}</style>
       {/* Hidden helper to keep KPI references for screen readers when reporting */}
       {STAGES[stage]?.id === "report" && <p className="sr-only">Report: {k.validAfter} of {k.uniqueProducts} products valid after reconciliation.</p>}
@@ -200,8 +200,8 @@ function Legend() {
   );
 }
 
-function Stat({ label, value, tone = "ink", note }: { label: string; value: string | number; tone?: "ink" | "ok" | "warn" | "data" | "eng"; note?: string }) {
-  const c = { ink: "text-ink", ok: "text-ok", warn: "text-warn", data: "text-data-ink", eng: "text-eng-ink" }[tone];
+function Stat({ label, value, tone = "ink", note }: { label: string; value: string | number; tone?: "ink" | "ok" | "warn" | "data" | "danger"; note?: string }) {
+  const c = { ink: "text-ink", ok: "text-ok", warn: "text-warn", data: "text-data-ink", danger: "text-danger" }[tone];
   return (
     <div className="rounded-xl border border-line bg-base p-4">
       <p className="text-xs text-dim">{label}</p>
@@ -288,7 +288,7 @@ function StageSummary({ stageId, result }: { stageId: (typeof STAGES)[number]["i
               <tr key={i} className="border-t border-line/60">
                 <td className="py-1.5 pr-4 font-mono text-ink">{e.recordId}</td>
                 <td className="py-1.5 pr-4 text-mute">{e.type}</td>
-                <td className={cx("py-1.5 pr-4 font-mono", e.severity === "high" ? "text-eng-ink" : e.severity === "medium" ? "text-warn" : "text-dim")}>{e.severity}</td>
+                <td className={cx("py-1.5 pr-4 font-mono", e.severity === "high" ? "text-danger" : e.severity === "medium" ? "text-warn" : "text-dim")}>{e.severity}</td>
                 <td className="py-1.5 pr-4 text-mute">{e.owner}</td>
                 <td className="py-1.5 pr-4 text-dim">{e.detail}</td>
                 <td className={cx("py-1.5 font-mono", e.resolution === "auto" ? "text-ok" : "text-warn")}>{e.resolution}</td>
@@ -309,7 +309,7 @@ function StageSummary({ stageId, result }: { stageId: (typeof STAGES)[number]["i
           <li className="text-dim">Merged duplicates: <span className="text-ink">{result.reconciliation.merged.join(", ")}</span></li>
         </ul>
         <div className="grid grid-cols-2 gap-3">
-          <Stat label="Weekly margin overstated" value={nad(k.weeklyMarginOverstatement)} tone="eng" note="true cost higher than ERP" />
+          <Stat label="Weekly margin overstated" value={nad(k.weeklyMarginOverstatement)} tone="danger" note="true cost higher than ERP" />
           <Stat label="Weekly margin understated" value={nad(k.weeklyMarginUnderstatement)} tone="data" note="true cost lower than ERP" />
         </div>
       </div>
@@ -324,7 +324,7 @@ function StageSummary({ stageId, result }: { stageId: (typeof STAGES)[number]["i
         <Stat label="Duplicate identifiers" value={k.duplicateIdentifiers} tone="warn" note={`${k.duplicatesMerged} merged`} />
         <Stat label="Pricing discrepancies" value={k.pricingDiscrepancies} tone="warn" note="records" />
         <Stat label="Auto-corrected values" value={k.autoCorrected} tone="ok" note="from supplier master" />
-        <Stat label="Manual review" value={k.manualReview} tone="eng" note={`${k.manualExceptions} open exceptions`} />
+        <Stat label="Manual review" value={k.manualReview} tone="danger" note={`${k.manualExceptions} open exceptions`} />
       </div>
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="rounded-xl border border-line bg-base p-4">
@@ -333,7 +333,7 @@ function StageSummary({ stageId, result }: { stageId: (typeof STAGES)[number]["i
             {result.byType.map(([type, n]) => (
               <li key={type} className="grid grid-cols-[9.5rem_1fr_2rem] items-center gap-3 text-xs">
                 <span className="text-mute">{type}</span>
-                <span className="h-2 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-gradient-to-r from-warn to-eng" style={{ width: `${(n / max) * 100}%` }} /></span>
+                <span className="h-2 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-gradient-to-r from-warn to-danger" style={{ width: `${(n / max) * 100}%` }} /></span>
                 <span className="text-right font-mono text-ink tabular">{n}</span>
               </li>
             ))}

@@ -13,8 +13,8 @@ function EngMotif() {
   const edges = [[0, 1], [1, 2], [0, 3], [3, 2], [2, 4], [4, 5], [2, 6], [5, 6]];
   return (
     <svg viewBox="0 0 200 92" className="h-full w-full" aria-hidden fill="none">
-      {edges.map(([a, b], i) => <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#DA3633" strokeOpacity="0.45" className="flow-dash-slow" />)}
-      {nodes.map(([x, y], i) => <rect key={i} x={x - 4} y={y - 4} width="8" height="8" rx="1.5" fill="#0D1117" stroke={i === 2 ? "#F3F6FA" : "#DA3633"} />)}
+      {edges.map(([a, b], i) => <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]} stroke="#0069f5" strokeOpacity="0.45" className="flow-dash-slow" />)}
+      {nodes.map(([x, y], i) => <rect key={i} x={x - 4} y={y - 4} width="8" height="8" rx="1.5" fill="#091326" stroke={i === 2 ? "#f3f7ff" : "#0069f5"} />)}
     </svg>
   );
 }
@@ -22,10 +22,10 @@ function DataMotif() {
   return (
     <svg viewBox="0 0 200 92" className="h-full w-full" aria-hidden fill="none">
       {Array.from({ length: 5 }).map((_, r) => Array.from({ length: 8 }).map((_, c) => (
-        <rect key={`${r}-${c}`} x={6 + c * 14} y={8 + r * 16} width="11" height="10" rx="1.5" fill="#00C8D7" fillOpacity={(r * 8 + c) % 7 === 0 ? 0.75 : 0.14} />
+        <rect key={`${r}-${c}`} x={6 + c * 14} y={8 + r * 16} width="11" height="10" rx="1.5" fill="#00d4ea" fillOpacity={(r * 8 + c) % 7 === 0 ? 0.75 : 0.14} />
       )))}
-      <path d="M126 80 L140 58 L154 66 L168 34 L182 42 L196 14" stroke="#3FDBE6" strokeWidth="1.5" />
-      {[[126, 80], [140, 58], [154, 66], [168, 34], [182, 42], [196, 14]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.2" fill="#00C8D7" />)}
+      <path d="M126 80 L140 58 L154 66 L168 34 L182 42 L196 14" stroke="#5ae7f2" strokeWidth="1.5" />
+      {[[126, 80], [140, 58], [154, 66], [168, 34], [182, 42], [196, 14]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.2" fill="#00d4ea" />)}
     </svg>
   );
 }
@@ -135,13 +135,13 @@ export function FounderProfiles({ compact = false }: { compact?: boolean }) {
       <div aria-hidden className="relative hidden lg:block">
         <svg viewBox="0 0 112 600" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" fill="none">
           <defs>
-            <linearGradient id="fpG" x1="0" x2="1"><stop offset="0" stopColor="#DA3633" /><stop offset="1" stopColor="#00C8D7" /></linearGradient>
+            <linearGradient id="fpG" x1="0" x2="1"><stop offset="0" stopColor="#0069f5" /><stop offset="1" stopColor="#00d4ea" /></linearGradient>
           </defs>
           {[160, 300, 440].map((y, i) => (
             <g key={y}>
               <path id={`fp-${i}`} d={`M0 ${y} C 40 ${y}, 40 300, 56 300 S 72 ${y}, 112 ${y}`} stroke="url(#fpG)" strokeOpacity={inView ? 0.7 : 0.15} style={{ transition: "stroke-opacity 1.2s" }} vectorEffect="non-scaling-stroke" />
               {live && (
-                <circle r="2.5" fill="#F3F6FA">
+                <circle r="2.5" fill="#f3f7ff">
                   <animateMotion dur="3.2s" begin={`${i * 0.6}s`} repeatCount="indefinite"><mpath href={`#fp-${i}`} /></animateMotion>
                 </circle>
               )}
@@ -149,7 +149,7 @@ export function FounderProfiles({ compact = false }: { compact?: boolean }) {
           ))}
         </svg>
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-          <span className={cx("relative flex size-12 items-center justify-center rounded-full border border-ink/40 bg-void transition-shadow duration-1000", inView && "shadow-[0_0_40px_-4px_rgba(0,200,215,0.45)]")}>
+          <span className={cx("relative flex size-12 items-center justify-center rounded-full border border-ink/40 bg-void transition-shadow duration-1000", inView && "shadow-[0_0_40px_-4px_rgba(0,212,234,0.45)]")}>
             <span className="size-3 rounded-full bg-ink" />
           </span>
           <span className="mt-3 w-24 text-center font-mono text-[0.6rem] uppercase leading-tight tracking-[0.12em] text-mute">Shared architecture</span>

@@ -4,9 +4,9 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
-const CRIMSON = new THREE.Color("#DA3633");
-const CYAN = new THREE.Color("#00C8D7");
-const INK = new THREE.Color("#F3F6FA");
+const ENGINEERING_BLUE = new THREE.Color("#0069f5");
+const CYAN = new THREE.Color("#00d4ea");
+const INK = new THREE.Color("#f3f7ff");
 
 function Ring({ radius, tube = 0.006, color, speed, tilt }: { radius: number; tube?: number; color: THREE.Color; speed: [number, number, number]; tilt: [number, number, number] }) {
   const ref = useRef<THREE.Mesh>(null);
@@ -48,7 +48,7 @@ function Bezel({ radius, count, color }: { radius: number; count: number; color:
   );
 }
 
-/** Particles streaming from left (crimson) and right (cyan) into the core. */
+/** Particles streaming from left (blue) and right (cyan) into the core. */
 function Streams({ count = 420 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
   const { positions, colors, seeds } = useMemo(() => {
@@ -60,7 +60,7 @@ function Streams({ count = 420 }: { count?: number }) {
       seeds[i * 3] = side;
       seeds[i * 3 + 1] = Math.random();
       seeds[i * 3 + 2] = (Math.random() - 0.5) * 1.6;
-      const c = side < 0 ? CRIMSON : CYAN;
+      const c = side < 0 ? ENGINEERING_BLUE : CYAN;
       colors.set([c.r, c.g, c.b], i * 3);
     }
     return { positions, colors, seeds };
@@ -123,7 +123,7 @@ function Nucleus({ pointer }: { pointer: PointerRef }) {
         <sphereGeometry args={[0.13, 24, 24]} />
         <meshBasicMaterial color={INK} />
       </mesh>
-      <Ring radius={0.62} color={CRIMSON} speed={[0.12, 0.2, 0]} tilt={[1.2, 0.2, 0]} />
+      <Ring radius={0.62} color={ENGINEERING_BLUE} speed={[0.12, 0.2, 0]} tilt={[1.2, 0.2, 0]} />
       <Ring radius={0.74} color={CYAN} speed={[-0.08, 0.14, 0.05]} tilt={[0.4, 1.1, 0]} />
       <Ring radius={0.9} tube={0.003} color={INK} speed={[0.05, -0.06, 0.02]} tilt={[1.5, 0, 0.6]} />
       <Bezel radius={1.06} count={120} color={INK} />
