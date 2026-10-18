@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { Turnstile } from "./Turnstile";
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { BUDGETS, INTENTS, INTERESTS, TIMELINES, type Intent } from "@/lib/contact-schema";
+import { BUDGETS, INTENTS, INTERESTS, TIMELINES, enquirySchema, type Intent } from "@/lib/contact-schema";
+import { RELAY_URL, buildRelayBody } from "@/lib/relay";
 import { cx } from "@/components/ui/primitives";
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent"; ref: string | null } | { kind: "error"; message: string };
@@ -13,7 +15,28 @@ const FALLBACK_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
 
 const field = "mt-1.5 block min-h-11 w-full rounded-xl border bg-base px-3.5 py-2.5 text-[0.95rem] text-ink placeholder:text-dim focus:outline-none focus:ring-2 focus:ring-data/40";
 
-export function ContactForm({ initialIntent = "project", initialInterest = "" }: { initialIntent?: Intent; initialInterest?: string }) {
+/** Static hosting: deliver via the Web3Forms relay (email → n8n). Server hosting: POST to /api/contact. */
+async function sendViaRelay(fd: FormData, intent: Intent, started: number, relayKey: string) {
+  if (Date.now() - started < 3000) return { ok: false as const, error: "Please take a moment to complete the form, then submit again." };
+  const parsed = enquirySchema.safeParse({ ...Object.fromEntries(fd.entries()), intent });
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const i of parsed.error.issues) { const k = String(i.path[0] ?? "form"); if (!fieldErrors[k]) fieldErrors[k] = i.message; }
+    return { ok: false as const, error: "Please correct the highlighted fields.", fieldErrors };
+  }
+  const e = parsed.data;
+  const body = buildRelayBody(
+    { intent: e.intent, name: e.name, organisation: e.organisation, email: e.email, phone: e.phone, interest: e.interest, description: e.description, budget: e.budget, timeline: e.timeline },
+    { accessKey: relayKey, intentLabel: INTENTS[e.intent], submissionId: crypto.randomUUID(), botcheck: String(fd.get("website") ?? "") !== "" },
+  );
+  const r = await fetch(RELAY_URL, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(body) });
+  const j = (await r.json().catch(() => ({}))) as { success?: boolean; message?: string };
+  // Success only when the relay confirms it accepted the message.
+  if (r.ok && j.success === true) return { ok: true as const, ref: null };
+  return { ok: false as const, error: r.status === 429 ? "Too many submissions. Please try again in a few minutes." : `The enquiry could not be sent (${j.message ?? `HTTP ${r.status}`}).` };
+}
+
+export function ContactForm({ initialIntent = "project", initialInterest = "", relayKey }: { initialIntent?: Intent; initialInterest?: string; relayKey?: string }) {
   const [intent, setIntent] = useState<Intent>(initialIntent);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -32,14 +55,21 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
     fd.set("intent", intent);
     fd.set("started", String(started));
     try {
-      const r = await fetch("/api/contact", { method: "POST", body: fd });
-      const j = (await r.json().catch(() => ({}))) as { ok?: boolean; ref?: string | null; error?: string; fieldErrors?: Record<string, string> };
+      let r: { ok: boolean }, j: { ok?: boolean; ref?: string | null; error?: string; fieldErrors?: Record<string, string> };
+      if (relayKey) {
+        const res = await sendViaRelay(fd, intent, started, relayKey);
+        r = { ok: res.ok }; j = res;
+      } else {
+        const res = await fetch("/api/contact", { method: "POST", body: fd });
+        r = res; j = (await res.json().catch(() => ({}))) as typeof j;
+        if (!res.ok && !j.error) j.error = `The enquiry could not be sent (HTTP ${res.status}).`;
+      }
       if (r.ok && j.ok) {
         setStatus({ kind: "sent", ref: j.ref ?? null });
         formRef.current?.reset();
       } else {
         if (j.fieldErrors) setErrors(j.fieldErrors);
-        setStatus({ kind: "error", message: j.error ?? `The enquiry could not be sent (HTTP ${r.status}).` });
+        setStatus({ kind: "error", message: j.error ?? "The enquiry could not be sent." });
         const first = j.fieldErrors && Object.keys(j.fieldErrors)[0];
         if (first) (formRef.current?.elements.namedItem(first) as HTMLElement | null)?.focus();
       }
@@ -128,11 +158,11 @@ export function ContactForm({ initialIntent = "project", initialInterest = "" }:
 
       <label className="flex items-start gap-3 text-sm text-mute">
         <input type="checkbox" name="consent" className="mt-1 size-4 accent-[#00d4ea]" aria-invalid={!!errors.consent} aria-describedby={describe("consent")} />
-        <span>I agree that the details I provide may be used to respond to this enquiry, as described in the <a href="/privacy" className="text-ink underline">privacy notice</a>. We do not add you to marketing lists.</span>
+        <span>I agree that the details I provide may be used to respond to this enquiry, as described in the <Link href="/privacy" className="text-ink underline">privacy notice</Link>. We do not add you to marketing lists.</span>
       </label>
       {err("consent")}
 
-      {TURNSTILE_KEY && <Turnstile key={captchaAttempt} siteKey={TURNSTILE_KEY} />}
+      {TURNSTILE_KEY && !relayKey && <Turnstile key={captchaAttempt} siteKey={TURNSTILE_KEY} />}
 
       <div id="form-status" ref={statusRef} tabIndex={-1} role={status.kind === "error" ? "alert" : "status"} className="outline-none">
         {status.kind === "error" && (

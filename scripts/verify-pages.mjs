@@ -6,8 +6,14 @@ assert.ok(fs.existsSync('out/index.html'), 'GitHub Pages build must produce a st
 const paths=['','contact','lab','solutions','industries','work','about','approach','insights','privacy','terms','solutions/engineering-development','work/master-data-reconciliation'];
 for(const p of paths){const file=path.join('out',p,'index.html');assert.ok(fs.existsSync(file),`Static deep link missing: ${p}`);}
 const contact=fs.readFileSync('out/contact/index.html','utf8');
-assert.ok(contact.includes('Enquiries are not available on this static preview'), 'Pages contact must honestly show static-host limitation');
-assert.ok(!/<form[ >]/.test(contact),'Pages must not render a form whose server endpoint does not exist');
+if (process.env.NEXT_PUBLIC_WEB3FORMS_KEY) {
+  // Relay configured: the form must render and must not show the "unavailable" notice.
+  assert.ok(/<form[ >]/.test(contact),'Pages contact must render the enquiry form when the relay key is configured');
+  assert.ok(!contact.includes('Enquiries are not available on this static preview'),'Unavailable notice must not show when relay is configured');
+} else {
+  assert.ok(contact.includes('Enquiries are not available on this static preview'), 'Pages contact must honestly show static-host limitation');
+  assert.ok(!/<form[ >]/.test(contact),'Pages must not render a form whose delivery path does not exist');
+}
 assert.ok(!fs.existsSync('out/api/contact'),'Pages build must not pretend to expose contact backend');
 for(const p of paths){const html=fs.readFileSync(path.join('out',p,'index.html'),'utf8');
   for(const m of html.matchAll(/(?:href|src)="(\/(?!\/)[^"]*)"/g)){

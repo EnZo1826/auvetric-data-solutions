@@ -14,6 +14,8 @@ export const metadata = pageMeta({
 
 export default function ContactPage() {
   const staticSite = process.env.NEXT_PUBLIC_STATIC_SITE === "true";
+  // Public by design: a Web3Forms access key only lets this form deliver to the registered mailbox.
+  const relayKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "";
 
   return (
     <>
@@ -24,7 +26,9 @@ export default function ContactPage() {
       <Section className="pt-14 sm:pt-16">
         <Container className="grid gap-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
           <div className="relative rounded-3xl border border-line bg-panel p-6 sm:p-10">
-            {staticSite ? <div>
+            {staticSite && relayKey ? (
+              <Suspense fallback={<p className="text-mute">Loading enquiry form…</p>}><ContactIntentForm relayKey={relayKey} /></Suspense>
+            ) : staticSite ? <div>
               <h2 className="font-display text-2xl text-ink">Enquiries are not available on this static preview</h2>
               <p className="mt-4 leading-relaxed text-mute">This website is hosted on GitHub Pages, which cannot run the secure enquiry backend. The demonstrations remain fully interactive. Online enquiries will be enabled when a delivery service and public contact details are confirmed.</p>
               {agency.contact.email && <a href={`mailto:${agency.contact.email}`} className="mt-6 inline-block text-data-ink underline">Email {agency.contact.email}</a>}

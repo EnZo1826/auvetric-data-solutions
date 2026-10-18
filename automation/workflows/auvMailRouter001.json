@@ -1,0 +1,230 @@
+{
+  "id": "auvMailRouter001",
+  "name": "05 Mail \u00b7 inbox router",
+  "nodes": [
+    {
+      "id": "704a9538-cb61-4cc7-8061-829c71a280e0",
+      "name": "New email in mailbox",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "mailbox": "INBOX",
+        "postProcessAction": "nothing",
+        "format": "resolved",
+        "downloadAttachments": false,
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]",
+          "forceReconnect": 30,
+          "trackLastMessageId": true
+        }
+      },
+      "credentials": {
+        "imap": {
+          "id": "auvImapMailbox01",
+          "name": "Auvetric mailbox (IMAP)"
+        }
+      }
+    },
+    {
+      "id": "7553f3ed-ec29-405d-b745-368eec1b9ba1",
+      "name": "Classify email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\n// One IMAP trigger for the whole mailbox; classification happens here, not in IMAP search,\n// so behaviour does not depend on the mail server's search implementation.\nconst JOB_DOMAINS = ['upwork.com', 'linkedin.com'];\nconst ENQUIRY_PREFIX = '[auvetric enquiry]';\nreturn $input.all().map(item => {\n  const j = item.json;\n  const from = String(j.from?.value?.[0]?.address || j.from?.text || '').toLowerCase();\n  const domain = from.split('@')[1] || '';\n  const subject = String(j.subject || '').trim().toLowerCase();\n  let route = 'ignore';\n  if (subject.startsWith(ENQUIRY_PREFIX)) route = 'enquiry';\n  else if (JOB_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) route = 'jobs';\n  return { json: { ...j, _route: route }, binary: item.binary };\n});\n"
+      }
+    },
+    {
+      "id": "d2018c1d-b6e3-48cf-b9db-4c2b5fc16773",
+      "name": "Job alerts",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        -100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ac8327f2-61f3-4cb9-b5ff-cba949f9589f",
+              "leftValue": "={{ $json._route }}",
+              "rightValue": "jobs",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bd230d8c-9f32-414b-bc70-8cd497f68cfc",
+      "name": "Website enquiries",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68dae88d-ca9c-488f-b55e-6e139d97b7aa",
+              "leftValue": "={{ $json._route }}",
+              "rightValue": "enquiry",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6b450d27-b00a-42b9-a417-edc76e71fca3",
+      "name": "Run 10 Jobs triage",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        -100
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "auvJobsTriage001"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "3167d295-7ec7-4338-b029-eccdb21a60c6",
+      "name": "Run 20 Website enquiries",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        100
+      ],
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "auvEnquiries0001"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    }
+  ],
+  "connections": {
+    "New email in mailbox": {
+      "main": [
+        [
+          {
+            "node": "Classify email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify email": {
+      "main": [
+        [
+          {
+            "node": "Job alerts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Website enquiries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job alerts": {
+      "main": [
+        [
+          {
+            "node": "Run 10 Jobs triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website enquiries": {
+      "main": [
+        [
+          {
+            "node": "Run 20 Website enquiries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Windhoek",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

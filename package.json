@@ -14,7 +14,8 @@
     "verify:data": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-demo-data.mjs",
     "verify:telemetry": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-telemetry.mjs",
     "verify:contact": "node scripts/verify-contact.mjs",
-    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry && npm run verify:brand"
+    "verify:relay": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-relay.mjs",
+    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry && npm run verify:brand && npm run verify:relay"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",

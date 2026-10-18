@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           <h2 className="font-display text-2xl text-ink">How we use it</h2>
           <p>Only to respond to your enquiry and, if you proceed, to prepare a proposal. We do not sell your information or add you to marketing lists.</p>
           <h2 className="font-display text-2xl text-ink">Where it goes</h2>
-          <p>Enquiries are delivered by email through a configured delivery provider to the partners of {agency.name}. [Provider name and data location to be confirmed.]</p>
+          <p>Enquiries are delivered by email to the partners of {agency.name}. On this website, submissions are relayed by Web3Forms (web3forms.com) to our mailbox, then processed by our own automation system, which stores the enquiry and prepares a summary for the partners. [Retention period to be confirmed.]</p>
           <h2 className="font-display text-2xl text-ink">Your choices</h2>
           <p>You may ask us to access, correct or delete the information you sent. [Contact address to be confirmed.]</p>
           <h2 className="font-display text-2xl text-ink">Analytics and cookies</h2>

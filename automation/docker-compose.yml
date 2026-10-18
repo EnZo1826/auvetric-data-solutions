@@ -1,0 +1,52 @@
+name: auvetric-automation
+
+# n8n for Auvetric Data Solutions: job-alert triage and website enquiry processing.
+# Bound to 127.0.0.1 only. Nothing on this PC is exposed to the internet; all inputs arrive by IMAP.
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:${N8N_VERSION}
+    container_name: auvetric-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    env_file: .env
+    environment:
+      - GENERIC_TIMEZONE=Africa/Windhoek
+      - TZ=Africa/Windhoek
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_SECURE_COOKIE=false            # plain http on localhost only
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336          # keep 14 days of execution logs
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/import/workflows:ro
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # Local test mail server (IMAP + SMTP) used only to prove the workflows end to end.
+  # Start with:  docker compose --profile test up -d mailtest
+  mailtest:
+    image: greenmail/standalone:2.1.13
+    container_name: auvetric-mailtest
+    profiles: ["test"]
+    environment:
+      - GREENMAIL_OPTS=-Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=alerts:testpass@auvetric.test,partners:testpass@auvetric.test -Dgreenmail.users.login=email -Dgreenmail.verbose
+    ports:
+      - "127.0.0.1:3025:3025"
+      - "127.0.0.1:3143:3143"
+
+volumes:
+  n8n_data:
+    name: auvetric_n8n_data

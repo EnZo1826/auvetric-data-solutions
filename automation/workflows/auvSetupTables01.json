@@ -1,0 +1,310 @@
+{
+  "id": "auvSetupTables01",
+  "name": "00 Setup \u00b7 create data tables",
+  "nodes": [
+    {
+      "id": "e6251484-3317-464b-8aa4-4b3cbeda9d34",
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "642e40f9-11cd-49bb-b2ec-e80068253cb4",
+      "name": "Setup webhook (localhost)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auvetric-setup-tables",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "auvetric-setup-tables"
+    },
+    {
+      "id": "1cdd79cb-64e9-482f-89ef-605a7233ee00",
+      "name": "Create jobs table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "auvetric_jobs",
+        "columns": {
+          "column": [
+            {
+              "name": "job_key",
+              "type": "string"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "url",
+              "type": "string"
+            },
+            {
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "name": "company",
+              "type": "string"
+            },
+            {
+              "name": "location",
+              "type": "string"
+            },
+            {
+              "name": "remote",
+              "type": "string"
+            },
+            {
+              "name": "employment_type",
+              "type": "string"
+            },
+            {
+              "name": "budget",
+              "type": "string"
+            },
+            {
+              "name": "skills",
+              "type": "string"
+            },
+            {
+              "name": "experience_level",
+              "type": "string"
+            },
+            {
+              "name": "summary",
+              "type": "string"
+            },
+            {
+              "name": "fit_score",
+              "type": "number"
+            },
+            {
+              "name": "practice",
+              "type": "string"
+            },
+            {
+              "name": "reasons",
+              "type": "string"
+            },
+            {
+              "name": "red_flags",
+              "type": "string"
+            },
+            {
+              "name": "action",
+              "type": "string"
+            },
+            {
+              "name": "extraction_status",
+              "type": "string"
+            },
+            {
+              "name": "raw_excerpt",
+              "type": "string"
+            },
+            {
+              "name": "email_subject",
+              "type": "string"
+            },
+            {
+              "name": "received_at",
+              "type": "date"
+            },
+            {
+              "name": "alerted",
+              "type": "boolean"
+            },
+            {
+              "name": "digested",
+              "type": "boolean"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      }
+    },
+    {
+      "id": "e81ff390-2ba3-4c09-9fe8-f6958e92824d",
+      "name": "Create enquiries table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "auvetric_enquiries",
+        "columns": {
+          "column": [
+            {
+              "name": "enquiry_key",
+              "type": "string"
+            },
+            {
+              "name": "submitted_at",
+              "type": "date"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "organisation",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "phone",
+              "type": "string"
+            },
+            {
+              "name": "intent",
+              "type": "string"
+            },
+            {
+              "name": "interest",
+              "type": "string"
+            },
+            {
+              "name": "budget",
+              "type": "string"
+            },
+            {
+              "name": "timeline",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "category",
+              "type": "string"
+            },
+            {
+              "name": "practice",
+              "type": "string"
+            },
+            {
+              "name": "priority",
+              "type": "string"
+            },
+            {
+              "name": "spam_score",
+              "type": "number"
+            },
+            {
+              "name": "summary",
+              "type": "string"
+            },
+            {
+              "name": "key_requirements",
+              "type": "string"
+            },
+            {
+              "name": "questions_to_ask",
+              "type": "string"
+            },
+            {
+              "name": "suggested_reply",
+              "type": "string"
+            },
+            {
+              "name": "extraction_status",
+              "type": "string"
+            },
+            {
+              "name": "alerted",
+              "type": "boolean"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Create jobs table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create jobs table": {
+      "main": [
+        [
+          {
+            "node": "Create enquiries table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup webhook (localhost)": {
+      "main": [
+        [
+          {
+            "node": "Create jobs table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Windhoek",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

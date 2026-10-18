@@ -1,0 +1,281 @@
+{
+  "id": "auvJobsDigest001",
+  "name": "11 Jobs \u00b7 daily digest",
+  "nodes": [
+    {
+      "id": "73d4d10b-7cb5-428c-8d28-5069803630a4",
+      "name": "Every morning 07:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "63f5b283-53ea-4fd4-a440-d17d994daa88",
+      "name": "Run now (localhost webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auvetric-run-digest",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "auvetric-run-digest"
+    },
+    {
+      "id": "56ac77fc-6cdd-4948-88a0-8acf395cd700",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'partners@auvetric.test',        // comma-separated: Jakes and Alex\n  fromAddress: 'alerts@auvetric.test',      // must be the SMTP mailbox address\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
+      }
+    },
+    {
+      "id": "a4d17f33-0ec7-4439-81e4-106f05eaeb20",
+      "name": "Undigested jobs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "auvetric_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "digested",
+              "condition": "isFalse"
+            }
+          ]
+        },
+        "returnAll": true,
+        "orderBy": true,
+        "orderByColumn": "fit_score",
+        "orderByDirection": "DESC"
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "067acbc2-8f93-4295-8545-e473deefebf0",
+      "name": "Compose digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst cfg = $('Config').first().json;\nconst esc = v => String(v ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\nconst jobs = $input.all().map(i => i.json).filter(j => j && j.job_key);\nif (!jobs.length) return [];\njobs.sort((a, b) => (b.fit_score || 0) - (a.fit_score || 0));\nconst badge = s => s >= 75 ? '#1f9e7a' : s >= 50 ? '#c88a1e' : '#8298B5';\nconst row = j => `<tr>\n <td style=\"padding:10px 8px;border-top:1px solid #dfe6f0;font:700 14px Arial;color:${badge(j.fit_score)};white-space:nowrap\">${j.fit_score}</td>\n <td style=\"padding:10px 8px;border-top:1px solid #dfe6f0;font:13px Arial;color:#061433\">\n   <a href=\"${esc(j.url)}\" style=\"color:#0069F5;font-weight:600;text-decoration:none\">${esc(j.title)}</a><br>\n   <span style=\"color:#4a5a72\">${esc(j.source)} \u00b7 ${esc(j.company || 'n/a')} \u00b7 ${esc(j.budget || 'budget n/a')} \u00b7 ${esc(j.practice)}</span><br>\n   ${esc(j.summary).slice(0, 260)}${j.extraction_status !== 'ok' ? '<br><i style=\"color:#c0392b\">Extraction failed: open the listing</i>' : ''}\n </td></tr>`;\nconst strong = jobs.filter(j => j.fit_score >= 75).length;\nreturn [{ json: {\n  to: cfg.alertTo, from: cfg.fromAddress,\n  subject: `[Auvetric jobs] Daily digest: ${jobs.length} new, ${strong} strong`,\n  html: `<div style=\"max-width:720px\"><div style=\"font:600 13px Arial;color:#0069F5;letter-spacing:.08em\">AUVETRIC \u00b7 DAILY JOB DIGEST</div>\n   <p style=\"font:13px Arial;color:#4a5a72\">${jobs.length} new listings since the last digest, highest fit first.</p>\n   <table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%\">${jobs.map(row).join('')}</table>\n   <p style=\"font:11px Arial;color:#8298B5\">Scores come from a local AI model and can be wrong. Always read the original listing.</p></div>`,\n  job_keys: jobs.map(j => j.job_key),\n}}];\n"
+      }
+    },
+    {
+      "id": "d9d384b8-0fad-4e4d-929b-1df13ae2bca3",
+      "name": "Email digest",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "fromEmail": "={{ $json.from }}",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "auvSmtpMailbox01",
+          "name": "Auvetric mailbox (SMTP)"
+        }
+      }
+    },
+    {
+      "id": "f4f05475-985d-4e84-a750-85ae84b9ad3b",
+      "name": "One item per job",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $('Compose digest').first().json.job_keys.map(k => ({ json: { job_key: k } }));"
+      }
+    },
+    {
+      "id": "0cef25ce-1904-489d-bb30-52af2c582c1f",
+      "name": "Mark digested",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "auvetric_jobs"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_key",
+              "condition": "eq",
+              "keyValue": "={{ $json.job_key }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "digested": "={{ true }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "digested",
+              "displayName": "digested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every morning 07:30": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Undigested jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Undigested jobs": {
+      "main": [
+        [
+          {
+            "node": "Compose digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose digest": {
+      "main": [
+        [
+          {
+            "node": "Email digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email digest": {
+      "main": [
+        [
+          {
+            "node": "One item per job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per job": {
+      "main": [
+        [
+          {
+            "node": "Mark digested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run now (localhost webhook)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Windhoek",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
