@@ -1,6 +1,6 @@
 # Auvetric CRM — plan
 
-Status: **draft for approval** · Owner: Jakes & Alex · Prepared 18 Oct 2026
+Status: **approved; Phase 0 built on branch `crm`** (see `docs/CRM-RUNBOOK.md`) · Owner: Jakes & Alex · Prepared 18 Oct 2026
 
 ## 1. Goal
 
@@ -43,7 +43,7 @@ JobTracker is Vite + React 18 + TypeScript + Zustand, with Postgres and one serv
 | Line Items | **Services catalogue** | Grouped by the four practices; rate cards (hourly, daily, fixed); USD/NAD |
 | Company Profiles | Company profile | Auvetric Data Solutions letterhead from the brand kit; numbering `AUV-INV-{YYYY}-`, `AUV-QUO-{YYYY}-` |
 | Settings | Settings | Users and roles, two-factor sign-in, board columns, integrations (n8n token), backup export |
-| Login | Login | Branded; PBKDF2; HTTP-only session cookie; optional TOTP |
+| Login | Login | Branded; scrypt; HTTP-only session cookie; mandatory TOTP |
 
 ## 4. New modules for Auvetric
 
@@ -125,7 +125,7 @@ Money is stored as numeric(14,2) with a currency code and an optional exchange r
 | Phase | Scope | Done when |
 |---|---|---|
 | **0 · Foundations** | Neon project, Netlify env vars, `/crm` shell inside the website app (layout, sidebar, auth, middleware, TOTP), migrations, tests in CI, `noindex` | `auvetric.com/crm/login` live; only Jakes and Alex can sign in; public site unaffected |
-| **1 · JobTracker port** | Auth (PBKDF2), company profile, clients and contacts, services, quotes, invoices, retainers and cron, projects board, dashboard v1, settings, print layouts | Quote → invoice → paid flow works end to end; VAT and totals match JobTracker's calculation tests; PDFs print correctly |
+| **1 · JobTracker port** | Company profile, clients and contacts, services, quotes, invoices, retainers and cron, projects board, dashboard v1, settings, print layouts | Quote → invoice → paid flow works end to end; VAT and totals match JobTracker's calculation tests; PDFs print correctly |
 | **2 · Sales + n8n** | Enquiries, opportunities, leads pipeline, activities, tasks; ingest API, n8n push and pull workflows, backfill; website form → CRM | A real Upwork/LinkedIn alert appears in Opportunities within minutes; a website enquiry is stored with the PC off and triaged when it comes back on |
 | **3 · Delivery + finance** | Time tracking → invoice lines, payments, expenses, marketplace earnings, debtors ageing, statements, emailing documents (Zoho transactional mail / ZeptoMail) | Monthly close: every invoice paid or aged, billable hours invoiced |
 | **4 · Insights + hardening** | Reports, attachments, audit log UI, nightly backups, accessibility pass | Reports reconcile with raw data (automated checks); restore from backup tested |

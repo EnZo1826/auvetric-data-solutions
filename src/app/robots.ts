@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
   // Set NEXT_PUBLIC_ALLOW_INDEXING=true only on the production domain.
   const allow = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
   return {
-    rules: allow ? [{ userAgent: "*", allow: "/", disallow: "/api/" }] : [{ userAgent: "*", disallow: "/" }],
+    rules: allow ? [{ userAgent: "*", allow: "/", disallow: ["/api/", "/crm"] }] : [{ userAgent: "*", disallow: "/" }],
     sitemap: `${agency.url.replace(/\/$/, "")}/sitemap.xml`,
   };
 }

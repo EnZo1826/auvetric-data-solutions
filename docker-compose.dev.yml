@@ -1,0 +1,25 @@
+# Local development database for the Auvetric CRM (production uses Netlify DB / Neon).
+# Start:  docker compose -f docker-compose.dev.yml up -d
+# These credentials are for this local container only.
+name: auvetric-crm-dev
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: auvetric-crm-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: auvetric
+      POSTGRES_PASSWORD: auvetric_dev
+      POSTGRES_DB: auvetric_crm
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - crm_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auvetric -d auvetric_crm"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  crm_db:
+    name: auvetric_crm_dev_db

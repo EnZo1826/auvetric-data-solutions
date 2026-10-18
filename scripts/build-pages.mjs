@@ -8,7 +8,8 @@ await mkdir(stage,{recursive:true});
 for(const f of ['src','public','package.json','tsconfig.json','next.config.ts','postcss.config.mjs','eslint.config.mjs']) {
   await cp(path.join(root,f),path.join(stage,f),{recursive:true,filter:(source)=>{
     const rel=path.relative(root,source).replaceAll('\\','/');
-    return !rel.startsWith('src/app/api');
+    // Server-only parts (API, CRM, middleware) can't exist in a static export.
+    return !['src/app/api','src/app/crm','src/crm','src/middleware.ts'].some((x)=>rel===x||rel.startsWith(x+'/'));
   }});
 }
 const base=process.env.NEXT_PUBLIC_BASE_PATH || '/auvetric-data-solutions';
