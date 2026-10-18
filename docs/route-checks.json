@@ -1,0 +1,126 @@
+[
+  {
+    "path": "/",
+    "status": 200
+  },
+  {
+    "path": "/solutions",
+    "status": 200
+  },
+  {
+    "path": "/industries",
+    "status": 200
+  },
+  {
+    "path": "/work",
+    "status": 200
+  },
+  {
+    "path": "/approach",
+    "status": 200
+  },
+  {
+    "path": "/about",
+    "status": 200
+  },
+  {
+    "path": "/insights",
+    "status": 200
+  },
+  {
+    "path": "/contact",
+    "status": 200
+  },
+  {
+    "path": "/lab",
+    "status": 200
+  },
+  {
+    "path": "/privacy",
+    "status": 200
+  },
+  {
+    "path": "/terms",
+    "status": 200
+  },
+  {
+    "path": "/solutions/engineering-development",
+    "status": 200
+  },
+  {
+    "path": "/solutions/data-business-intelligence",
+    "status": 200
+  },
+  {
+    "path": "/solutions/automation-intelligent-systems",
+    "status": 200
+  },
+  {
+    "path": "/solutions/technology-consultancy",
+    "status": 200
+  },
+  {
+    "path": "/work/industrial-fuel-management",
+    "status": 200
+  },
+  {
+    "path": "/work/security-checkpoint",
+    "status": 200
+  },
+  {
+    "path": "/work/industrial-monitoring-telemetry",
+    "status": 200
+  },
+  {
+    "path": "/work/gps-fleet-integrations",
+    "status": 200
+  },
+  {
+    "path": "/work/mqtt-led-displays",
+    "status": 200
+  },
+  {
+    "path": "/work/erpnext-frappe-applications",
+    "status": 200
+  },
+  {
+    "path": "/work/realtime-operational-dashboards",
+    "status": 200
+  },
+  {
+    "path": "/work/ai-agent-automation-experiments",
+    "status": 200
+  },
+  {
+    "path": "/work/multi-store-data-centralisation",
+    "status": 200
+  },
+  {
+    "path": "/work/master-data-reconciliation",
+    "status": 200
+  },
+  {
+    "path": "/work/promotional-pricing-invoice-analysis",
+    "status": 200
+  },
+  {
+    "path": "/work/gross-profit-claims-investigation",
+    "status": 200
+  },
+  {
+    "path": "/work/fmcg-data-cleansing-framework",
+    "status": 200
+  },
+  {
+    "path": "/work/concept-connected-retail",
+    "status": 200
+  },
+  {
+    "path": "/work/concept-industrial-operations",
+    "status": 200
+  },
+  {
+    "path": "/work/concept-fleet-operations",
+    "status": 200
+  }
+]

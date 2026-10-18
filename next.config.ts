@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+const pages = process.env.NEXUS_PAGES_BUILD === "true";
 const nextConfig: NextConfig = {
-  /* config options here */
+  ...(pages ? {
+    output: "export" as const,
+    basePath: process.env.NEXT_PUBLIC_BASE_PATH || "/nexus-intelligence",
+    trailingSlash: true,
+    images: { unoptimized: true },
+  } : {}),
 };
 
 export default nextConfig;

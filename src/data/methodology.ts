@@ -1,0 +1,9 @@
+export const methodology = [
+  { id: "discover", n: "01", name: "Discover", lead: "both", text: "Understand business operations, stakeholders, systems, limitations, pain points and objectives.", outputs: ["Stakeholder map", "Problem statement", "Success criteria"] },
+  { id: "investigate", n: "02", name: "Investigate", lead: "both", text: "Audit existing processes, source data, infrastructure, dependencies and integration requirements.", outputs: ["Data profile", "Interface inventory", "Constraint register"] },
+  { id: "architect", n: "03", name: "Architect", lead: "jakes", text: "Develop a solution design covering data flow, application components, governance requirements, security considerations and implementation constraints.", outputs: ["Target architecture", "Data-flow diagram", "Phased plan"] },
+  { id: "engineer", n: "04", name: "Engineer", lead: "jakes", text: "Develop and configure software, integrations, automation, interfaces and related technical components.", outputs: ["Working increments", "Integration tests", "Configuration"] },
+  { id: "validate", n: "05", name: "Validate", lead: "alex", text: "Test functional requirements, data consistency, error handling, usability, integration behaviour and operational acceptance criteria.", outputs: ["Reconciliation checks", "Acceptance results", "Exception review"] },
+  { id: "deploy", n: "06", name: "Deploy", lead: "jakes", text: "Prepare the solution for its intended environment, including documentation, configuration, deployment and handover.", outputs: ["Deployment", "Runbooks", "Handover"] },
+  { id: "improve", n: "07", name: "Improve", lead: "both", text: "Evaluate results and plan controlled improvements, additional automation, reporting enhancements and maintenance where contractually agreed.", outputs: ["Review", "Improvement backlog", "Support agreement"] },
+] as const;

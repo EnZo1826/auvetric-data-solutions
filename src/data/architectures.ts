@@ -1,0 +1,295 @@
+/**
+ * Interactive Solution Architecture Laboratory — content.
+ * All samples are synthetic and deterministic. Nothing here is connected to a live system.
+ */
+export interface LabNode {
+  id: string;
+  label: string;
+  kind: "eng" | "data" | "core";
+  business: string;
+  technical: string;
+  tech: string[];
+  input: string;
+  output: string;
+  failure: string;
+  recovery: string;
+}
+
+export interface Architecture {
+  id: "industrial" | "integrity" | "automation";
+  name: string;
+  tagline: string;
+  lead: string;
+  illustrates: string[];
+  nodes: LabNode[];
+}
+
+export const architectures: Architecture[] = [
+  {
+    id: "industrial",
+    name: "Industrial Intelligence",
+    tagline: "From a sensor signal to an operational decision.",
+    lead: "Engineering-led, validated by data",
+    illustrates: ["Signal acquisition", "Local processing", "Message transport", "Data validation", "Persistent storage", "Real-time monitoring", "Business intelligence", "Human action"],
+    nodes: [
+      {
+        id: "sensor", label: "Sensor", kind: "eng",
+        business: "Measures something that matters to the operation — here, the pressure on a pump discharge line.",
+        technical: "4–20 mA pressure transmitter, 0–10 bar range, wired to an analog input.",
+        tech: ["4–20 mA loop", "Pressure transmitter"],
+        input: "Physical pressure: 6.42 bar",
+        output: "Loop current: 14.27 mA",
+        failure: "Broken wire reads < 3.8 mA; a failed transmitter can freeze on one value.",
+        recovery: "Out-of-range current is flagged as a sensor fault (NAMUR NE43 style), never as a real reading.",
+      },
+      {
+        id: "plc", label: "PLC", kind: "eng",
+        business: "Converts the electrical signal into a number and reacts locally, even if the network is down.",
+        technical: "Industrial Raspberry Pi PLC samples the analog input, scales mA to engineering units and applies a moving average.",
+        tech: ["Industrial Shields PLC", "Analog input", "Scaling"],
+        input: "14.27 mA @ 1 Hz",
+        output: "{ \"tag\": \"PT-101\", \"value\": 6.42, \"unit\": \"bar\", \"q\": \"good\" }",
+        failure: "Input saturates or the PLC reboots mid-sample.",
+        recovery: "Quality flag on every value; watchdog restarts the acquisition service.",
+      },
+      {
+        id: "edge", label: "Edge", kind: "eng",
+        business: "Decides what is worth sending, and keeps a record when the site loses its connection.",
+        technical: "Edge service applies deadband and threshold logic, timestamps in UTC and writes to a local store-and-forward buffer.",
+        tech: ["Node-RED", "Python", "SQLite buffer"],
+        input: "PT-101 6.42 bar, 1 Hz",
+        output: "Change-of-value + 60 s heartbeat; alarm if > 8.5 bar for 10 s",
+        failure: "Uplink unavailable for hours.",
+        recovery: "Messages queue locally with sequence numbers; oldest data is never silently dropped without a logged overflow event.",
+      },
+      {
+        id: "mqtt", label: "MQTT", kind: "eng",
+        business: "Moves messages reliably from many sites to the central system.",
+        technical: "TLS MQTT broker; topic site/plant-a/pt-101/state; QoS 1; retained last value; per-device credentials.",
+        tech: ["MQTT", "TLS", "QoS 1", "Retained messages"],
+        input: "Edge publish (QoS 1)",
+        output: "Broker fan-out to ingest service and live dashboards",
+        failure: "Duplicate delivery after reconnect (QoS 1 is at-least-once).",
+        recovery: "Ingest de-duplicates on device ID + sequence number.",
+      },
+      {
+        id: "api", label: "API", kind: "core",
+        business: "Checks the data is believable before anyone relies on it.",
+        technical: "Ingest service validates schema, range, timestamp skew and sequence gaps; rejects or quarantines suspect values.",
+        tech: ["Node.js", "Schema validation", "REST"],
+        input: "{ seq: 18231, ts: 2026-01-12T08:14:05Z, value: 6.42 }",
+        output: "Accepted · quality=good · latency 1.2 s",
+        failure: "Timestamp 3 hours in the future (device clock drift).",
+        recovery: "Value quarantined with reason TS_SKEW; device clock alarm raised.",
+      },
+      {
+        id: "db", label: "Database", kind: "core",
+        business: "Keeps the history so trends, incidents and reports can be examined later.",
+        technical: "Time-series storage with raw retention plus 1-minute and 1-hour rollups.",
+        tech: ["Time-series DB", "Rollups", "Retention policy"],
+        input: "Validated points",
+        output: "Raw (90 days) + rollups (multi-year)",
+        failure: "Backfill of buffered data arrives out of order.",
+        recovery: "Writes keyed on source timestamp, so late data lands in the correct place.",
+      },
+      {
+        id: "analytics", label: "Analytics", kind: "data",
+        business: "Turns readings into indicators people understand: uptime, time above limit, alarm counts.",
+        technical: "Dashboards and scheduled KPIs computed from validated rollups, with data age displayed on every panel.",
+        tech: ["Dashboards", "KPI model", "Power BI"],
+        input: "Rollups + alarm events",
+        output: "Time > 8.5 bar this shift: 14 min · 3 alarms",
+        failure: "Gaps in data distort KPIs.",
+        recovery: "KPIs report coverage %; low-coverage periods are marked, not hidden.",
+      },
+      {
+        id: "decision", label: "Decision", kind: "data",
+        business: "A person acts: inspect the pump, adjust the setpoint, schedule maintenance.",
+        technical: "Alarm acknowledgement and action logged against the event for audit.",
+        tech: ["Alarm workflow", "Audit log"],
+        input: "High-pressure alarm on PT-101",
+        output: "Acknowledged by shift supervisor · work order raised",
+        failure: "Alarm fatigue — too many low-value alarms.",
+        recovery: "Alarm review using the logged history to retire or retune noisy alarms.",
+      },
+    ],
+  },
+  {
+    id: "integrity",
+    name: "Enterprise Data Integrity",
+    tagline: "From supplier files to numbers management can trust.",
+    lead: "Data-led, engineered for repeatability",
+    illustrates: ["Source authority", "Product identifiers", "Master-data matching", "Commercial calculations", "Detected discrepancies", "Exception review", "Auditability", "Management reporting"],
+    nodes: [
+      {
+        id: "supplier", label: "Supplier Data", kind: "data",
+        business: "The supplier is the authority for its own product codes, case packs and invoice costs.",
+        technical: "Price/cost files and product catalogues received by EDI or spreadsheet.",
+        tech: ["EDI concepts", "CSV / Excel"],
+        input: "SUP-4410 · Rooibos Tea 80s · case 12 · N$ 516.00 / case",
+        output: "Supplier record with case cost",
+        failure: "Cost quoted per case in one file and per unit in another.",
+        recovery: "Unit of measure captured explicitly on import; ambiguous rows flagged.",
+      },
+      {
+        id: "dc", label: "Distribution Centre", kind: "data",
+        business: "The DC receives and ships in cases; its records must agree with the supplier's pack size.",
+        technical: "DC item master keyed by DC code with case barcode (DUN-14) and pack quantity.",
+        tech: ["Item master", "DUN-14 barcodes", "AS400-linked data"],
+        input: "DC-77812 · case barcode 1 6009…",
+        output: "DC item linked to supplier code",
+        failure: "DC pack quantity 10 vs supplier 12.",
+        recovery: "Pack mismatch raised as a high-severity exception — it distorts every unit cost downstream.",
+      },
+      {
+        id: "erp", label: "Retail ERP", kind: "data",
+        business: "Stores sell units, at a selling price, against a unit cost the ERP believes.",
+        technical: "Retail item master: unit barcode (EAN-13), selling price, unit cost, hierarchy.",
+        tech: ["Retail ERP", "EAN-13", "Product hierarchy"],
+        input: "EAN 6009…  sell N$ 54.99  cost N$ 43.00",
+        output: "Retail record for matching",
+        failure: "Two retail items share the same barcode.",
+        recovery: "Duplicate identifiers isolated before matching to prevent cross-linking.",
+      },
+      {
+        id: "profiling", label: "Profiling", kind: "core",
+        business: "Measures how good the data is before anything is fixed or reported.",
+        technical: "Completeness, uniqueness, validity (check digits, ranges) and consistency per field and per source.",
+        tech: ["Power Query", "Data profiling"],
+        input: "3 sources · 4 820 records",
+        output: "Barcode completeness 98.1% · 37 duplicate EANs · 112 invalid check digits",
+        failure: "Profiling skipped — problems surface later in reports.",
+        recovery: "Profile is a gate: its summary is stored with every reconciliation run.",
+      },
+      {
+        id: "validation", label: "Validation", kind: "core",
+        business: "Applies the business rules that define 'correct' for this organisation.",
+        technical: "Rule set with reason codes: pack match, unit cost = case cost ÷ pack, margin within band, mandatory attributes.",
+        tech: ["Business rules", "Reason codes"],
+        input: "Matched product triple",
+        output: "PASS / FAIL per rule with reason code",
+        failure: "Rules hard-coded in a personal spreadsheet.",
+        recovery: "Rules documented, owned and versioned so results are reproducible.",
+      },
+      {
+        id: "reconciliation", label: "Reconciliation", kind: "core",
+        business: "Compares what each system says and quantifies the commercial exposure of each difference.",
+        technical: "Expected unit cost from supplier vs ERP unit cost; variance × trailing volume = exposure.",
+        tech: ["Excel", "Power Query", "Variance analysis"],
+        input: "Supplier N$ 43.00 vs ERP N$ 39.50",
+        output: "Variance N$ 3.50/unit · margin overstated",
+        failure: "Exceptions pile up without owners.",
+        recovery: "Each exception is assigned to a source owner with a due date and audit trail.",
+      },
+      {
+        id: "powerbi", label: "Power BI", kind: "data",
+        business: "Shows management the state of the data and the money attached to it.",
+        technical: "Model on validated tables with an exception fact table and lineage to source runs.",
+        tech: ["Power BI", "DAX", "Power Query"],
+        input: "Validated tables + exceptions",
+        output: "Exceptions by supplier, category and value at risk",
+        failure: "Dashboard built on raw data reports false margins.",
+        recovery: "Visuals show validation coverage; unvalidated data is excluded or labelled.",
+      },
+      {
+        id: "mgmt", label: "Management Decisions", kind: "data",
+        business: "Correct costs, raise supplier claims, change prices or fix processes.",
+        technical: "Decisions logged against exception IDs, closing the loop for audit.",
+        tech: ["Exception workflow", "Audit trail"],
+        input: "Top 10 exposures this week",
+        output: "Claim raised · cost corrected · rule added",
+        failure: "Same error recurs next month.",
+        recovery: "Root cause recorded and a preventive rule added at the source.",
+      },
+    ],
+  },
+  {
+    id: "automation",
+    name: "Connected Business Automation",
+    tagline: "From a business event to a controlled, audited outcome.",
+    lead: "Jointly designed",
+    illustrates: ["Event capture", "Identity and access control", "Business logic", "Exceptions", "Human approvals", "Automation", "Transaction history", "Operational reporting"],
+    nodes: [
+      {
+        id: "event", label: "Business Event", kind: "eng",
+        business: "Something happens that needs a response — a supplier credit note is received.",
+        technical: "Event from email intake, form submission, ERP webhook or device message.",
+        tech: ["Webhooks", "Forms", "MQTT"],
+        input: "Credit note CN-2291 · N$ 18 450.00",
+        output: "Event envelope with source and correlation ID",
+        failure: "The same event is delivered twice.",
+        recovery: "Idempotency key prevents duplicate processing.",
+      },
+      {
+        id: "integration", label: "Integration API", kind: "eng",
+        business: "Accepts work only from known, authorised sources.",
+        technical: "Authenticated endpoint; token or service identity; request logged.",
+        tech: ["REST", "Auth tokens", "Rate limiting"],
+        input: "POST /events (signed)",
+        output: "202 Accepted · event queued",
+        failure: "Unauthenticated or malformed request.",
+        recovery: "Rejected with explicit error; nothing enters the workflow.",
+      },
+      {
+        id: "validate", label: "Validation Engine", kind: "core",
+        business: "Checks the request makes sense: supplier exists, amount within tolerance, references valid.",
+        technical: "Schema + reference lookups + tolerance rules.",
+        tech: ["Schema validation", "Lookups"],
+        input: "Supplier SUP-4410, ref INV-88013",
+        output: "Valid · amount 6% above expected",
+        failure: "Reference invoice not found.",
+        recovery: "Routed to an exception queue with the reason, not dropped.",
+      },
+      {
+        id: "rules", label: "Workflow Rules", kind: "core",
+        business: "Decides the path: automatic, needs approval, or needs investigation.",
+        technical: "Rules: auto-post < N$ 5 000; approval ≥ N$ 5 000; investigate if variance > 5%.",
+        tech: ["Node-RED", "Power Automate", "n8n"],
+        input: "N$ 18 450 · variance 6%",
+        output: "Route → approval + investigation flag",
+        failure: "Rule conflict between two paths.",
+        recovery: "Most restrictive path wins; conflicts logged for rule review.",
+      },
+      {
+        id: "approval", label: "Approval", kind: "data",
+        business: "An accountable person decides. Automation prepares; people approve.",
+        technical: "Approval task with full context, SLA timer and escalation.",
+        tech: ["Approval workflow", "Microsoft 365 / app UI"],
+        input: "Approval request to finance lead",
+        output: "Approved with comment",
+        failure: "Approver unavailable.",
+        recovery: "Escalation after SLA; delegation recorded.",
+      },
+      {
+        id: "store", label: "Database", kind: "core",
+        business: "Keeps the complete history of what happened, who decided and why.",
+        technical: "Transaction and audit tables; append-only event log.",
+        tech: ["Relational DB", "Audit log"],
+        input: "Approved credit note",
+        output: "Posted · audit trail of 6 steps",
+        failure: "Write fails after approval.",
+        recovery: "Retry with backoff; state machine resumes from last committed step.",
+      },
+      {
+        id: "reporting", label: "Reporting", kind: "data",
+        business: "Shows throughput, bottlenecks and exceptions in the process itself.",
+        technical: "Cycle time, approval latency and exception rates by type.",
+        tech: ["Power BI", "Dashboards"],
+        input: "Workflow history",
+        output: "Median approval time · exceptions by cause",
+        failure: "Reporting excludes failed runs.",
+        recovery: "Failed and retried runs are first-class records.",
+      },
+      {
+        id: "notify", label: "Notification", kind: "data",
+        business: "The right people know the outcome without asking.",
+        technical: "Email / Teams / SMS notifications with links back to the record.",
+        tech: ["Email", "Teams", "SMS gateway"],
+        input: "Workflow complete",
+        output: "Supplier and buyer notified",
+        failure: "Notification provider outage.",
+        recovery: "Queued and retried; delivery status visible on the record.",
+      },
+    ],
+  },
+];

@@ -1,0 +1,68 @@
+[
+  {
+    "path": "/",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/solutions",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/industries",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/work",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/approach",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/about",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/insights",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/contact",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/lab",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/solutions/engineering-development",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  },
+  {
+    "path": "/work/master-data-reconciliation",
+    "viewport": 390,
+    "scrollWidth": 390,
+    "h1": 1
+  }
+]

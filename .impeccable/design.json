@@ -1,0 +1,16 @@
+{
+  "name": "Precision Intelligence",
+  "source": "User-pinned brief; implemented src/app/globals.css",
+  "tokens": {
+    "colors": {
+      "void": "#07090D", "base": "#0D1117", "panel": "#121821", "raised": "#18212D",
+      "line": "#222C39", "lineStrong": "#2F3B4B", "ink": "#F3F6FA", "mute": "#99A8BA", "dim": "#75849A",
+      "engineering": "#DA3633", "engineeringText": "#F2716D", "data": "#00C8D7", "dataText": "#3FDBE6",
+      "positive": "#49D7B1", "warning": "#F0B35A"
+    },
+    "typography": { "display": "Space Grotesk", "body": "Inter", "technical": "JetBrains Mono" },
+    "layout": { "maxContent": "1280px", "mobileGutter": "20px", "desktopGutter": "32px", "navHeight": "64px" },
+    "motion": { "easeOut": "cubic-bezier(0.16,1,0.3,1)", "reducedMotion": "CSS + SMIL packet suppression + WebGL fallback" }
+  },
+  "review": { "desktop": "1440x900", "mobile": "390x844", "formalAccessibilityCertified": false }
+}
