@@ -198,7 +198,7 @@ if __name__ == "__main__":
     for s in subjects:
         print("   mail:", s)
     check(any("[Auvetric jobs]" in s and "strong match" in s for s in subjects), "strong-match job alert emailed to partners")
-    check(any("[Auvetric enquiry]" in s and "Maria Shikongo" in s for s in subjects), "enquiry alert emailed to partners")
+    check(any("[Auvetric lead]" in s and "Maria Shikongo" in s for s in subjects), "enquiry alert emailed to partners")
     check(any(m["reply_to"] == "maria@example.com" for m in mail if "Maria" in m["subject"]), "enquiry alert reply-to is the client")
     check(not any("RankBoost" in s or "Growth Team" in s for s in subjects), "spam enquiry not alerted")
 

@@ -3,7 +3,7 @@
   "name": "05 Mail \u00b7 inbox router",
   "nodes": [
     {
-      "id": "704a9538-cb61-4cc7-8061-829c71a280e0",
+      "id": "9f81ef69-1331-47b0-a99e-bb8bbc198cda",
       "name": "New email in mailbox",
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2.1,
@@ -30,7 +30,7 @@
       }
     },
     {
-      "id": "7553f3ed-ec29-405d-b745-368eec1b9ba1",
+      "id": "88ca74c6-d719-4b36-a9b5-a3cb7c514f56",
       "name": "Classify email",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -39,11 +39,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "\n// One IMAP trigger for the whole mailbox; classification happens here, not in IMAP search,\n// so behaviour does not depend on the mail server's search implementation.\nconst JOB_DOMAINS = ['upwork.com', 'linkedin.com'];\nconst ENQUIRY_PREFIX = '[auvetric enquiry]';\nreturn $input.all().map(item => {\n  const j = item.json;\n  const from = String(j.from?.value?.[0]?.address || j.from?.text || '').toLowerCase();\n  const domain = from.split('@')[1] || '';\n  const subject = String(j.subject || '').trim().toLowerCase();\n  let route = 'ignore';\n  if (subject.startsWith(ENQUIRY_PREFIX)) route = 'enquiry';\n  else if (JOB_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) route = 'jobs';\n  return { json: { ...j, _route: route }, binary: item.binary };\n});\n"
+        "jsCode": "\n// One IMAP trigger for the whole mailbox; classification happens here, not in IMAP search,\n// so behaviour does not depend on the mail server's search implementation.\nconst JOB_DOMAINS = ['upwork.com', 'linkedin.com'];\nconst ENQUIRY_PREFIX = '[auvetric enquiry]';\n// Our own alerts may land in this same mailbox: never re-process them (prevents mail loops).\nconst OWN_ALERT_PREFIXES = ['[auvetric jobs]', '[auvetric lead]'];\nreturn $input.all().map(item => {\n  const j = item.json;\n  const from = String(j.from?.value?.[0]?.address || j.from?.text || '').toLowerCase();\n  const domain = from.split('@')[1] || '';\n  const subject = String(j.subject || '').trim().toLowerCase();\n  const body = String(j.text || '') + String(j.html || '');\n  let route = 'ignore';\n  if (OWN_ALERT_PREFIXES.some(p => subject.startsWith(p))) route = 'ignore';\n  // enquiries must come from the Web3Forms relay or carry the website's AUV1 payload\n  else if (subject.startsWith(ENQUIRY_PREFIX) && (domain === 'web3forms.com' || domain.endsWith('.web3forms.com') || body.includes('AUV1.'))) route = 'enquiry';\n  else if (JOB_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) route = 'jobs';\n  return { json: { ...j, _route: route }, binary: item.binary };\n});\n"
       }
     },
     {
-      "id": "d2018c1d-b6e3-48cf-b9db-4c2b5fc16773",
+      "id": "0cf96034-e908-46b8-b73e-6b31a2a9719f",
       "name": "Job alerts",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -60,7 +60,7 @@
           },
           "conditions": [
             {
-              "id": "ac8327f2-61f3-4cb9-b5ff-cba949f9589f",
+              "id": "302c2c85-c630-403b-8472-c6f5af59e0c1",
               "leftValue": "={{ $json._route }}",
               "rightValue": "jobs",
               "operator": {
@@ -75,7 +75,7 @@
       }
     },
     {
-      "id": "bd230d8c-9f32-414b-bc70-8cd497f68cfc",
+      "id": "65bd2ff5-3bb3-4760-8350-67a5de1bae46",
       "name": "Website enquiries",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -92,7 +92,7 @@
           },
           "conditions": [
             {
-              "id": "68dae88d-ca9c-488f-b55e-6e139d97b7aa",
+              "id": "fcea02e2-6de0-4ecb-91ed-ebacd6cfe7c2",
               "leftValue": "={{ $json._route }}",
               "rightValue": "enquiry",
               "operator": {
@@ -107,7 +107,7 @@
       }
     },
     {
-      "id": "6b450d27-b00a-42b9-a417-edc76e71fca3",
+      "id": "8b587d73-a42b-431d-a1ce-9e0577e2c6a0",
       "name": "Run 10 Jobs triage",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
@@ -135,7 +135,7 @@
       }
     },
     {
-      "id": "3167d295-7ec7-4338-b029-eccdb21a60c6",
+      "id": "94870c82-3aca-43d8-825d-8bf2ec59013a",
       "name": "Run 20 Website enquiries",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,

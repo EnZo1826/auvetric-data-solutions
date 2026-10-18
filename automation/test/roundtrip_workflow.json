@@ -1,0 +1,99 @@
+{
+  "id": "auvTestRoundtrp1",
+  "name": "99 Test \u00b7 mailbox round-trip",
+  "nodes": [
+    {
+      "id": "a5c38a2c-29a3-491d-a507-305a0ac4a0eb",
+      "name": "Start round-trip (localhost)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auvetric-mail-roundtrip",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "webhookId": "auvetric-mail-roundtrip"
+    },
+    {
+      "id": "8b9847a3-43c4-4e99-aaf6-63f8a4ddc0db",
+      "name": "Build test enquiry",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = { submission_id: 'roundtrip-' + Date.now(), submitted_at: new Date().toISOString(), intent: 'project',\n  name: 'EnZo connectivity test', organisation: 'Auvetric internal TEST', email: 'info@auvetric.com', phone: '',\n  interest: 'Engineering & Development', budget: 'Not specified', timeline: 'Not specified',\n  description: 'TEST ONLY: automated mailbox round-trip check from the n8n setup. We need remote monitoring for 3 water pumps with alarms on a dashboard. Please ignore.' };\nconst payload = 'AUV1.' + Buffer.from(JSON.stringify(d)).toString('base64').replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'') + '.AUV';\nreturn [{ json: { subject: `[Auvetric enquiry] Discuss a Project - ${d.name}`,\n  text: `TEST round-trip from n8n (sent ${d.submitted_at}).\\n\\nName: ${d.name}\\nMessage: ${d.description}\\n\\nPayload: ${payload}\\n` } }];\n"
+      }
+    },
+    {
+      "id": "4c24705e-1d05-4121-b293-1f16e280ff33",
+      "name": "Send via Zoho SMTP",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "fromEmail": "info@auvetric.com",
+        "toEmail": "info@auvetric.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "auvSmtpMailbox01",
+          "name": "Auvetric mailbox (SMTP)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start round-trip (localhost)": {
+      "main": [
+        [
+          {
+            "node": "Build test enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build test enquiry": {
+      "main": [
+        [
+          {
+            "node": "Send via Zoho SMTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Windhoek",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

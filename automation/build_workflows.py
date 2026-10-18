@@ -30,8 +30,8 @@ CONFIG_JS = """// ── Edit these values, then save. Shared settings for this 
 return [{ json: {
   ollamaUrl: 'http://host.docker.internal:11434',
   model: 'qwen3:8b',
-  alertTo: 'partners@auvetric.test',        // comma-separated: Jakes and Alex
-  fromAddress: 'alerts@auvetric.test',      // must be the SMTP mailbox address
+  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex
+  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)
   alertThreshold: 70,                       // jobs scoring >= this are emailed immediately
   timezone: 'Africa/Windhoek',
 }}];"""
@@ -191,13 +191,18 @@ ROUTE_JS = r"""
 // so behaviour does not depend on the mail server's search implementation.
 const JOB_DOMAINS = ['upwork.com', 'linkedin.com'];
 const ENQUIRY_PREFIX = '[auvetric enquiry]';
+// Our own alerts may land in this same mailbox: never re-process them (prevents mail loops).
+const OWN_ALERT_PREFIXES = ['[auvetric jobs]', '[auvetric lead]'];
 return $input.all().map(item => {
   const j = item.json;
   const from = String(j.from?.value?.[0]?.address || j.from?.text || '').toLowerCase();
   const domain = from.split('@')[1] || '';
   const subject = String(j.subject || '').trim().toLowerCase();
+  const body = String(j.text || '') + String(j.html || '');
   let route = 'ignore';
-  if (subject.startsWith(ENQUIRY_PREFIX)) route = 'enquiry';
+  if (OWN_ALERT_PREFIXES.some(p => subject.startsWith(p))) route = 'ignore';
+  // enquiries must come from the Web3Forms relay or carry the website's AUV1 payload
+  else if (subject.startsWith(ENQUIRY_PREFIX) && (domain === 'web3forms.com' || domain.endsWith('.web3forms.com') || body.includes('AUV1.'))) route = 'enquiry';
   else if (JOB_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) route = 'jobs';
   return { json: { ...j, _route: route }, binary: item.binary };
 });
@@ -549,7 +554,7 @@ const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 const nl = v => esc(v).replace(/\n/g, '<br>');
 const pr = { high: '#1f9e7a', normal: '#0069F5', low: '#8298B5' }[e.priority] || '#0069F5';
 return { json: { ...e, to: cfg.alertTo, from: cfg.fromAddress,
-  subject: `[Auvetric enquiry] ${e.priority.toUpperCase()} · ${e.name || 'Unknown'}${e.organisation ? ' (' + e.organisation + ')' : ''} · ${e.category}`,
+  subject: `[Auvetric lead] ${e.priority.toUpperCase()} · ${e.name || 'Unknown'}${e.organisation ? ' (' + e.organisation + ')' : ''} · ${e.category}`,
   html: `<div style="max-width:680px;font:14px Arial;color:#061433">
   <div style="font:600 13px Arial;color:#0069F5;letter-spacing:.08em">AUVETRIC · WEBSITE ENQUIRY</div>
   <h2 style="margin:10px 0 4px">${esc(e.name)} ${e.organisation ? '· ' + esc(e.organisation) : ''}</h2>

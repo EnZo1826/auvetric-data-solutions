@@ -3,7 +3,7 @@
   "name": "20 Website \u00b7 process enquiries",
   "nodes": [
     {
-      "id": "f02214f5-d77c-4239-a4e9-3953d4b08631",
+      "id": "14a69565-dc73-4d9f-9fd6-8943df22949b",
       "name": "Website enquiry email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "ed54849c-b932-4ce2-900c-c30044cdbd12",
+      "id": "b239b1aa-0d3e-4cf2-9b66-4e254ca1d31c",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -25,11 +25,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'partners@auvetric.test',        // comma-separated: Jakes and Alex\n  fromAddress: 'alerts@auvetric.test',      // must be the SMTP mailbox address\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
       }
     },
     {
-      "id": "371c6e10-ab33-4390-b969-9ff921c52566",
+      "id": "9073141b-0d65-4809-a9ab-22ceee14c404",
       "name": "Parse submission",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "e3118df7-531b-4bd6-98ba-36b953a05950",
+      "id": "72af85dc-03d8-4f38-ab91-7a1f5d2d8cd7",
       "name": "Skip duplicates",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "fab01aa1-6623-48c5-b768-a92064214489",
+      "id": "85dac150-482f-472c-af21-0e91cd3719ec",
       "name": "Build enquiry prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
       }
     },
     {
-      "id": "b79473e8-c8bc-4050-bfbd-5d0c21c00b80",
+      "id": "08dc72eb-4f18-4d78-8778-f62ee3311fcd",
       "name": "Local AI: triage enquiry",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -109,7 +109,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "80e46536-c9a8-4460-9a57-6be6608e2f59",
+      "id": "7089128a-1f31-4f7d-807f-d9534e08be5a",
       "name": "Validate triage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -122,7 +122,7 @@
       }
     },
     {
-      "id": "84de90c5-ecd1-4927-bd91-346342b53e37",
+      "id": "4cd0db1b-b934-4433-a031-d3e5669d97f7",
       "name": "Save enquiry",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -148,7 +148,7 @@
       }
     },
     {
-      "id": "b6368347-57e7-4a3b-bd14-3277f3118c54",
+      "id": "703ebeec-9521-4f98-a145-bd0cc5b0deb7",
       "name": "Not spam?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -165,7 +165,7 @@
           },
           "conditions": [
             {
-              "id": "8b1eaad5-c1a8-4bc3-809d-028467fe5daa",
+              "id": "d2a6ca67-e4e8-4e48-984d-a9eec1e45c22",
               "leftValue": "={{ $('Validate triage').item.json.spam_score }}",
               "rightValue": 70,
               "operator": {
@@ -180,7 +180,7 @@
       }
     },
     {
-      "id": "d1566235-cf33-4f56-9e64-1aff66751c22",
+      "id": "565f4d52-b566-4cac-8cc9-8c05ee281a81",
       "name": "Compose partner alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -189,12 +189,12 @@
         0
       ],
       "parameters": {
-        "jsCode": "const e = $('Validate triage').item.json;\n\nconst cfg = $('Config').first().json;\n\nconst esc = v => String(v ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\nconst nl = v => esc(v).replace(/\\n/g, '<br>');\nconst pr = { high: '#1f9e7a', normal: '#0069F5', low: '#8298B5' }[e.priority] || '#0069F5';\nreturn { json: { ...e, to: cfg.alertTo, from: cfg.fromAddress,\n  subject: `[Auvetric enquiry] ${e.priority.toUpperCase()} \u00b7 ${e.name || 'Unknown'}${e.organisation ? ' (' + e.organisation + ')' : ''} \u00b7 ${e.category}`,\n  html: `<div style=\"max-width:680px;font:14px Arial;color:#061433\">\n  <div style=\"font:600 13px Arial;color:#0069F5;letter-spacing:.08em\">AUVETRIC \u00b7 WEBSITE ENQUIRY</div>\n  <h2 style=\"margin:10px 0 4px\">${esc(e.name)} ${e.organisation ? '\u00b7 ' + esc(e.organisation) : ''}</h2>\n  <div style=\"color:#4a5a72\">${esc(e.email)} ${e.phone ? '\u00b7 ' + esc(e.phone) : ''}</div>\n  <p><b style=\"color:${pr}\">${esc(e.priority)} priority</b> \u00b7 ${esc(e.category)} \u00b7 ${esc(e.practice)} \u00b7 budget ${esc(e.budget || 'n/a')} \u00b7 timeline ${esc(e.timeline || 'n/a')} \u00b7 spam ${e.spam_score}/100</p>\n  <h3 style=\"margin-bottom:4px\">Summary</h3><p>${nl(e.summary)}</p>\n  <h3 style=\"margin-bottom:4px\">Key requirements</h3><p>${nl(e.key_requirements || '-')}</p>\n  <h3 style=\"margin-bottom:4px\">Questions to ask</h3><p>${nl(e.questions_to_ask || '-')}</p>\n  <h3 style=\"margin-bottom:4px\">Original message</h3><blockquote style=\"border-left:3px solid #dfe6f0;margin:0;padding-left:12px;color:#4a5a72\">${nl(e.message)}</blockquote>\n  <h3 style=\"margin-bottom:4px\">Draft reply (review before sending)</h3><div style=\"background:#f3f7ff;padding:12px;border-radius:8px\">${nl(e.suggested_reply || '(no draft)')}</div>\n  <p style=\"font:11px Arial;color:#8298B5\">Reply to this email to answer ${esc(e.name)} directly. Triage by a local AI model; nothing was sent to the client.</p></div>` } };\n",
+        "jsCode": "const e = $('Validate triage').item.json;\n\nconst cfg = $('Config').first().json;\n\nconst esc = v => String(v ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\nconst nl = v => esc(v).replace(/\\n/g, '<br>');\nconst pr = { high: '#1f9e7a', normal: '#0069F5', low: '#8298B5' }[e.priority] || '#0069F5';\nreturn { json: { ...e, to: cfg.alertTo, from: cfg.fromAddress,\n  subject: `[Auvetric lead] ${e.priority.toUpperCase()} \u00b7 ${e.name || 'Unknown'}${e.organisation ? ' (' + e.organisation + ')' : ''} \u00b7 ${e.category}`,\n  html: `<div style=\"max-width:680px;font:14px Arial;color:#061433\">\n  <div style=\"font:600 13px Arial;color:#0069F5;letter-spacing:.08em\">AUVETRIC \u00b7 WEBSITE ENQUIRY</div>\n  <h2 style=\"margin:10px 0 4px\">${esc(e.name)} ${e.organisation ? '\u00b7 ' + esc(e.organisation) : ''}</h2>\n  <div style=\"color:#4a5a72\">${esc(e.email)} ${e.phone ? '\u00b7 ' + esc(e.phone) : ''}</div>\n  <p><b style=\"color:${pr}\">${esc(e.priority)} priority</b> \u00b7 ${esc(e.category)} \u00b7 ${esc(e.practice)} \u00b7 budget ${esc(e.budget || 'n/a')} \u00b7 timeline ${esc(e.timeline || 'n/a')} \u00b7 spam ${e.spam_score}/100</p>\n  <h3 style=\"margin-bottom:4px\">Summary</h3><p>${nl(e.summary)}</p>\n  <h3 style=\"margin-bottom:4px\">Key requirements</h3><p>${nl(e.key_requirements || '-')}</p>\n  <h3 style=\"margin-bottom:4px\">Questions to ask</h3><p>${nl(e.questions_to_ask || '-')}</p>\n  <h3 style=\"margin-bottom:4px\">Original message</h3><blockquote style=\"border-left:3px solid #dfe6f0;margin:0;padding-left:12px;color:#4a5a72\">${nl(e.message)}</blockquote>\n  <h3 style=\"margin-bottom:4px\">Draft reply (review before sending)</h3><div style=\"background:#f3f7ff;padding:12px;border-radius:8px\">${nl(e.suggested_reply || '(no draft)')}</div>\n  <p style=\"font:11px Arial;color:#8298B5\">Reply to this email to answer ${esc(e.name)} directly. Triage by a local AI model; nothing was sent to the client.</p></div>` } };\n",
         "mode": "runOnceForEachItem"
       }
     },
     {
-      "id": "c8dfa654-2df4-4acf-9dc5-140cc962b77f",
+      "id": "4ce36ff2-8fb1-4c66-a9a3-137c94060754",
       "name": "Email partners",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -221,7 +221,7 @@
       }
     },
     {
-      "id": "61589679-ff55-4ecc-8d7a-07c9bb67170d",
+      "id": "99fb2b8d-7174-442b-9395-8f25f7b0bf34",
       "name": "Flag alerted",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

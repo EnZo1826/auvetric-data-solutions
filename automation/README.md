@@ -87,7 +87,7 @@ Re-importing overwrites edits made in the n8n editor (including Config values), 
 
 ## Tests
 
-`python test/e2e_test.py` runs the whole pipeline against the local GreenMail test server (`docker compose --profile test up -d mailtest`). It sends synthetic Upwork and LinkedIn alerts, a real and a spam enquiry, a duplicate and an unrelated newsletter, then checks extraction, scoring, storage, alerts, reply-to, spam suppression, de-duplication and that no execution errored. `python test/probe_enquiry.py` runs the enquiry prompt directly against Ollama to tune it.
+`python test/build_roundtrip.py` + import + `curl -X POST http://127.0.0.1:5678/webhook/auvetric-mail-roundtrip` sends a TEST enquiry through the real mailbox (SMTP → IMAP → triage → alert). `python test/e2e_test.py` runs the whole pipeline against the local GreenMail test server (point the credentials and Config at the test server first) (`docker compose --profile test up -d mailtest`). It sends synthetic Upwork and LinkedIn alerts, a real and a spam enquiry, a duplicate and an unrelated newsletter, then checks extraction, scoring, storage, alerts, reply-to, spam suppression, de-duplication and that no execution errored. `python test/probe_enquiry.py` runs the enquiry prompt directly against Ollama to tune it.
 
 Parsing is format-tolerant: jobs are found by URL pattern (`upwork.com/jobs/…~0…`, `linkedin.com/(comm/)jobs/view/<id>`), not by the alert's layout. Real Upwork and LinkedIn emails were not available for testing. When the first real alerts arrive, check *10 Jobs → Executions* to confirm the jobs were split correctly.
 

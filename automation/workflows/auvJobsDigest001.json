@@ -3,7 +3,7 @@
   "name": "11 Jobs \u00b7 daily digest",
   "nodes": [
     {
-      "id": "73d4d10b-7cb5-428c-8d28-5069803630a4",
+      "id": "0375347d-c377-4cc3-a7cf-bb63ff3cd8c7",
       "name": "Every morning 07:30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "id": "63f5b283-53ea-4fd4-a440-d17d994daa88",
+      "id": "ae08cddb-fc0a-4571-99fe-ffad9c623cd5",
       "name": "Run now (localhost webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -40,7 +40,7 @@
       "webhookId": "auvetric-run-digest"
     },
     {
-      "id": "56ac77fc-6cdd-4948-88a0-8acf395cd700",
+      "id": "ea9e9a06-eef0-4abf-8ff5-5a2cd25904fe",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -49,11 +49,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'partners@auvetric.test',        // comma-separated: Jakes and Alex\n  fromAddress: 'alerts@auvetric.test',      // must be the SMTP mailbox address\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
       }
     },
     {
-      "id": "a4d17f33-0ec7-4439-81e4-106f05eaeb20",
+      "id": "6d11438a-1731-4828-bc4f-5c5b11098fee",
       "name": "Undigested jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -86,7 +86,7 @@
       "alwaysOutputData": true
     },
     {
-      "id": "067acbc2-8f93-4295-8545-e473deefebf0",
+      "id": "4454d28c-b82d-49ae-95ba-e23b9aaf5f03",
       "name": "Compose digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -99,7 +99,7 @@
       }
     },
     {
-      "id": "d9d384b8-0fad-4e4d-929b-1df13ae2bca3",
+      "id": "f0c6963f-8e07-4a24-b84f-b45f00e6daae",
       "name": "Email digest",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -125,7 +125,7 @@
       }
     },
     {
-      "id": "f4f05475-985d-4e84-a750-85ae84b9ad3b",
+      "id": "9d254026-544d-4f03-bd92-855fee274cc3",
       "name": "One item per job",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -138,7 +138,7 @@
       }
     },
     {
-      "id": "0cef25ce-1904-489d-bb30-52af2c582c1f",
+      "id": "582325f9-adbd-4d03-9f94-78643ff13216",
       "name": "Mark digested",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
