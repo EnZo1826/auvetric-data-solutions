@@ -4,10 +4,10 @@
 import assert from 'node:assert/strict';
 import { hashPassword } from '../../src/crm/server/password.ts';
 import { base32Decode, totp } from '../../src/crm/server/totp.ts';
-import { connect, databaseUrl } from './env.mjs';
+import { connect, isHostedDb } from './env.mjs';
 
 const BASE = (process.env.CRM_TEST_URL || 'http://localhost:3100').replace(/\/$/, '');
-if (/auvetric\.com|netlify\.app/.test(BASE) || /neon\.tech/.test(databaseUrl())) {
+if (/auvetric\.com|netlify\.app/.test(BASE) || isHostedDb()) {
   console.error('Refusing to run auth tests against production.');
   process.exit(2);
 }

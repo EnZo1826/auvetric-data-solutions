@@ -37,6 +37,13 @@ npm run crm:user -- reset-mfa <email>        # lost phone: re-enrol at next sign
 npm run crm:user -- unlock <email> | disable <email> | enable <email>
 ```
 
+## Supabase specifics
+
+- Supabase is used as plain Postgres. The anon/publishable key is never used by the app; the Data API would expose `public` tables to it, so migration `0003_supabase_lockdown.sql` enables RLS on every table and revokes all `anon`/`authenticated` privileges, and `crm:migrate` fails if any table is missing RLS or has such grants. **Every new migration that creates a table must enable RLS on it.**
+- Connection: session pooler (port 5432). The transaction pooler (6543) hangs postgres.js when parameterless and parameterised queries are pipelined on one connection (reproduced with Supavisor 2.9.13); `db.ts` refuses a 6543 URL.
+- Local Supabase check (optional): `npx supabase init` in a scratch folder, set other ports and `[db.pooler] enabled = true, pool_mode = "session"`, `npx supabase start`, then run `crm:migrate`, the auth/API suites and `crm:test:supabase` with `DATABASE_URL=postgresql://postgres.pooler-dev:postgres@127.0.0.1:<pooler-port>/postgres`.
+- Free plan: pauses after about a week of low activity (resume from the dashboard; data is kept). No point-in-time restore on Free, so keep the JSON backup routine.
+
 ## Security model (Phase 0)
 
 - Passwords: scrypt (N=2^15, r=8, p=1), 12+ characters, must not contain the email name.
@@ -56,9 +63,10 @@ Daily job: `netlify/functions/crm-daily.mts` (Netlify Scheduled Function, 04:00 
 
 ## Production deploy (end of each phase)
 
-1. Netlify → site `auvetric` → Extensions → **Netlify DB** (Neon). It sets `NETLIFY_DATABASE_URL`.
+1. Supabase → New project `auvetric-crm`, region **East US** (Netlify functions run in US East, Ohio, by default). Save the database password in the password manager. Connect → **Session pooler** gives `postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`. Do not use the transaction pooler (port 6543); the app refuses it.
+   Netlify → Environment variables: `DATABASE_URL` = that session-pooler URL.
 2. Netlify → Site configuration → Environment variables (scope *Functions/Runtime*): `CRM_ENCRYPTION_KEY` (new key, generated once and stored in the password manager; never reuse the local one) and `CRM_CRON_SECRET` (32+ random characters).
-3. From the PC, with the production URL in the environment for that shell only: `npm run crm:migrate`, then `npm run crm:user -- add` for Jakes and Alex. Hand each one-time password over in person or by phone, not email.
+3. From the PC, with the production URL in the environment for that shell only (`MIGRATE_DATABASE_URL=…`): `npm run crm:migrate` (ends with the Data API lockdown check), then `npm run crm:user -- add` for Jakes and Alex. Then prove the public key can't read anything: `SUPABASE_URL=https://<ref>.supabase.co SUPABASE_PUBLISHABLE_KEY=<publishable key> npm run crm:test:supabase`. Hand each one-time password over in person or by phone, not email.
 4. Merge `crm` → `main` (pull request, CI green). Netlify builds and deploys.
 5. Check: `https://auvetric.com/crm` redirects to the login page, both partners complete enrolment, the public pages and `/robots.txt` are unchanged.
 

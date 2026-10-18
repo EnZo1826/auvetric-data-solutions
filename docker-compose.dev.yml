@@ -1,4 +1,4 @@
-# Local development database for the Auvetric CRM (production uses Netlify DB / Neon).
+# Local development database for the Auvetric CRM (production uses Supabase Postgres).
 # Start:  docker compose -f docker-compose.dev.yml up -d
 # These credentials are for this local container only.
 name: auvetric-crm-dev

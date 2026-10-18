@@ -23,14 +23,14 @@ Current state (checked 18 Oct 2026): auvetric.com is live on **Netlify** (A reco
 
 - One repository (`auvetric-data-solutions`), one build, one deployment, one domain. The CRM reuses the website's design tokens and components, so it matches the brand automatically.
 - `/crm/*` is excluded from search engines (`robots`, `noindex`) and served only to signed-in partners. Middleware checks the session on every `/crm` and `/api/crm` request.
-- **Database:** Neon Postgres (free: 0.5 GB, scale-to-zero), connected through a Netlify environment variable.
+- **Database (revised 19 Oct 2026):** Supabase Postgres (free: 500 MB), used purely as a database. The Next.js server connects through Supabase's **session pooler** with `DATABASE_URL`; the Supabase Data API, supabase-js and Supabase Auth are not used. Every CRM table has row-level security with no policies and the `anon`/`authenticated` roles hold no grants, so the project's public key can't read anything (verified by `npm run crm:test:supabase`). Free projects pause after about a week of low database activity; the daily job and normal use keep it awake, and a pause is undone from the dashboard.
 - **Netlify plan:** the free plan's 300 credits/month cover the site's traffic, but each production deploy costs about 15 credits. Daily CRM development would use them up, and when credits run out Netlify pauses the site until the month resets. Either upgrade to **Netlify Personal ($9/month)** while building, or keep production deploys to milestones: develop locally and on a branch with previews off, and merge to `main` at each tested phase.
 - **Vercel** is excluded (Hobby plan bans commercial use). **Cloudflare** remains a later option: Cloudflare Access could add an email-code gate in front of `/crm`, but that needs the DNS moved to Cloudflare and a Next.js adapter. It isn't needed now.
 - The GitHub Pages copy (`enzo1826.github.io/auvetric-data-solutions`) becomes redundant once the CRM is live. Retire it or keep it as a read-only mirror without the CRM.
 
 ## 3. What carries over from JobTracker
 
-JobTracker is Vite + React 18 + TypeScript + Zustand, with Postgres and one serverless API (about 3,500 lines). Its **logic** (VAT and totals calculation, numbering, print layout, monthly generation, Kanban) is ported into the website's Next.js app under `/crm`; **no IO Tech data** is copied. The CRM gets its own Neon database but shares the website's repository and deployment.
+JobTracker is Vite + React 18 + TypeScript + Zustand, with Postgres and one serverless API (about 3,500 lines). Its **logic** (VAT and totals calculation, numbering, print layout, monthly generation, Kanban) is ported into the website's Next.js app under `/crm`; **no IO Tech data** is copied. The CRM gets its own Supabase database but shares the website's repository and deployment.
 
 | JobTracker | Auvetric CRM | Changes |
 |---|---|---|
@@ -117,14 +117,14 @@ Money is stored as numeric(14,2) with a currency code and an optional exchange r
 - Role model ready for more users later (admin, member, read-only).
 - Ingest API: token auth, schema validation, payload size limits, rate limiting.
 - Audit log of every create, update and delete on financial records.
-- Backups: Neon point-in-time restore (free plan: about 1 day), plus a nightly JSON/CSV export (Netlify Blobs, and optionally emailed or copied to the PC), plus the manual export button carried over from JobTracker.
+- Backups: Supabase's free plan has no point-in-time restore, so the export is the backup: a nightly JSON/CSV export a nightly JSON/CSV export (Netlify Blobs, and optionally emailed or copied to the PC), plus the manual export button carried over from JobTracker.
 - Secrets live in Netlify environment variables and are never committed.
 
 ## 9. Phases and acceptance
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **0 · Foundations** | Neon project, Netlify env vars, `/crm` shell inside the website app (layout, sidebar, auth, middleware, TOTP), migrations, tests in CI, `noindex` | `auvetric.com/crm/login` live; only Jakes and Alex can sign in; public site unaffected |
+| **0 · Foundations** | Supabase project, Netlify env vars, `/crm` shell inside the website app (layout, sidebar, auth, middleware, TOTP), migrations, tests in CI, `noindex` | `auvetric.com/crm/login` live; only Jakes and Alex can sign in; public site unaffected |
 | **1 · JobTracker port** | Company profile, clients and contacts, services, quotes, invoices, retainers and cron, projects board, dashboard v1, settings, print layouts | Quote → invoice → paid flow works end to end; VAT and totals match JobTracker's calculation tests; PDFs print correctly |
 | **2 · Sales + n8n** | Enquiries, opportunities, leads pipeline, activities, tasks; ingest API, n8n push and pull workflows, backfill; website form → CRM | A real Upwork/LinkedIn alert appears in Opportunities within minutes; a website enquiry is stored with the PC off and triaged when it comes back on |
 | **3 · Delivery + finance** | Time tracking → invoice lines, payments, expenses, marketplace earnings, debtors ageing, statements, emailing documents (Zoho transactional mail / ZeptoMail) | Monthly close: every invoice paid or aged, billable hours invoiced |
@@ -137,7 +137,7 @@ Each phase ships working software with automated tests and a live deployment, th
 ## 10. Needed from you
 
 - **Netlify access:** confirm the Netlify site `auvetric` deploys from the GitHub repo `EnZo1826/auvetric-data-solutions` (branch `main`), and choose Netlify Personal ($9/month) or milestone-only deploys. I'll need a Netlify personal access token, entered in the vault, to set environment variables and check deploys.
-- **Neon account:** a free account for the CRM database (or tell me to use Netlify DB, which is Neon-backed).
+- **Supabase project:** a new project for the CRM (region East US, near Netlify's default functions region), its database password and session-pooler connection string.
 - **Business details for documents:** legal name and registration number, VAT status and number (if registered), banking details for invoices, payment terms, and preferred invoice and quote number formats.
 - **Who sees what:** whether Jakes and Alex both see all financials, or there is any separation (e.g. a per-partner revenue view).
 
@@ -145,6 +145,7 @@ Each phase ships working software with automated tests and a live deployment, th
 
 - **Netlify credits:** on the free plan, frequent deploys can pause the whole site, website included. Mitigated by Personal ($9/month) or milestone deploys.
 - **Shared deployment:** a CRM bug could affect the public site's build. Mitigated by CI (typecheck, lint, tests, build) before every merge and keeping CRM code isolated under `src/app/crm` and `src/crm`.
-- **Neon scale-to-zero** adds a few hundred milliseconds to the first request after idle. That's acceptable for a two-user CRM.
+- **Supabase free plan:** pauses after about a week of low activity and allows two active free projects per owner. Mitigated by the daily job and normal use; upgrade to Pro ($25/month) if pausing ever bites or backups are needed.
+- **Supabase transaction pooler (port 6543) hangs postgres.js** under concurrent queries (reproduced locally). The CRM uses the session pooler and refuses a 6543 URL at start-up.
 - **The n8n side depends on the PC** for AI triage. Intake no longer does (enquiries are stored in the CRM first), but enrichment and job alerts pause while the PC is off.
 - **Changing VAT or tax rules:** VAT handling stays configurable. Your accountant should confirm invoice wording and VAT registration obligations.

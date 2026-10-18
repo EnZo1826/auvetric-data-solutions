@@ -59,4 +59,13 @@ assert.throws(() => unseal(sealed), 'wrong key rejected');
 process.env.CRM_ENCRYPTION_KEY = 'short';
 assert.throws(() => seal('x'), /32 bytes/);
 assert.equal(sha256('abc'), 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
-console.log('CRM security units: base32, HOTP (RFC 4226), TOTP (RFC 6238), drift window, replay block, otpauth URI, scrypt hashing, password policy passed.');
+// ── database URL rules (Supabase session pooler only, TLS for remote hosts) ──
+const { sslFor, assertSupportedUrl } = await import('../../src/crm/server/db.ts');
+assert.equal(sslFor('postgres://u:p@127.0.0.1:54329/db'), false);
+assert.equal(sslFor('postgres://u:p@localhost/db'), false);
+assert.equal(sslFor('postgresql://postgres.abc:p@aws-0-us-east-2.pooler.supabase.com:5432/postgres'), 'require');
+assert.equal(sslFor('postgres://u:p@db.example/x?sslmode=disable'), false);
+assert.doesNotThrow(() => assertSupportedUrl('postgresql://postgres.abc:p@aws-0-us-east-2.pooler.supabase.com:5432/postgres'));
+assert.throws(() => assertSupportedUrl('postgresql://postgres.abc:p@aws-0-us-east-2.pooler.supabase.com:6543/postgres'), /session pooler/);
+assert.throws(() => assertSupportedUrl('not a url'), /valid URL/);
+console.log('CRM security units: base32, HOTP (RFC 4226), TOTP (RFC 6238), drift window, replay block, otpauth URI, scrypt hashing, password policy, database URL rules passed.');

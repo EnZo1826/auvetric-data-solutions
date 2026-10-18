@@ -22,7 +22,8 @@
     "crm:test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-units.mjs",
     "crm:test:auth": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-auth.mjs",
     "crm:test:calc": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-calc.mjs",
-    "crm:test:api": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-api.mjs"
+    "crm:test:api": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-api.mjs",
+    "crm:test:supabase": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-supabase.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
