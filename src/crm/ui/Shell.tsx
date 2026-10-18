@@ -5,15 +5,17 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Banknote, BarChart3, Boxes, Building2, FileText, FolderKanban, Inbox, KanbanSquare, Landmark, LayoutDashboard,
-  ListChecks, LogOut, Menu, Moon, Plug, Radar, Receipt, Repeat, ScrollText, Store, Sun, Timer, UserCog, Users, Wallet,
+  ListChecks, LogOut, Menu, Moon, Plug, Radar, Receipt, Repeat, ScrollText, Settings, Store, Sun, Timer, UserCog, Users, Wallet,
   type LucideIcon,
 } from "lucide-react";
 import { NAV, isBuilt } from "@/crm/nav";
 import { crmFetch } from "./api";
+import { useCrm } from "./store";
+import { Toasts } from "./ui";
 
 const ICONS: Record<string, LucideIcon> = {
   Banknote, BarChart3, Boxes, Building2, FileText, FolderKanban, Inbox, KanbanSquare, Landmark, LayoutDashboard,
-  ListChecks, Plug, Radar, Receipt, Repeat, ScrollText, Store, Timer, UserCog, Users, Wallet,
+  ListChecks, Plug, Radar, Receipt, Repeat, ScrollText, Settings, Store, Timer, UserCog, Users, Wallet,
 };
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -45,8 +47,12 @@ export function ThemeToggle() {
   );
 }
 
-export function CrmShell({ user, children }: { user: { name: string; email: string; role: string }; children: ReactNode }) {
+type Me = { id: string; name: string; email: string; role: "admin" | "member" | "readonly" };
+
+export function CrmShell({ user, children }: { user: Me; children: ReactNode }) {
   const pathname = usePathname();
+  const setMe = useCrm((s) => s.setMe);
+  useEffect(() => setMe(user), [user, setMe]);
   const [open, setOpen] = useState(false);
   const online = useOnline();
   useEffect(() => setOpen(false), [pathname]);
@@ -104,6 +110,7 @@ export function CrmShell({ user, children }: { user: { name: string; email: stri
         </header>
         <main className="content" id="main">{children}</main>
       </div>
+      <Toasts />
     </div>
   );
 }

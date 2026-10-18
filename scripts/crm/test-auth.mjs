@@ -156,7 +156,7 @@ try {
   r = await a.req('/crm');
   assert.equal(r.status, 200); assert.match(r.text, /Good to see you/); assert.match(r.text, /Test Partner/);
   ok('dashboard renders for the signed-in partner');
-  r = await a.req('/crm/invoices');
+  r = await a.req('/crm/enquiries');
   assert.equal(r.status, 200); assert.match(r.text, /Scheduled · Phase/);
   r = await a.req('/crm/account');
   assert.equal(r.status, 200); assert.match(r.text, /this browser/);

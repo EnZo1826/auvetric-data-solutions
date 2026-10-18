@@ -18,6 +18,11 @@ export function db(): Sql {
     connect_timeout: 10,
     prepare: false, // safe behind PgBouncer transaction pooling
     onnotice: () => {},
+    types: {
+      // NUMERIC → JS number (money is 2 dp, well inside double precision); DATE → plain YYYY-MM-DD
+      numeric: { to: 1700, from: [1700], serialize: (x: unknown) => String(x), parse: (x: string) => Number(x) },
+      date: { to: 1082, from: [1082], serialize: (x: unknown) => String(x), parse: (x: string) => x },
+    },
     transform: { undefined: null },
   });
   return g.__auvCrmSql;

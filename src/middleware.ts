@@ -6,7 +6,8 @@ import { NextResponse, type NextRequest } from "next/server";
  * Also marks every CRM response non-indexable, non-cacheable and non-frameable.
  */
 const COOKIE = process.env.NODE_ENV === "production" ? "__Host-auv_crm" : "auv_crm";
-const PUBLIC = new Set(["/crm/login", "/api/crm/auth/login"]);
+// /api/crm/cron authenticates with its own bearer secret (scheduled function, no cookie).
+const PUBLIC = new Set(["/crm/login", "/api/crm/auth/login", "/api/crm/cron"]);
 
 function harden(res: NextResponse) {
   res.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");

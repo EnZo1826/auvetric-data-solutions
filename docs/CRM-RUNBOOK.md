@@ -19,6 +19,8 @@ First sign-in: one-time password → choose a new password (12+ characters) → 
 | Command | What |
 |---|---|
 | `npm run crm:test:unit` | Base32, HOTP/TOTP against RFC 4226/6238 vectors, replay window, scrypt, password policy, AES-GCM sealing. Part of `npm run check`. |
+| `npm run crm:test:calc` | Money maths ported from JobTracker: VAT on the document total (half-up), discount, cents robustness, numbering, Windhoek dates, NAD conversion. Part of `npm run check`. |
+| `CRM_TEST_URL=http://localhost:3100 npm run crm:test:api` | 18 end-to-end Phase 1 groups: roles (admin/member/read-only), CSRF, company profile, clients/contacts, services, quotes/invoices (server totals, VAT off while unregistered, numbering under concurrency, USD rates, locking, convert, duplicate), projects board, retainers (once per month, also under concurrency), daily job bearer auth, timeline, users admin, backup export without secrets, print page, every Phase 1 page. |
 | `npm run build && npx next start -p 3100` then `CRM_TEST_URL=http://localhost:3100 npm run crm:test:auth` | 32 end-to-end sign-in checks: gatekeeping, CSRF, enumeration, forced password change, enrolment, replay, lockout, IP throttle, session rotation, sign-out everywhere, disabled users, audit trail, public site unaffected. Refuses to run against production. |
 
 CI (`.github/workflows/crm-ci.yml`) runs all of the above on the `crm` branch and on pull requests into `main`, plus the static Pages export (asserting no `/crm` in it).
@@ -44,12 +46,20 @@ npm run crm:user -- unlock <email> | disable <email> | enable <email>
 - Every state-changing request must carry this site's `Origin`. Middleware blocks cookieless requests and sets `noindex`, `no-store`, `DENY` framing on every `/crm` response; `robots.txt` disallows `/crm`.
 - Audit log: sign-ins, failures, lockouts, password and two-factor changes, CLI account actions.
 
+## Phase 1 modules
+
+Dashboard (NAD-equivalent KPIs, 12-month invoicing, deadlines), Clients & Contacts (timeline of calls/emails/meetings/notes plus system events), Services catalogue (four practices), Quotes with optional proposal sections, Invoices (NAD/USD with per-document rate), Retainers (monthly drafts, never twice per month), Projects board (drag and drop, checklist, milestones, budget), Company profile (placeholders highlighted on print), Users (one-time passwords, roles, 2FA reset), Settings (board columns, JSON backup, run daily job). A4 print at `/crm/print?ids=…` (browser Save as PDF).
+
+Document rules: totals are always computed on the server; VAT is forced to 0 until the company is VAT-registered (documents print “INVOICE”, not “TAX INVOICE”); paid, cancelled and invoiced documents are locked; only drafts can be deleted (cancel instead, so numbers stay accounted for).
+
+Daily job: `netlify/functions/crm-daily.mts` (Netlify Scheduled Function, 04:00 UTC = 06:00 Windhoek) POSTs to `/api/crm/cron` with `Authorization: Bearer $CRM_CRON_SECRET`. It drafts due auto-retainers and marks sent invoices past due as overdue. Admins can also run it from Settings.
+
 ## Production deploy (end of each phase)
 
 1. Netlify → site `auvetric` → Extensions → **Netlify DB** (Neon). It sets `NETLIFY_DATABASE_URL`.
-2. Netlify → Site configuration → Environment variables: `CRM_ENCRYPTION_KEY` (new key, generated once and stored in the password manager; never reuse the local one), scope *Functions/Runtime*.
+2. Netlify → Site configuration → Environment variables (scope *Functions/Runtime*): `CRM_ENCRYPTION_KEY` (new key, generated once and stored in the password manager; never reuse the local one) and `CRM_CRON_SECRET` (32+ random characters).
 3. From the PC, with the production URL in the environment for that shell only: `npm run crm:migrate`, then `npm run crm:user -- add` for Jakes and Alex. Hand each one-time password over in person or by phone, not email.
 4. Merge `crm` → `main` (pull request, CI green). Netlify builds and deploys.
 5. Check: `https://auvetric.com/crm` redirects to the login page, both partners complete enrolment, the public pages and `/robots.txt` are unchanged.
 
-Rollback: revert the merge commit on `main`. Migrations are additive; Phase 0 tables are unused by the public site.
+Rollback: revert the merge commit on `main`. Migrations are additive; CRM tables are unused by the public site.

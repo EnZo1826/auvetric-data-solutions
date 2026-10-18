@@ -15,12 +15,14 @@
     "verify:telemetry": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-telemetry.mjs",
     "verify:contact": "node scripts/verify-contact.mjs",
     "verify:relay": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/verify-relay.mjs",
-    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry && npm run verify:brand && npm run verify:relay && npm run crm:test:unit",
+    "check": "npm run typecheck && npm run lint && npm run verify:data && npm run verify:telemetry && npm run verify:brand && npm run verify:relay && npm run crm:test:unit && npm run crm:test:calc",
     "crm:db": "docker compose -f docker-compose.dev.yml up -d",
     "crm:migrate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/migrate.mjs",
     "crm:user": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/user.mjs",
     "crm:test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-units.mjs",
-    "crm:test:auth": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-auth.mjs"
+    "crm:test:auth": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-auth.mjs",
+    "crm:test:calc": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-calc.mjs",
+    "crm:test:api": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-api.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
@@ -32,7 +34,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "three": "^0.186.1",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

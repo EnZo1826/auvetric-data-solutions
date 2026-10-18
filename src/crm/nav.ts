@@ -9,7 +9,7 @@ export type NavItem = {
 export type NavGroup = { label: string; items: NavItem[] };
 
 /** Modules that are live. Add each slug as its phase ships; everything else renders as scheduled. */
-export const BUILT = new Set(["", "account"]);
+export const BUILT = new Set(["", "account", "clients", "projects", "quotes", "invoices", "retainers", "company", "services", "users", "settings"]);
 
 export const NAV: NavGroup[] = [
   { label: "Overview", items: [
@@ -41,6 +41,7 @@ export const NAV: NavGroup[] = [
     { slug: "company", label: "Company profile", icon: "Landmark", phase: 1, summary: "Letterhead, registration, banking and numbering for documents." },
     { slug: "services", label: "Services", icon: "Boxes", phase: 1, summary: "Service catalogue grouped by the four practices, with rate cards." },
     { slug: "users", label: "Users", icon: "Users", phase: 1, summary: "Partner accounts, roles and two-factor status." },
+    { slug: "settings", label: "Settings", icon: "Settings", phase: 1, summary: "Project board columns, backup export and the daily job." },
     { slug: "integrations", label: "Integrations", icon: "Plug", phase: 2, summary: "n8n integration token, ingest status and backfill." },
     { slug: "audit", label: "Audit log", icon: "ScrollText", phase: 4, summary: "Every create, update and delete on financial records, and every sign-in." },
     { slug: "account", label: "My account", icon: "UserCog", phase: 0, summary: "Password, sessions and theme." },
