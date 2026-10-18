@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# brand-kit build artefacts
+/brand-kit/social/_contact-sheet-*.png
+/brand-kit/guide/*.html
+__pycache__/

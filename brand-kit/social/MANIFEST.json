@@ -1,0 +1,314 @@
+[
+  {
+    "platform": "facebook",
+    "file": "social/facebook/facebook-profile-720.png",
+    "size": "720x720",
+    "use": "Page profile picture",
+    "spec": "Displays 176px desktop / 196px mobile, circle crop; Meta recommends \u2265320\u00d7320",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "facebook",
+    "file": "social/facebook/facebook-cover-1702x630.png",
+    "size": "1702x630",
+    "use": "Page cover photo",
+    "spec": "Meta: 851\u00d7315 recommended (uploaded at 2\u00d7). Desktop 16:9 / mobile 2.4:1 crops, left-aligned",
+    "note": "Key content kept clear of the bottom-left profile-picture overlap and the mobile side crop."
+  },
+  {
+    "platform": "linkedin",
+    "file": "social/linkedin/linkedin-company-logo-400.png",
+    "size": "400x400",
+    "use": "Company Page logo",
+    "spec": "LinkedIn: 400\u00d7400 recommended, min 268\u00d7268, \u22643 MB",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "linkedin",
+    "file": "social/linkedin/linkedin-company-cover-1512x256.png",
+    "size": "1512x256",
+    "use": "Company Page cover",
+    "spec": "LinkedIn: 1512\u00d7256 (current spec, min = recommended), \u22643 MB",
+    "note": "Text sits right of the logo overlap at the lower left."
+  },
+  {
+    "platform": "linkedin",
+    "file": "social/linkedin/linkedin-personal-banner-jakes-1584x396.png",
+    "size": "1584x396",
+    "use": "Jakes9NA personal profile background",
+    "spec": "LinkedIn: 1584\u00d7396 recommended",
+    "note": "Left 30% left clear for the circular profile photo."
+  },
+  {
+    "platform": "linkedin",
+    "file": "social/linkedin/linkedin-personal-banner-alex-1584x396.png",
+    "size": "1584x396",
+    "use": "Alex personal profile background",
+    "spec": "LinkedIn: 1584\u00d7396 recommended",
+    "note": "Left 30% left clear for the circular profile photo."
+  },
+  {
+    "platform": "x",
+    "file": "social/x/x-profile-400.png",
+    "size": "400x400",
+    "use": "Profile photo",
+    "spec": "X: 400\u00d7400 recommended",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "x",
+    "file": "social/x/x-header-1500x500.png",
+    "size": "1500x500",
+    "use": "Header",
+    "spec": "X: 1500\u00d7500 recommended",
+    "note": "Profile photo overlaps lower left; content starts at 31% width."
+  },
+  {
+    "platform": "youtube",
+    "file": "social/youtube/youtube-avatar-800.png",
+    "size": "800x800",
+    "use": "Channel picture",
+    "spec": "YouTube: 800\u00d7800 recommended, circle crop",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "youtube",
+    "file": "social/youtube/youtube-banner-2560x1440.png",
+    "size": "2560x1440",
+    "use": "Channel banner",
+    "spec": "YouTube: 2560\u00d71440; text/logo inside centred 1546\u00d7423 safe area",
+    "note": "All text and the node are inside the 1546\u00d7423 all-device safe area."
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/instagram-profile-720.png",
+    "size": "720x720",
+    "use": "Profile picture",
+    "spec": "Instagram: displays 110px circle; upload \u2265320\u00d7320",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-01-introducing-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-02-two-disciplines-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-03-four-practices-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-04-data-principle-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-05-engineering-principle-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/post-06-how-we-work-1080x1350.png",
+    "size": "1080x1350",
+    "use": "Feed post (also used on LinkedIn and Facebook)",
+    "spec": "4:5, 1080\u00d71350 \u2014 safe within Instagram's 3:4 profile-grid crop",
+    "note": "Copy and alt text in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/story-launch-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Story",
+    "spec": "9:16, 1080\u00d71920; keep text out of top 250px and bottom 340px UI zones",
+    "note": ""
+  },
+  {
+    "platform": "instagram",
+    "file": "social/instagram/story-lab-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Story",
+    "spec": "9:16, 1080\u00d71920; keep text out of top 250px and bottom 340px UI zones",
+    "note": ""
+  },
+  {
+    "platform": "tiktok",
+    "file": "social/tiktok/tiktok-profile-720.png",
+    "size": "720x720",
+    "use": "Profile photo",
+    "spec": "TikTok: square, circle crop; \u2265200\u00d7200",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "tiktok",
+    "file": "social/tiktok/video-cover-why-your-margin-report-is-wrong-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Video cover / first frame",
+    "spec": "9:16, 1080\u00d71920; text clear of the right action rail and bottom caption zone",
+    "note": "Script in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "tiktok",
+    "file": "social/tiktok/video-cover-sensor-to-dashboard-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Video cover / first frame",
+    "spec": "9:16, 1080\u00d71920; text clear of the right action rail and bottom caption zone",
+    "note": "Script in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "tiktok",
+    "file": "social/tiktok/video-cover-offline-first-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Video cover / first frame",
+    "spec": "9:16, 1080\u00d71920; text clear of the right action rail and bottom caption zone",
+    "note": "Script in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "tiktok",
+    "file": "social/tiktok/video-cover-duplicate-barcodes-1080x1920.png",
+    "size": "1080x1920",
+    "use": "Video cover / first frame",
+    "spec": "9:16, 1080\u00d71920; text clear of the right action rail and bottom caption zone",
+    "note": "Script in content/05-launch-calendar.md"
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/upwork-agency-logo-500.png",
+    "size": "500x500",
+    "use": "Agency profile photo (logo)",
+    "spec": "Upwork agency photo = agency logo; \u2265250\u00d7250, <5 MB",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/upwork-agency-banner-3200x320.png",
+    "size": "3200x320",
+    "use": "Agency profile banner",
+    "spec": "Upwork: 3200\u00d7320 recommended, little to no text; auto-cropped to screen width",
+    "note": "Logo centred; no text so screen-width cropping never cuts words."
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/project-cover-01-engineering-2000x1500.png",
+    "size": "2000x1500",
+    "use": "Project Catalog / portfolio cover",
+    "spec": "Upwork: 4:3, \u22644000px, sharp at 1000\u00d7750; no contact details",
+    "note": "No contact information, per Upwork image rules."
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/project-cover-02-data-2000x1500.png",
+    "size": "2000x1500",
+    "use": "Project Catalog / portfolio cover",
+    "spec": "Upwork: 4:3, \u22644000px, sharp at 1000\u00d7750; no contact details",
+    "note": "No contact information, per Upwork image rules."
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/project-cover-03-automation-2000x1500.png",
+    "size": "2000x1500",
+    "use": "Project Catalog / portfolio cover",
+    "spec": "Upwork: 4:3, \u22644000px, sharp at 1000\u00d7750; no contact details",
+    "note": "No contact information, per Upwork image rules."
+  },
+  {
+    "platform": "upwork",
+    "file": "social/upwork/project-cover-04-technology-consultancy-2000x1500.png",
+    "size": "2000x1500",
+    "use": "Project Catalog / portfolio cover",
+    "spec": "Upwork: 4:3, \u22644000px, sharp at 1000\u00d7750; no contact details",
+    "note": "No contact information, per Upwork image rules."
+  },
+  {
+    "platform": "fiverr",
+    "file": "social/fiverr/fiverr-profile-720.png",
+    "size": "720x720",
+    "use": "Seller profile picture (business/team account)",
+    "spec": "Square, circle crop. Fiverr favours a real photo for individual sellers \u2014 see content/04-fiverr.md",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "fiverr",
+    "file": "social/fiverr/gig-power-bi-dashboard-1280x769.png",
+    "size": "1280x769",
+    "use": "Gig image (first gallery image)",
+    "spec": "Fiverr: 1280\u00d7769 recommended (min 712\u00d7430); no contact details",
+    "note": ""
+  },
+  {
+    "platform": "fiverr",
+    "file": "social/fiverr/gig-data-cleansing-reconciliation-1280x769.png",
+    "size": "1280x769",
+    "use": "Gig image (first gallery image)",
+    "spec": "Fiverr: 1280\u00d7769 recommended (min 712\u00d7430); no contact details",
+    "note": ""
+  },
+  {
+    "platform": "fiverr",
+    "file": "social/fiverr/gig-iot-telemetry-dashboard-1280x769.png",
+    "size": "1280x769",
+    "use": "Gig image (first gallery image)",
+    "spec": "Fiverr: 1280\u00d7769 recommended (min 712\u00d7430); no contact details",
+    "note": ""
+  },
+  {
+    "platform": "fiverr",
+    "file": "social/fiverr/gig-erpnext-frappe-1280x769.png",
+    "size": "1280x769",
+    "use": "Gig image (first gallery image)",
+    "spec": "Fiverr: 1280\u00d7769 recommended (min 712\u00d7430); no contact details",
+    "note": ""
+  },
+  {
+    "platform": "github",
+    "file": "social/github/github-avatar-500.png",
+    "size": "500x500",
+    "use": "GitHub organisation/profile avatar",
+    "spec": "Square; GitHub crops to circle in places",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "github",
+    "file": "social/github/github-social-preview-1280x640.png",
+    "size": "1280x640",
+    "use": "Repository social preview",
+    "spec": "GitHub: 1280\u00d7640 recommended",
+    "note": ""
+  },
+  {
+    "platform": "whatsapp",
+    "file": "social/whatsapp/whatsapp-business-profile-640.png",
+    "size": "640x640",
+    "use": "WhatsApp Business profile photo",
+    "spec": "Square, circle crop; \u2265192\u00d7192",
+    "note": "Symbol centred inside the circle-crop safe area."
+  },
+  {
+    "platform": "email",
+    "file": "social/email/email-signature-banner-1200x240.png",
+    "size": "1200x240",
+    "use": "Email signature banner",
+    "spec": "Display at 600\u00d7120 (2\u00d7 asset for sharp rendering)",
+    "note": ""
+  }
+]

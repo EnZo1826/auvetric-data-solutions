@@ -1,0 +1,90 @@
+{
+  "master": "auvetric-logo-original.png",
+  "masterSha256": "0b7c7462befa2b0e953be73e387d8e64bfbb681f2b3ba1044be9b7b5a84d5ce5",
+  "files": {
+    "auvetric-mark.png": {
+      "size": [
+        1110,
+        652
+      ],
+      "use": "Symbol only, original colours."
+    },
+    "auvetric-mark-on-dark.png": {
+      "size": [
+        1110,
+        652
+      ],
+      "use": "Symbol for dark grounds: only the navy circuit terminal is lightened to brand blue."
+    },
+    "auvetric-horizontal-light-bg.png": {
+      "size": [
+        1689,
+        400
+      ],
+      "use": "Horizontal lockup, original navy wordmark, for light backgrounds."
+    },
+    "auvetric-horizontal-dark-bg.png": {
+      "size": [
+        1689,
+        400
+      ],
+      "use": "Horizontal lockup, white wordmark, for dark backgrounds."
+    },
+    "auvetric-stacked-light-bg.png": {
+      "size": [
+        1254,
+        1153
+      ],
+      "use": "Master stacked logo, original colours."
+    },
+    "auvetric-stacked-dark-bg.png": {
+      "size": [
+        1254,
+        1153
+      ],
+      "use": "Stacked logo, white wordmark for dark backgrounds."
+    },
+    "auvetric-horizontal-mono-white.png": {
+      "size": [
+        1689,
+        400
+      ],
+      "use": "Single-colour white, for photos and dark single-colour use."
+    },
+    "auvetric-horizontal-mono-navy.png": {
+      "size": [
+        1689,
+        400
+      ],
+      "use": "Single-colour navy, for light single-colour use."
+    },
+    "auvetric-mark-mono-white.png": {
+      "size": [
+        1110,
+        652
+      ],
+      "use": "Symbol single-colour white."
+    },
+    "auvetric-mark-mono-navy.png": {
+      "size": [
+        1110,
+        652
+      ],
+      "use": "Symbol single-colour navy."
+    },
+    "auvetric-avatar-dark-1024.png": {
+      "size": [
+        1024,
+        1024
+      ],
+      "use": "Square avatar: symbol on brand navy. Circle-safe."
+    },
+    "auvetric-avatar-light-1024.png": {
+      "size": [
+        1024,
+        1024
+      ],
+      "use": "Square avatar: symbol on white. Circle-safe."
+    }
+  }
+}
