@@ -50,3 +50,6 @@ __pycache__/
 
 # Local Netlify folder
 .netlify
+
+# Supabase CLI working files (the CRM keeps its migrations in src/crm/migrations)
+/supabase/
