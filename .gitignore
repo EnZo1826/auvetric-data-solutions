@@ -47,3 +47,9 @@ next-env.d.ts
 /brand-kit/social/_contact-sheet-*.png
 /brand-kit/guide/*.html
 __pycache__/
+
+# Local Netlify folder
+.netlify
+
+# Supabase CLI working files (the CRM keeps its migrations in src/crm/migrations)
+/supabase/

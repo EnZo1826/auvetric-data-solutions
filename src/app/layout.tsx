@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 import { agency } from "@/data/agency";
-import { organizationJsonLd } from "@/lib/seo";
 
 const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -36,17 +33,9 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const jsonLd = organizationJsonLd();
   return (
     <html lang="en-NA" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body className="min-h-dvh">
-        <SiteHeader />
-        <main id="main" tabIndex={-1} className="outline-none">
-          {children}
-        </main>
-        <SiteFooter />
-        {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
-      </body>
+      <body className="min-h-dvh">{children}</body>
     </html>
   );
 }

@@ -1,7 +1,14 @@
 import { ButtonLink, Container } from "@/components/ui/primitives";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+
+// Lives at the root (outside the (site) group), so it brings the public chrome itself.
 
 export default function NotFound() {
   return (
+    <>
+    <SiteHeader />
+    <main id="main" tabIndex={-1} className="outline-none">
     <section className="relative flex min-h-[80dvh] items-center overflow-hidden pt-24">
       <div aria-hidden className="absolute inset-0 bg-grid bg-grid-fade" />
       <Container className="relative">
@@ -14,5 +21,8 @@ export default function NotFound() {
         </div>
       </Container>
     </section>
+    </main>
+    <SiteFooter />
+    </>
   );
 }

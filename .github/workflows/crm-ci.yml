@@ -1,0 +1,61 @@
+name: CRM CI
+
+# Runs on the crm branch and on pull requests into main. Netlify deploys main; GitHub Pages builds main.
+on:
+  push:
+    branches: [crm]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crm-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: auvetric
+          POSTGRES_PASSWORD: auvetric_ci
+          POSTGRES_DB: auvetric_crm
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U auvetric -d auvetric_crm"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgres://auvetric:auvetric_ci@localhost:5432/auvetric_crm
+      NEXT_PUBLIC_ALLOW_INDEXING: 'false'
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Throwaway encryption key for this run
+        run: |
+          echo "CRM_ENCRYPTION_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64'))")" >> "$GITHUB_ENV"
+          echo "CRM_CRON_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))")" >> "$GITHUB_ENV"
+      - run: npm run check
+      - run: npm run crm:migrate
+      - run: npm run crm:migrate -- --status
+      - run: npm run build
+      - name: Start server and run sign-in and API tests
+        run: |
+          npx next start -p 3100 > next.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3100/ && break; sleep 1; done
+          CRM_TEST_URL=http://localhost:3100 npm run crm:test:auth
+          CRM_TEST_URL=http://localhost:3100 npm run crm:test:api
+      - name: Server log on failure
+        if: failure()
+        run: cat next.log || true
+      - name: Static GitHub Pages export still builds without the CRM
+        run: npm run build:pages && npm run verify:pages && test ! -e out/crm

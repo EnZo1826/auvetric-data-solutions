@@ -71,6 +71,9 @@ export function SiteFooter() {
         <p className="flex gap-5">
           <Link href="/privacy" className="hover:text-ink">Privacy</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>
+          {process.env.NEXT_PUBLIC_STATIC_SITE !== "true" && (
+            <Link href="/crm/login" prefetch={false} rel="nofollow" className="hover:text-ink">Partner login</Link>
+          )}
           <span>Interactive demonstrations use synthetic data.</span>
         </p>
       </Container>
