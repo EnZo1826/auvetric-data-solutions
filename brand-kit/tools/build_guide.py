@@ -113,7 +113,7 @@ def build() -> Path:
 
     # 4 Two disciplines
     pages.append(slide(4, "Two disciplines. One connected solution.", f'''<div class="cols" style="grid-template-columns:1fr 1fr 1fr">
-      <div class="box" style="border-color:rgba(0,105,245,.6)"><div class="label" style="color:{C['blueInk']}">Engineering · Electric blue</div><h3>Jakes9NA</h3><p class="mute">Builds and connects the systems: software, ERP integration, industrial IoT, edge devices and infrastructure. Physical and technical subjects take the blue accent.</p></div>
+      <div class="box" style="border-color:rgba(0,105,245,.6)"><div class="label" style="color:{C['blueInk']}">Engineering · Electric blue</div><h3>Jakes</h3><p class="mute">Builds and connects the systems: software, ERP integration, industrial IoT, edge devices and infrastructure. Physical and technical subjects take the blue accent.</p></div>
       <div class="box" style="border-color:rgba(0,212,234,.6)"><div class="label" style="color:{C['cyanInk']}">Data · Cyan</div><h3>Alex</h3><p class="mute">Makes the information trustworthy and useful: Power BI, reconciliation, master-data quality and governance. Analytical subjects take the cyan accent.</p></div>
       <div class="box" style="border-image:linear-gradient(90deg,{C['blue']},{C['cyan']}) 1"><div class="label">Together · White node</div><h3>Auvetric</h3><p class="mute">Where both meet, use both colours converging on a white node. This is the brand's central idea and its signature graphic.</p></div></div>
       <p class="mute" style="margin-top:36px;max-width:1100px">Both partners always get equal visual prominence. When one discipline leads a piece of content, it takes that colour; joint content uses the convergence treatment.</p>''', section="01 · Identity"))

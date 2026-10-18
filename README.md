@@ -1,6 +1,6 @@
 # Auvetric Data Solutions
 
-A working multi-page Auvetric Data Solutions agency website for Jakes9NA and Alex, Windhoek, Namibia.
+A working multi-page Auvetric Data Solutions agency website for Jakes and Alex, Windhoek, Namibia.
 
 Confirmed future domain: **auvetric.com**. Current GitHub Pages URL and repository remain unchanged until an explicit domain cutover. The supplied logo and its blue/cyan/navy palette replace the former working brand; the approved layout and demonstrations are retained. Alex: https://github.com/AL3XNA.
 
@@ -47,7 +47,7 @@ Open http://localhost:3077. Stop the running preview before rebuilding on Window
 - Architecture laboratory: three reference architectures × eight nodes; business/technical views; sample input/output; failure/recovery inspection; step/play controls.
 - Deterministic industrial telemetry simulator: alarm delay, hysteresis, sensor failure, offline buffering, reconnection/backfill and reset.
 - Data-integrity pipeline: 18 synthetic product records, seven stages, eight rules, before/after values, explainable corrections, exception owners and 14 computed KPIs.
-- Equal founder profiles (Jakes9NA and Alex), complementary-discipline interaction, industry and technology explorers, project filters/search, methodology timeline.
+- Equal founder profiles (Jakes and Alex), complementary-discipline interaction, industry and technology explorers, project filters/search, methodology timeline.
 - Contact endpoint with validation, honeypot, timing check, per-instance rate limiting, origin check, payload-length check and optional Turnstile; actual provider acceptance required for success.
 - Metadata, canonical paths, Open Graph image, robots, sitemap. Indexing disabled by default. Organisation JSON-LD is withheld until the legal name is supplied.
 

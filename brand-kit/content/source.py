@@ -16,7 +16,7 @@ F = lambda text, limit, src: {"text": text.strip(), "limit": limit, "src": src}
 # ── Messaging framework ───────────────────────────────────────────────────────────────────────────
 MESSAGING = {
     "positioning": F("""
-Auvetric Data Solutions is a two-partner technology consultancy in Windhoek, Namibia. Jakes9NA engineers the systems: software, industrial IoT, ERP integrations and the infrastructure underneath. Alex makes sure the data those systems produce is accurate, reconciled and useful: Power BI, data quality and governance. Most consultancies do one or the other. We do both, so the system that captures the data and the report that depends on it are designed together.
+Auvetric Data Solutions is a two-partner technology consultancy in Windhoek, Namibia. Jakes engineers the systems: software, industrial IoT, ERP integrations and the infrastructure underneath. Alex makes sure the data those systems produce is accurate, reconciled and useful: Power BI, data quality and governance. Most consultancies do one or the other. We do both, so the system that captures the data and the report that depends on it are designed together.
 """, None, "internal"),
     "tagline_primary": F("We connect systems. We engineer intelligence.", None, "brand"),
     "tagline_short": F("Engineering × Data × Intelligence", None, "brand"),
@@ -29,7 +29,7 @@ Auvetric Data Solutions is a technology consultancy in Windhoek, Namibia. We bui
     "boilerplate_100": F("""
 Auvetric Data Solutions is a two-partner technology consultancy based in Windhoek, Namibia, working with local, regional and international clients.
 
-Jakes9NA leads engineering: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux/AWS infrastructure. Alex leads data and business intelligence, drawing on roughly four years of retail and FMCG operations experience: Power BI, reconciliation, master-data quality and governance.
+Jakes leads engineering: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux/AWS infrastructure. Alex leads data and business intelligence, drawing on roughly four years of retail and FMCG operations experience: Power BI, reconciliation, master-data quality and governance.
 
 We offer four practices: Engineering & Development, Data & Business Intelligence, Automation & Intelligent Systems, and Technology Consultancy & Integration. Engagements can cover a single phase, such as a discovery assessment, or a complete build.
 """, 900, "style: ~100 words"),
@@ -78,7 +78,7 @@ LINKEDIN = {
 Auvetric Data Solutions is a technology consultancy in Windhoek, Namibia. We help organisations connect equipment, operational applications and enterprise systems, and then make the data those systems produce accurate and useful.
 
 Two partners, two disciplines:
-• Jakes9NA engineers the systems: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux, Docker and AWS infrastructure.
+• Jakes engineers the systems: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux, Docker and AWS infrastructure.
 • Alex leads data and business intelligence: Power BI and Power Query, reconciliation, master-data quality and governance, informed by roughly four years in retail and FMCG operations.
 
 We organise our work into four practices:
@@ -112,7 +112,7 @@ I have roughly four years of business operations and retail experience, covering
 
 My day-to-day toolkit: Power BI and Power Query, advanced Excel modelling, cross-source reconciliation, barcode and SKU matching, pricing and cost variance analysis, and Power Automate and SharePoint workflows. I'm currently developing SQL, Python/Pandas and advanced DAX.
 
-I co-founded Auvetric Data Solutions with Jakes9NA, a systems engineer, so clients get the data discipline and the engineering in one team.
+I co-founded Auvetric Data Solutions with Jakes, a systems engineer, so clients get the data discipline and the engineering in one team.
 
 See our data-integrity demo (synthetic data): """ + WEBSITE, 2600, "LinkedIn About, 2600"),
 }
@@ -139,7 +139,7 @@ UPWORK = {
     "agency_overview": F("""
 Auvetric Data Solutions is a two-partner consultancy in Windhoek, Namibia (UTC+2). We take on the projects where software, equipment and business data meet, and we handle both the engineering and the data.
 
-ENGINEERING (Jakes9NA)
+ENGINEERING (Jakes)
 • Custom web apps and offline-first PWAs for field teams
 • ERPNext / Frappe customisation, doctypes, workflows and integrations
 • Node-RED and MQTT flows, Modbus, industrial PLC and sensor integration
@@ -211,7 +211,7 @@ Versions: ERPNext v15 and v16.
 # ── Fiverr ────────────────────────────────────────────────────────────────────────────────────────
 FIVERR = {
     "seller_description": F("""
-We're Auvetric Data Solutions, a two-person consultancy in Windhoek, Namibia. Jakes9NA builds and connects systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex specialises in data: Power BI, data cleansing, reconciliation and governance. We check the data before we chart it, design for failure cases, and document what we deliver. Message us with your systems and goal and we'll tell you honestly whether we're the right fit.
+We're Auvetric Data Solutions, a two-person consultancy in Windhoek, Namibia. Jakes builds and connects systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex specialises in data: Power BI, data cleansing, reconciliation and governance. We check the data before we chart it, design for failure cases, and document what we deliver. Message us with your systems and goal and we'll tell you honestly whether we're the right fit.
 """, 600, "Fiverr seller description, 600"),
     "gigs": [
         {"title": F("I will build a Power BI dashboard on cleaned and reconciled data", 80, "Fiverr gig title, 80"),
@@ -285,6 +285,6 @@ ERPNext v15 and v16. Please share your version, hosting and a short description 
 
 # ── Email signature ──────────────────────────────────────────────────────────────────────────────
 EMAIL_SIGNATURE = {
-    "jakes": ["Jakes9NA", "Co-founder · Systems Engineering & Software Development", "Auvetric Data Solutions", "{EMAIL} · {PHONE}", WEBSITE],
+    "jakes": ["Jakes", "Co-founder · Systems Engineering & Software Development", "Auvetric Data Solutions", "{EMAIL} · {PHONE}", WEBSITE],
     "alex": ["Alex", "Co-founder · Enterprise Data, BI & Process Optimisation", "Auvetric Data Solutions", "{EMAIL} · {PHONE}", WEBSITE],
 }

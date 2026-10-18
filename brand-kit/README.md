@@ -18,7 +18,7 @@ One system, one source of truth. Every graphic, bio and post here is built from 
 | Platform | Assets | Copy |
 |---|---|---|
 | Facebook | Profile 720², cover 1702×630 (851×315 @2×) | Intro (≤101), launch posts |
-| LinkedIn | Company logo 400², company cover 1512×256, personal banners for Jakes9NA and Alex 1584×396 | Tagline, About, specialties, both partners' headlines and About sections, posts |
+| LinkedIn | Company logo 400², company cover 1512×256, personal banners for Jakes and Alex 1584×396 | Tagline, About, specialties, both partners' headlines and About sections, posts |
 | Instagram | Profile, 6 feed posts 1080×1350, 2 stories 1080×1920 | Bio (≤150), captions and alt text |
 | TikTok | Profile, 4 video covers 1080×1920 | Bio, captions, 4 full video scripts |
 | Upwork | Agency logo, banner 3200×320 (logo only, per Upwork's guidance), 4 Project Catalog covers 2000×1500 | Agency tagline and overview, 3 specialized profiles, 4 catalog listings |

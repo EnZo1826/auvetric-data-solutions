@@ -4,10 +4,10 @@ Single source: `content/source.py`. Placeholders in `{BRACES}` need owner input.
 
 ## Positioning
 
-**Positioning statement** · `463 chars` · _internal_
+**Positioning statement** · `460 chars` · _internal_
 
 ```text
-Auvetric Data Solutions is a two-partner technology consultancy in Windhoek, Namibia. Jakes9NA engineers the systems: software, industrial IoT, ERP integrations and the infrastructure underneath. Alex makes sure the data those systems produce is accurate, reconciled and useful: Power BI, data quality and governance. Most consultancies do one or the other. We do both, so the system that captures the data and the report that depends on it are designed together.
+Auvetric Data Solutions is a two-partner technology consultancy in Windhoek, Namibia. Jakes engineers the systems: software, industrial IoT, ERP integrations and the infrastructure underneath. Alex makes sure the data those systems produce is accurate, reconciled and useful: Power BI, data quality and governance. Most consultancies do one or the other. We do both, so the system that captures the data and the report that depends on it are designed together.
 ```
 
 ## Taglines
@@ -38,12 +38,12 @@ Auvetric Data Solutions connects operational systems and makes their data trustw
 Auvetric Data Solutions is a technology consultancy in Windhoek, Namibia. We build custom software, connect industrial equipment and ERP systems, and turn the resulting data into reporting people can trust. One partner engineers the systems; the other is a data and BI specialist. We work with clients locally, regionally and remotely.
 ```
 
-**100-word** · `746/900` · _style: ~100 words_
+**100-word** · `743/900` · _style: ~100 words_
 
 ```text
 Auvetric Data Solutions is a two-partner technology consultancy based in Windhoek, Namibia, working with local, regional and international clients.
 
-Jakes9NA leads engineering: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux/AWS infrastructure. Alex leads data and business intelligence, drawing on roughly four years of retail and FMCG operations experience: Power BI, reconciliation, master-data quality and governance.
+Jakes leads engineering: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux/AWS infrastructure. Alex leads data and business intelligence, drawing on roughly four years of retail and FMCG operations experience: Power BI, reconciliation, master-data quality and governance.
 
 We offer four practices: Engineering & Development, Data & Business Intelligence, Automation & Intelligent Systems, and Technology Consultancy & Integration. Engagements can cover a single phase, such as a discovery assessment, or a complete build.
 ```

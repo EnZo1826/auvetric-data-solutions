@@ -16,12 +16,12 @@ Asset: `social/instagram/post-01-introducing-1080x1350.png`
 
 Alt text (157 chars): Auvetric Data Solutions logo above the headline 'We connect systems. We engineer intelligence.' with blue and cyan signal paths converging on a glowing node.
 
-**linkedin** · `724/3000`
+**linkedin** · `721/3000`
 
 ```text
 Today we're launching Auvetric Data Solutions.
 
-We're a two-partner technology consultancy in Windhoek. Jakes9NA engineers the systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex makes the data trustworthy: Power BI, reconciliation, data quality and governance.
+We're a two-partner technology consultancy in Windhoek. Jakes engineers the systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex makes the data trustworthy: Power BI, reconciliation, data quality and governance.
 
 Most projects we see fail at the join between those two. The system captures data one way, the report assumes another, and nobody owns the gap. We design both sides together.
 
@@ -66,9 +66,9 @@ Introducing Auvetric Data Solutions. We connect systems and engineer intelligenc
 
 Asset: `social/instagram/post-02-two-disciplines-1080x1350.png`
 
-Alt text (179 chars): Card titled 'Engineering meets data.' listing Jakes9NA for systems engineering, Alex for enterprise data and Power BI, and 'Together: systems that run, and numbers you can trust'.
+Alt text (176 chars): Card titled 'Engineering meets data.' listing Jakes for systems engineering, Alex for enterprise data and Power BI, and 'Together: systems that run, and numbers you can trust'.
 
-**linkedin** · `655/3000`
+**linkedin** · `652/3000`
 
 ```text
 Why two disciplines in one small team?
@@ -79,18 +79,18 @@ An engineer builds a field app that captures fuel dispenses. A BI analyst later 
 
 At Auvetric, those questions get answered while the system is being designed, not when the report looks wrong.
 
-Jakes9NA: systems engineering, IoT, ERP integration, infrastructure.
+Jakes: systems engineering, IoT, ERP integration, infrastructure.
 Alex: enterprise data, Power BI, reconciliation, governance.
 
 #Auvetric #Namibia #Windhoek #DataQuality #SystemsIntegration
 ```
 
-**instagram** · `269/2200`
+**instagram** · `266/2200`
 
 ```text
 Engineering meets data.
 
-Jakes9NA builds and connects the systems. Alex makes sure what they produce is accurate and useful. Together: systems that run, and numbers you can trust.
+Jakes builds and connects the systems. Alex makes sure what they produce is accurate and useful. Together: systems that run, and numbers you can trust.
 
 #Auvetric #Namibia #Windhoek #IndustrialIoT #NodeRED #MQTT #ERPNext #SoftwareEngineering
 ```
@@ -252,26 +252,26 @@ Link sticker to the website lab page. Sticker text: 'Try the demos'.
 
 Asset: `social/instagram/post-05-engineering-principle-1080x1350.png`
 
-Alt text (115 chars): Quote card: 'Design for the conditions the system will actually face.' attributed to Jakes9NA, Systems Engineering.
+Alt text (112 chars): Quote card: 'Design for the conditions the system will actually face.' attributed to Jakes, Systems Engineering.
 
-**linkedin** · `469/3000`
+**linkedin** · `466/3000`
 
 ```text
 Design for the conditions the system will actually face.
 
 On a remote site, connectivity drops, power blips and sensors fail. If the app assumes a perfect network, the first outage loses data and the second loses trust.
 
-So the defaults are: write locally first, buffer and forward, make stale data visibly stale, and treat "no reading" as an alarm, not a blank chart. (Jakes9NA)
+So the defaults are: write locally first, buffer and forward, make stale data visibly stale, and treat "no reading" as an alarm, not a blank chart. (Jakes)
 
 #Auvetric #Namibia #Windhoek #IndustrialIoT #NodeRED #MQTT #ERPNext #SoftwareEngineering
 ```
 
-**instagram** · `247/2200`
+**instagram** · `244/2200`
 
 ```text
 Design for the conditions the system will actually face.
 
-Intermittent connectivity, remote sites and shift work are requirements, not edge cases. (Jakes9NA)
+Intermittent connectivity, remote sites and shift work are requirements, not edge cases. (Jakes)
 
 #Auvetric #Namibia #Windhoek #IndustrialIoT #NodeRED #MQTT #ERPNext #SoftwareEngineering
 ```

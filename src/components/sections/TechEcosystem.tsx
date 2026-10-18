@@ -40,7 +40,7 @@ export function TechEcosystem() {
             Partner
             <select value={who} onChange={(e) => setWho(e.target.value as FounderId | "all")} className="min-h-9 rounded-lg border border-line bg-panel px-2 text-ink">
               <option value="all">Both</option>
-              <option value="jakes">Jakes9NA</option>
+              <option value="jakes">Jakes</option>
               <option value="alex">Alex</option>
             </select>
           </label>

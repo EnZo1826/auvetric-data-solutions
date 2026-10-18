@@ -1,7 +1,7 @@
 # Product context
 
 ## Product
-Auvetric Data Solutions is the confirmed public brand for a two-person technology development and consultancy agency in Windhoek, Namibia. Partners: Jakes9NA (systems engineering/software) and Alex (enterprise data/BI/process optimisation).
+Auvetric Data Solutions is the confirmed public brand for a two-person technology development and consultancy agency in Windhoek, Namibia. Partners: Jakes (systems engineering/software) and Alex (enterprise data/BI/process optimisation).
 
 ## Audience and task
 Operational and commercial decision-makers in Namibia, the region and remote international clients. Understand the problems the practice can solve; see how systems and trustworthy data converge; initiate a project or consultancy enquiry.

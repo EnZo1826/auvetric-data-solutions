@@ -21,13 +21,13 @@ export interface Founder {
 export const founders: Founder[] = [
   {
     id: "jakes",
-    displayName: "Jakes9NA",
-    publicIdentity: "Jakes9NA",
+    displayName: "Jakes",
+    publicIdentity: "Jakes",
     discipline: "engineering",
     title: "Systems Engineering & Software Development",
     location: "Windhoek, Namibia",
     bio: [
-      "Jakes9NA is a cross-disciplinary engineer who works from the field device to the dashboard: industrial controllers and sensors, edge gateways, message brokers, backend services, ERP integrations and the operational applications people use every day.",
+      "Jakes is a cross-disciplinary engineer who works from the field device to the dashboard: industrial controllers and sensors, edge gateways, message brokers, backend services, ERP integrations and the operational applications people use every day.",
       "His work centres on systems that have to keep running in real conditions — intermittent connectivity, remote sites, shift work and equipment that cannot wait for a perfect network. Offline-first applications, resilient synchronisation and practical monitoring are recurring themes.",
     ],
     philosophy:

@@ -16,12 +16,12 @@ Auvetric Data Solutions
 Custom software, industrial IoT & Power BI on data you can trust
 ```
 
-**Overview** · `1391/5000` · _Upwork overview, 5000_
+**Overview** · `1388/5000` · _Upwork overview, 5000_
 
 ```text
 Auvetric Data Solutions is a two-partner consultancy in Windhoek, Namibia (UTC+2). We take on the projects where software, equipment and business data meet, and we handle both the engineering and the data.
 
-ENGINEERING (Jakes9NA)
+ENGINEERING (Jakes)
 • Custom web apps and offline-first PWAs for field teams
 • ERPNext / Frappe customisation, doctypes, workflows and integrations
 • Node-RED and MQTT flows, Modbus, industrial PLC and sensor integration

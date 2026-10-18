@@ -24,4 +24,8 @@ assert.equal(JSON.parse(fs.readFileSync('package.json','utf8')).name,'auvetric-d
 for(const p of ['next.config.ts','scripts/build-pages.mjs','scripts/verify-pages.mjs','.github/workflows/pages.yml','package.json']){
  assert.ok(!fs.readFileSync(p,'utf8').includes('nexus-intelligence'),`Old repository name remains in ${p}`);
 }
+assert.equal(founders.find(f=>f.id==='jakes').displayName,'Jakes','Founder is presented as Jakes');
+for(const p of ['src/data/founders.ts','src/data/projects.ts','src/components/sections/DualExpertise.tsx','src/components/sections/TechEcosystem.tsx','brand-kit/content/source.py','brand-kit/content/launch_calendar.py','brand-kit/tools/catalogue.py','brand-kit/tools/build_guide.py']){
+ assert.ok(!fs.readFileSync(p,'utf8').includes('Jakes9NA'),`Old name Jakes9NA remains in ${p}`);
+}
 console.log('Auvetric branding: name, palette, error semantics, logo assets, Alex link and deferred domain passed.');

@@ -14,7 +14,7 @@ import build_social as b  # noqa: E402
 from brand import C  # noqa: E402
 
 FOUNDERS = {
-    "jakes": ("Jakes9NA", "Systems Engineering &amp; Software Development", "eng"),
+    "jakes": ("Jakes", "Systems Engineering &amp; Software Development", "eng"),
     "alex": ("Alex", "Enterprise Data, BI &amp; Process Optimisation", "data"),
 }
 PRACTICES = [
@@ -69,10 +69,10 @@ def instagram():
     b.avatar("instagram", "instagram-profile-720.png", 720, use="Profile picture", spec="Instagram: displays 110px circle; upload ≥320×320")
     posts = [
         ("01-introducing", "Introducing", "We connect systems.<br><span class='mute'>We engineer intelligence.</span>", "Auvetric Data Solutions is a Windhoek-based technology consultancy. One partner builds and connects the systems; the other makes sure the data they produce can be trusted.", "converge", None, "node", ""),
-        ("02-two-disciplines", "Two disciplines · One solution", "Engineering<br><span class='mute'>meets</span> data.", "", "converge", ["Jakes9NA — systems engineering, IoT, ERP integration, infrastructure", "Alex — enterprise data, Power BI, reconciliation, governance", "Together — systems that run, and numbers you can trust"], "lanes", ""),
+        ("02-two-disciplines", "Two disciplines · One solution", "Engineering<br><span class='mute'>meets</span> data.", "", "converge", ["Jakes — systems engineering, IoT, ERP integration, infrastructure", "Alex — enterprise data, Power BI, reconciliation, governance", "Together — systems that run, and numbers you can trust"], "lanes", ""),
         ("03-four-practices", "What we do", "Four practices.<br><span class='mute'>One connected capability.</span>", "", "converge", ["Engineering &amp; Development", "Data &amp; Business Intelligence", "Automation &amp; Intelligent Systems", "Technology Consultancy &amp; Integration"], "node", ""),
         ("04-data-principle", "Data &amp; BI principle", "A dashboard is only as trustworthy as the data underneath it.", "Start with where the information comes from, who owns it and how it can go wrong — then report on it.", "data", None, "data", "Alex, Data &amp; BI"),
-        ("05-engineering-principle", "Engineering principle", "Design for the conditions the system will actually face.", "Intermittent connectivity, remote sites and shift work are requirements, not edge cases. Make failure visible. Keep the operator in control.", "eng", None, "eng", "Jakes9NA, Systems Engineering"),
+        ("05-engineering-principle", "Engineering principle", "Design for the conditions the system will actually face.", "Intermittent connectivity, remote sites and shift work are requirements, not edge cases. Make failure visible. Keep the operator in control.", "eng", None, "eng", "Jakes, Systems Engineering"),
         ("06-how-we-work", "How we work", "From complexity<br><span class='mute'>to clarity.</span>", "", "converge", ["Discover", "Investigate", "Architect", "Engineer", "Validate", "Deploy", "Improve"], "lanes", ""),
     ]
     for slug, label, title, body, tone, items, motif, by in posts:

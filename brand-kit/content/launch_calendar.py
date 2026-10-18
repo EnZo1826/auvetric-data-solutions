@@ -21,7 +21,7 @@ POSTS = [
      "copy": {
         "linkedin": f"""Today we're launching Auvetric Data Solutions.
 
-We're a two-partner technology consultancy in Windhoek. Jakes9NA engineers the systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex makes the data trustworthy: Power BI, reconciliation, data quality and governance.
+We're a two-partner technology consultancy in Windhoek. Jakes engineers the systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex makes the data trustworthy: Power BI, reconciliation, data quality and governance.
 
 Most projects we see fail at the join between those two. The system captures data one way, the report assumes another, and nobody owns the gap. We design both sides together.
 
@@ -47,7 +47,7 @@ Have a look at our interactive demos: {WEBSITE}""",
         "x": f"Introducing Auvetric Data Solutions. We connect systems and engineer intelligence: custom software, industrial IoT, Power BI and data quality, from Windhoek. {WEBSITE}",
      }},
     {"week": 1, "day": "Wed", "objective": "positioning", "asset": "social/instagram/post-02-two-disciplines-1080x1350.png",
-     "alt": "Card titled 'Engineering meets data.' listing Jakes9NA for systems engineering, Alex for enterprise data and Power BI, and 'Together: systems that run, and numbers you can trust'.",
+     "alt": "Card titled 'Engineering meets data.' listing Jakes for systems engineering, Alex for enterprise data and Power BI, and 'Together: systems that run, and numbers you can trust'.",
      "copy": {
         "linkedin": f"""Why two disciplines in one small team?
 
@@ -57,13 +57,13 @@ An engineer builds a field app that captures fuel dispenses. A BI analyst later 
 
 At Auvetric, those questions get answered while the system is being designed, not when the report looks wrong.
 
-Jakes9NA: systems engineering, IoT, ERP integration, infrastructure.
+Jakes: systems engineering, IoT, ERP integration, infrastructure.
 Alex: enterprise data, Power BI, reconciliation, governance.
 
 {H('core')} #DataQuality #SystemsIntegration""",
         "instagram": f"""Engineering meets data.
 
-Jakes9NA builds and connects the systems. Alex makes sure what they produce is accurate and useful. Together: systems that run, and numbers you can trust.
+Jakes builds and connects the systems. Alex makes sure what they produce is accurate and useful. Together: systems that run, and numbers you can trust.
 
 {H('core', 'engineering')}""",
      }},
@@ -139,18 +139,18 @@ Try them: {WEBSITE}
         "instagram_story": "Link sticker to the website lab page. Sticker text: 'Try the demos'.",
      }},
     {"week": 3, "day": "Fri", "objective": "positioning", "asset": "social/instagram/post-05-engineering-principle-1080x1350.png",
-     "alt": "Quote card: 'Design for the conditions the system will actually face.' attributed to Jakes9NA, Systems Engineering.",
+     "alt": "Quote card: 'Design for the conditions the system will actually face.' attributed to Jakes, Systems Engineering.",
      "copy": {
         "linkedin": f"""Design for the conditions the system will actually face.
 
 On a remote site, connectivity drops, power blips and sensors fail. If the app assumes a perfect network, the first outage loses data and the second loses trust.
 
-So the defaults are: write locally first, buffer and forward, make stale data visibly stale, and treat "no reading" as an alarm, not a blank chart. (Jakes9NA)
+So the defaults are: write locally first, buffer and forward, make stale data visibly stale, and treat "no reading" as an alarm, not a blank chart. (Jakes)
 
 {H('core', 'engineering')}""",
         "instagram": f"""Design for the conditions the system will actually face.
 
-Intermittent connectivity, remote sites and shift work are requirements, not edge cases. (Jakes9NA)
+Intermittent connectivity, remote sites and shift work are requirements, not edge cases. (Jakes)
 
 {H('core', 'engineering')}""",
      }},

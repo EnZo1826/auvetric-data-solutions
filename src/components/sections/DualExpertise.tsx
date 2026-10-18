@@ -25,7 +25,7 @@ const VIEWS: { id: View; label: string; who: string; summary: string; items: str
   {
     id: "eng",
     label: "Engineering View",
-    who: "Jakes9NA — Systems engineering",
+    who: "Jakes — Systems engineering",
     summary: "Builds the system that captures every dispense at the pump, survives connectivity loss, delivers it reliably and stores it with a full history ready for reconciliation.",
     items: ["Design technical architecture", "Integrate physical devices", "Implement databases and APIs", "Build automation services", "Deploy infrastructure", "Monitor and synchronise"],
   },

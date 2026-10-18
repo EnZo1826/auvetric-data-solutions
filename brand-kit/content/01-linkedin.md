@@ -14,13 +14,13 @@ Auvetric Data Solutions
 We connect systems and engineer intelligence: custom software, industrial IoT, Power BI and data quality.
 ```
 
-**About** · `1315/2000` · _LinkedIn About, 2000_
+**About** · `1312/2000` · _LinkedIn About, 2000_
 
 ```text
 Auvetric Data Solutions is a technology consultancy in Windhoek, Namibia. We help organisations connect equipment, operational applications and enterprise systems, and then make the data those systems produce accurate and useful.
 
 Two partners, two disciplines:
-• Jakes9NA engineers the systems: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux, Docker and AWS infrastructure.
+• Jakes engineers the systems: custom and offline-first applications, ERPNext/Frappe, Node-RED and MQTT, industrial PLC and sensor integration, and Linux, Docker and AWS infrastructure.
 • Alex leads data and business intelligence: Power BI and Power Query, reconciliation, master-data quality and governance, informed by roughly four years in retail and FMCG operations.
 
 We organise our work into four practices:
@@ -46,7 +46,7 @@ Assets: logo `social/linkedin/linkedin-company-logo-400.png`, cover `social/link
 
 Settings: Industry **IT Services and IT Consulting** · Company size **2–10** · Type **Partnership** (confirm legal form) · Location **Windhoek, Namibia** · Website: live URL until auvetric.com is connected.
 
-## Jakes9NA, personal profile
+## Jakes, personal profile
 
 **Headline** · `135/220` · _LinkedIn headline, 220_
 
@@ -78,7 +78,7 @@ Banner: `social/linkedin/linkedin-personal-banner-jakes-1584x396.png`
 Co-founder, Auvetric Data Solutions | Enterprise data, Power BI & business process optimisation | Retail & FMCG data integrity
 ```
 
-**About** · `1005/2600` · _LinkedIn About, 2600_
+**About** · `1002/2600` · _LinkedIn About, 2600_
 
 ```text
 A dashboard is only as trustworthy as the data underneath it. I start with where the information comes from, who owns it and how it goes wrong, and only then report on it.
@@ -87,7 +87,7 @@ I have roughly four years of business operations and retail experience, covering
 
 My day-to-day toolkit: Power BI and Power Query, advanced Excel modelling, cross-source reconciliation, barcode and SKU matching, pricing and cost variance analysis, and Power Automate and SharePoint workflows. I'm currently developing SQL, Python/Pandas and advanced DAX.
 
-I co-founded Auvetric Data Solutions with Jakes9NA, a systems engineer, so clients get the data discipline and the engineering in one team.
+I co-founded Auvetric Data Solutions with Jakes, a systems engineer, so clients get the data discipline and the engineering in one team.
 
 See our data-integrity demo (synthetic data): https://enzo1826.github.io/auvetric-data-solutions/
 ```

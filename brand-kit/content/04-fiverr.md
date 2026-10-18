@@ -4,10 +4,10 @@ Fiverr expects individual sellers to use a clear face photo. For a two-person br
 
 ## Seller profile
 
-**Description** · `448/600` · _Fiverr seller description, 600_
+**Description** · `445/600` · _Fiverr seller description, 600_
 
 ```text
-We're Auvetric Data Solutions, a two-person consultancy in Windhoek, Namibia. Jakes9NA builds and connects systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex specialises in data: Power BI, data cleansing, reconciliation and governance. We check the data before we chart it, design for failure cases, and document what we deliver. Message us with your systems and goal and we'll tell you honestly whether we're the right fit.
+We're Auvetric Data Solutions, a two-person consultancy in Windhoek, Namibia. Jakes builds and connects systems: custom software, ERPNext, Node-RED, MQTT and industrial IoT. Alex specialises in data: Power BI, data cleansing, reconciliation and governance. We check the data before we chart it, design for failure cases, and document what we deliver. Message us with your systems and goal and we'll tell you honestly whether we're the right fit.
 ```
 
 Avatar (agency account only): `social/fiverr/fiverr-profile-720.png`

@@ -67,7 +67,7 @@ L = S.LINKEDIN
 li = ["## Company Page\n", field("Name", L["company_name"]), field("Tagline", L["company_tagline"]), field("About", L["company_about"]), field("Specialties", L["company_specialties"]),
       "Assets: logo " + asset("social/linkedin/linkedin-company-logo-400.png") + ", cover " + asset("social/linkedin/linkedin-company-cover-1512x256.png") + ".\n",
       "Settings: Industry **IT Services and IT Consulting** · Company size **2–10** · Type **Partnership** (confirm legal form) · Location **Windhoek, Namibia** · Website: live URL until auvetric.com is connected.\n",
-      "## Jakes9NA, personal profile\n", field("Headline", L["jakes_headline"]), field("About", L["jakes_about"]), "Banner: " + asset("social/linkedin/linkedin-personal-banner-jakes-1584x396.png") + "\n",
+      "## Jakes, personal profile\n", field("Headline", L["jakes_headline"]), field("About", L["jakes_about"]), "Banner: " + asset("social/linkedin/linkedin-personal-banner-jakes-1584x396.png") + "\n",
       "## Alex, personal profile\n", field("Headline", L["alex_headline"]), field("About", L["alex_about"]), "Banner: " + asset("social/linkedin/linkedin-personal-banner-alex-1584x396.png") + "\n",
       "Both partners: set current position **Co-founder, Auvetric Data Solutions** and link it to the Company Page so the logo appears on your profile."]
 write("01-linkedin.md", "LinkedIn", "\n".join(li))
