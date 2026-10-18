@@ -6,38 +6,38 @@ Status: **draft for approval** · Owner: Jakes & Alex · Prepared 18 Oct 2026
 
 A private CRM behind a login on the Auvetric website, laid out like JobTracker (`F:\Projects\IOTechJobsApp`), carrying over its invoices, quotes, monthly billing, jobs board, customers, line items, company profiles and settings. It adds what a two-partner consultancy needs to win and deliver work, and shows the n8n data (incoming job listings and website enquiries) inside the CRM. Styled to the Auvetric brand guide.
 
-## 2. Hosting decision
+## 2. Hosting decision (revised: one site at auvetric.com)
 
-| | Cloudflare (recommended) | Netlify | Vercel |
-|---|---|---|---|
-| Commercial use on free plan | Allowed | Allowed | **Not allowed**: Hobby is "non-commercial personal use only", including consultants paid to build the site (Vercel fair-use guidelines) |
-| Static website | Unlimited bandwidth, 500 builds/month | Free plan is **300 credits/month**: a production deploy costs about 15 credits and bandwidth about 20 credits/GB. When credits run out, every project on the team pauses until the next month | Pro $20/month |
-| CRM API | Pages Functions / Workers: 100,000 requests/day free, then $5/month | Functions draw from the same 300 credits | Pro $20/month |
-| Database | Neon Postgres (free: 0.5 GB, scale-to-zero) via Hyperdrive (free: 100k queries/day) | Neon / Netlify DB | Neon |
-| Extra login wall | Cloudflare Access (Zero Trust) free for up to 50 users: email one-time code before the CRM even loads | Paid feature | Paid feature |
-| Domain + email DNS | auvetric.com DNS can move to Cloudflare (keep the Zoho MX/SPF/DKIM records) | External DNS | External DNS |
+**Decision:** the CRM lives **inside the existing website** at `https://auvetric.com/crm/`. There is no separate CRM site or subdomain.
 
-**Netlify is possible, but it isn't the best fit here.** The free plan's 300 credits would be used up by roughly 20 deploys a month, and we deploy often while building. When that happens, both the website and the CRM go offline until the month resets. Netlify Personal ($9/month) or Pro ($20/month) would avoid that.
+Current state (checked 18 Oct 2026): auvetric.com is live on **Netlify** (A record → Netlify load balancer, `www` → `auvetric.netlify.app`, DNS in AWS Route 53). Netlify runs the full Next.js server build, so the server API (`/api/contact`) is already live. Next.js on Netlify supports server routes and authentication natively, so the CRM adds to the same app:
 
-**Recommendation:** when auvetric.com is connected, move **both** the website and the CRM to Cloudflare:
-- `auvetric.com` → website (Cloudflare Pages, the current static export, no `/auvetric-data-solutions` sub-path)
-- `crm.auvetric.com` → CRM (Cloudflare Pages + Functions), protected by Cloudflare Access **and** the app's own login
-- The website footer gets a discreet **Partner login** link to the CRM.
+| URL | What |
+|---|---|
+| `auvetric.com/` | Public website (unchanged) |
+| `auvetric.com/crm/login` | Partner login |
+| `auvetric.com/crm/…` | CRM pages: dashboard, sales, delivery, finance, admin |
+| `auvetric.com/api/crm/…` | CRM server API (authenticated) |
+| `auvetric.com/api/ingest/…` | n8n integration endpoints (token-authenticated) |
+| `auvetric.com/api/contact` | Website form → stored in the CRM database |
 
-Expected cost: **$0/month** at current scale. Optional upgrades: Workers Paid ($5/month) and Neon Launch (from ~$19/month) once usage grows.
-
-Design constraint from the free plan: **10 ms CPU per request**. Password hashing must use the platform's native WebCrypto (PBKDF2) rather than bcryptjs. PDFs stay client-side (browser print, as JobTracker does today).
+- One repository (`auvetric-data-solutions`), one build, one deployment, one domain. The CRM reuses the website's design tokens and components, so it matches the brand automatically.
+- `/crm/*` is excluded from search engines (`robots`, `noindex`) and served only to signed-in partners. Middleware checks the session on every `/crm` and `/api/crm` request.
+- **Database:** Neon Postgres (free: 0.5 GB, scale-to-zero), connected through a Netlify environment variable.
+- **Netlify plan:** the free plan's 300 credits/month cover the site's traffic, but each production deploy costs about 15 credits. Daily CRM development would use them up, and when credits run out Netlify pauses the site until the month resets. Either upgrade to **Netlify Personal ($9/month)** while building, or keep production deploys to milestones: develop locally and on a branch with previews off, and merge to `main` at each tested phase.
+- **Vercel** is excluded (Hobby plan bans commercial use). **Cloudflare** remains a later option: Cloudflare Access could add an email-code gate in front of `/crm`, but that needs the DNS moved to Cloudflare and a Next.js adapter. It isn't needed now.
+- The GitHub Pages copy (`enzo1826.github.io/auvetric-data-solutions`) becomes redundant once the CRM is live. Retire it or keep it as a read-only mirror without the CRM.
 
 ## 3. What carries over from JobTracker
 
-JobTracker is Vite + React 18 + TypeScript + Zustand, with Postgres and one serverless API (about 3,500 lines). The **code** is reused; **no IO Tech data** is copied. The Auvetric CRM gets its own repository, database and deployment.
+JobTracker is Vite + React 18 + TypeScript + Zustand, with Postgres and one serverless API (about 3,500 lines). Its **logic** (VAT and totals calculation, numbering, print layout, monthly generation, Kanban) is ported into the website's Next.js app under `/crm`; **no IO Tech data** is copied. The CRM gets its own Neon database but shares the website's repository and deployment.
 
 | JobTracker | Auvetric CRM | Changes |
 |---|---|---|
 | Dashboard | Dashboard | New sales, delivery and finance widgets (section 4) |
 | Invoices | Invoices | Auvetric letterhead; NAD and USD; record payments; send by email; ageing |
 | Quotes | Quotes / Proposals | Optional proposal sections (scope, deliverables, assumptions, timeline) above the price table; accept/decline; convert to invoice or project |
-| Monthly Billing | Retainers | Support, hosting, SLA and BI-retainer templates; auto-generate (Cloudflare Cron) |
+| Monthly Billing | Retainers | Support, hosting, SLA and BI-retainer templates; auto-generate (Netlify Scheduled Function) |
 | Jobs (Kanban) | **Projects** | Renamed so "Jobs" isn't confused with incoming job listings; linked client, quote, practice, partner, budget vs. actual hours |
 | Customers | **Clients + Contacts** | Organisations with multiple people; activity timeline |
 | Line Items | **Services catalogue** | Grouped by the four practices; rate cards (hourly, daily, fixed); USD/NAD |
@@ -97,7 +97,7 @@ Upwork/LinkedIn alert email ─IMAP─► n8n ─► Ollama extract/score ─►
 
 Carried over: `users`, `companies`, `customers`→`clients`, `items`→`services`, `documents` (quotes/invoices), `templates`→`retainers`, `jobs`→`projects`, `settings`.
 
-New: `contacts`, `leads`, `enquiries`, `opportunities`, `activities` (polymorphic: client, lead, project), `tasks`, `time_entries`, `payments`, `expenses`, `marketplace_earnings`, `attachments` (files in Cloudflare R2, free 10 GB), `audit_log`, `integration_tokens`, `user_mfa`.
+New: `contacts`, `leads`, `enquiries`, `opportunities`, `activities` (polymorphic: client, lead, project), `tasks`, `time_entries`, `payments`, `expenses`, `marketplace_earnings`, `attachments` (files in Netlify Blobs), `audit_log`, `integration_tokens`, `user_mfa`.
 
 Money is stored as numeric(14,2) with a currency code and an optional exchange rate to NAD. VAT is calculated with JobTracker's verified routine (on the document total, rounded half-up). All dates use Africa/Windhoek.
 
@@ -106,42 +106,45 @@ Money is stored as numeric(14,2) with a currency code and an optional exchange r
 - The brand guide's tokens and fonts (Space Grotesk, Inter, JetBrains Mono): navy panels, Electric Blue for primary actions, Signal Cyan for data highlights, and status colours used only for meaning.
 - **Dark theme by default** to match the brand, **plus a light theme toggle** for long data-entry sessions in bright offices.
 - Same sidebar and top-bar structure as JobTracker, with the Auvetric lockup in the sidebar header.
+- The website's footer gets a discreet **Partner login** link to `/crm/login`.
 - Printed and PDF quotes and invoices stay **white A4**, with the Auvetric logo, navy text and a blue accent rule. Dark backgrounds don't print well.
 - Usable on phones (installable PWA, as JobTracker is); keyboard accessible.
 
 ## 8. Security
 
-- Two gates: Cloudflare Access (email one-time code, only Jakes' and Alex's addresses allowed) **and** the app login (PBKDF2 hash, HTTP-only Secure SameSite=Strict cookie, optional TOTP two-factor).
+- App login: password hash (scrypt/bcrypt on Netlify's Node runtime), HTTP-only Secure SameSite=Strict session cookie scoped to `/`, **TOTP two-factor required** for both partners, login rate limiting and lockout after repeated failures. Middleware protects every `/crm` and `/api/crm` route.
+- Only Jakes and Alex have accounts; no public sign-up.
 - Role model ready for more users later (admin, member, read-only).
-- Ingest API: token auth, schema validation, payload size limits, Cloudflare rate limiting.
+- Ingest API: token auth, schema validation, payload size limits, rate limiting.
 - Audit log of every create, update and delete on financial records.
-- Backups: Neon point-in-time restore (free plan: about 1 day), plus a nightly JSON/CSV export to R2, plus the manual export button carried over from JobTracker.
-- Secrets live in Cloudflare environment variables and are never committed.
+- Backups: Neon point-in-time restore (free plan: about 1 day), plus a nightly JSON/CSV export (Netlify Blobs, and optionally emailed or copied to the PC), plus the manual export button carried over from JobTracker.
+- Secrets live in Netlify environment variables and are never committed.
 
 ## 9. Phases and acceptance
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **0 · Foundations** | Cloudflare account and project, Neon project, repo `auvetric-crm`, CI (typecheck, lint, tests, deploy), Access policy, temporary URL `*.pages.dev` | Empty branded shell deploys from GitHub; login works behind Access |
+| **0 · Foundations** | Neon project, Netlify env vars, `/crm` shell inside the website app (layout, sidebar, auth, middleware, TOTP), migrations, tests in CI, `noindex` | `auvetric.com/crm/login` live; only Jakes and Alex can sign in; public site unaffected |
 | **1 · JobTracker port** | Auth (PBKDF2), company profile, clients and contacts, services, quotes, invoices, retainers and cron, projects board, dashboard v1, settings, print layouts | Quote → invoice → paid flow works end to end; VAT and totals match JobTracker's calculation tests; PDFs print correctly |
 | **2 · Sales + n8n** | Enquiries, opportunities, leads pipeline, activities, tasks; ingest API, n8n push and pull workflows, backfill; website form → CRM | A real Upwork/LinkedIn alert appears in Opportunities within minutes; a website enquiry is stored with the PC off and triaged when it comes back on |
 | **3 · Delivery + finance** | Time tracking → invoice lines, payments, expenses, marketplace earnings, debtors ageing, statements, emailing documents (Zoho transactional mail / ZeptoMail) | Monthly close: every invoice paid or aged, billable hours invoiced |
-| **4 · Insights + hardening** | Reports, R2 attachments, audit log UI, TOTP, nightly backups, accessibility pass | Reports reconcile with raw data (automated checks); restore from backup tested |
+| **4 · Insights + hardening** | Reports, attachments, audit log UI, nightly backups, accessibility pass | Reports reconcile with raw data (automated checks); restore from backup tested |
 | **5 · Optional** | Client portal (view and accept quotes, view invoices), online payments | Separate decision later |
-| **Cut-over** | auvetric.com DNS → Cloudflare (keeping the Zoho MX/SPF/DKIM records), website moves from GitHub Pages, `crm.auvetric.com` goes live, "Partner login" link added | Website and CRM live on the domain; mail delivery unaffected |
+| **Wrap-up** | Retire or freeze the GitHub Pages mirror; website form posts only to the CRM; docs and runbook | auvetric.com is the single live site with the CRM at `/crm` |
 
 Each phase ships working software with automated tests and a live deployment, the same way the website was built.
 
 ## 10. Needed from you
 
-- **Cloudflare account:** create a free one, or say if you have one. I'll guide the API token setup; you enter it in the vault.
-- **Where auvetric.com is registered:** needed to move DNS to Cloudflare safely.
+- **Netlify access:** confirm the Netlify site `auvetric` deploys from the GitHub repo `EnZo1826/auvetric-data-solutions` (branch `main`), and choose Netlify Personal ($9/month) or milestone-only deploys. I'll need a Netlify personal access token, entered in the vault, to set environment variables and check deploys.
+- **Neon account:** a free account for the CRM database (or tell me to use Netlify DB, which is Neon-backed).
 - **Business details for documents:** legal name and registration number, VAT status and number (if registered), banking details for invoices, payment terms, and preferred invoice and quote number formats.
 - **Who sees what:** whether Jakes and Alex both see all financials, or there is any separation (e.g. a per-partner revenue view).
 
 ## 11. Risks
 
-- **The free CPU limit (10 ms) needs careful API design**: native crypto, no heavy work on the server. If a feature needs more, Workers Paid is $5/month.
+- **Netlify credits:** on the free plan, frequent deploys can pause the whole site, website included. Mitigated by Personal ($9/month) or milestone deploys.
+- **Shared deployment:** a CRM bug could affect the public site's build. Mitigated by CI (typecheck, lint, tests, build) before every merge and keeping CRM code isolated under `src/app/crm` and `src/crm`.
 - **Neon scale-to-zero** adds a few hundred milliseconds to the first request after idle. That's acceptable for a two-user CRM.
 - **The n8n side depends on the PC** for AI triage. Intake no longer does (enquiries are stored in the CRM first), but enrichment and job alerts pause while the PC is off.
 - **Changing VAT or tax rules:** VAT handling stays configurable. Your accountant should confirm invoice wording and VAT registration obligations.
