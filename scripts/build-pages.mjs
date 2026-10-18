@@ -11,7 +11,7 @@ for(const f of ['src','public','package.json','tsconfig.json','next.config.ts','
     return !rel.startsWith('src/app/api');
   }});
 }
-const base=process.env.NEXT_PUBLIC_BASE_PATH || '/nexus-intelligence';
+const base=process.env.NEXT_PUBLIC_BASE_PATH || '/auvetric-data-solutions';
 const env={...process.env,NEXUS_PAGES_BUILD:'true',NEXT_PUBLIC_STATIC_SITE:'true',NEXT_PUBLIC_BASE_PATH:base,
   NEXT_PUBLIC_SITE_URL:process.env.NEXT_PUBLIC_SITE_URL || `https://enzo1826.github.io${base}`,
   NEXT_PUBLIC_ALLOW_INDEXING:'false'};

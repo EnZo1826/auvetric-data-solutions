@@ -16,8 +16,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_BASE_PATH: /nexus-intelligence
-      NEXT_PUBLIC_SITE_URL: https://enzo1826.github.io/nexus-intelligence
+      NEXT_PUBLIC_BASE_PATH: /auvetric-data-solutions
+      NEXT_PUBLIC_SITE_URL: https://enzo1826.github.io/auvetric-data-solutions
       NEXT_PUBLIC_ALLOW_INDEXING: 'false'
     steps:
       - uses: actions/checkout@v6

@@ -6,7 +6,7 @@ Confirmed future domain: **auvetric.com**. Current GitHub Pages URL and reposito
 
 ## GitHub Pages
 
-Repository: `EnZo1826/nexus-intelligence`. Publishing target: `https://enzo1826.github.io/nexus-intelligence/`.
+Repository: `EnZo1826/auvetric-data-solutions`. Publishing target: `https://enzo1826.github.io/auvetric-data-solutions/`.
 
 The `Deploy GitHub Pages` workflow builds and deploys each push to `main`. The Pages variant is a static export: all illustrations, filters and synthetic demos run client-side, but the enquiry API is omitted. The contact page explicitly states that enquiries are unavailable instead of rendering a nonfunctional form. Search indexing remains disabled while branding/content/legal approval is pending.
 

@@ -17,5 +17,11 @@ for(const p of ['src/components/layout/SiteHeader.tsx','src/components/layout/Si
  const s=fs.readFileSync(p,'utf8');assert.ok(!/NEXUS|INTELLIGENCE/.test(s),`Old visible brand in ${p}`);
 }
 assert.ok(!fs.existsSync('public/CNAME'),'Do not switch GitHub Pages to the future domain yet');
-assert.ok(fs.readFileSync('.github/workflows/pages.yml','utf8').includes('https://enzo1826.github.io/nexus-intelligence'));
+const workflow=fs.readFileSync('.github/workflows/pages.yml','utf8');
+assert.ok(workflow.includes('NEXT_PUBLIC_BASE_PATH: /auvetric-data-solutions'),'Pages base path must match renamed repository');
+assert.ok(workflow.includes('https://enzo1826.github.io/auvetric-data-solutions'),'Canonical URL must match renamed repository');
+assert.equal(JSON.parse(fs.readFileSync('package.json','utf8')).name,'auvetric-data-solutions');
+for(const p of ['next.config.ts','scripts/build-pages.mjs','scripts/verify-pages.mjs','.github/workflows/pages.yml','package.json']){
+ assert.ok(!fs.readFileSync(p,'utf8').includes('nexus-intelligence'),`Old repository name remains in ${p}`);
+}
 console.log('Auvetric branding: name, palette, error semantics, logo assets, Alex link and deferred domain passed.');

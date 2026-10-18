@@ -2,8 +2,10 @@
 
 User authorised creating a new GitHub repository and enabling GitHub Pages after the local handover.
 
-- Repository: `https://github.com/EnZo1826/nexus-intelligence` (public).
-- Pages target: `https://enzo1826.github.io/nexus-intelligence/`.
+- Repository: `https://github.com/EnZo1826/auvetric-data-solutions` (public).
+- Pages target: `https://enzo1826.github.io/auvetric-data-solutions/`.
+
+Repository renamed from `nexus-intelligence` to `auvetric-data-solutions` at the owner's request. GitHub redirects old repository/git URLs, but **GitHub Pages does not redirect** the old `/nexus-intelligence/` project path; that address stops serving after the rename. Local folder moved to `F:\Projects\Auvetric Data Solutions`.
 - Publishing source: GitHub Actions, workflow `.github/workflows/pages.yml`, triggered on `main` pushes and manual dispatch.
 - Node 24; `npm ci`, lint/type/data/telemetry checks, isolated static export, Pages export assertions, artifact upload and deployment.
 
@@ -16,7 +18,7 @@ Search indexing stays disabled because the business branding, legal pages and ca
 
 ## Verification contract
 - Static home, contact, laboratory, normal navigation and detail routes must exist.
-- Links/assets must use `/nexus-intelligence` prefix.
+- Links/assets must use `/auvetric-data-solutions` prefix.
 - Contact static HTML must contain the unavailability notice and no form.
 - Export must not contain a fake contact API.
 - `.nojekyll` must exist.

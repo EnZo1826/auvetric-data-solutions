@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-const base=process.env.NEXT_PUBLIC_BASE_PATH || '/nexus-intelligence';
+const base=process.env.NEXT_PUBLIC_BASE_PATH || '/auvetric-data-solutions';
 assert.ok(fs.existsSync('out/index.html'), 'GitHub Pages build must produce a static home page');
 const paths=['','contact','lab','solutions','industries','work','about','approach','insights','privacy','terms','solutions/engineering-development','work/master-data-reconciliation'];
 for(const p of paths){const file=path.join('out',p,'index.html');assert.ok(fs.existsSync(file),`Static deep link missing: ${p}`);}
