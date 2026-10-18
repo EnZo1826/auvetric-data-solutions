@@ -37,6 +37,12 @@ npm run crm:user -- reset-mfa <email>        # lost phone: re-enrol at next sign
 npm run crm:user -- unlock <email> | disable <email> | enable <email>
 ```
 
+## Production state (19 Oct 2026)
+
+- Supabase project **AuvetricCRM**, ref `qjywbkesrweqfahmgvom`, region eu-west-1 (Ireland). Migrations 0001–0003 applied; Data API lockdown verified with `crm:test:supabase` (14 tables refused). Users: Jakes and Alex (admin, one-time passwords, 2FA enrolment at first sign-in).
+- Without the database password on the PC, SQL can be run through the logged-in Supabase CLI: `npx supabase db query --linked --project-ref qjywbkesrweqfahmgvom -f file.sql` (Management API, runs as `postgres`). Applying a migration this way: wrap the file in `begin; … insert into schema_migrations (name, checksum) values (…); commit;` with the same sha256 the runner computes (LF line endings).
+- Netlify site `auvetric` (functions region us-east-2): `CRM_ENCRYPTION_KEY` and `CRM_CRON_SECRET` are secrets with a Production value only. The free plan can't narrow scopes below builds/functions/runtime for secrets. `DATABASE_URL` must be the Supabase **session pooler** string (port 5432).
+
 ## Supabase specifics
 
 - Supabase is used as plain Postgres. The anon/publishable key is never used by the app; the Data API would expose `public` tables to it, so migration `0003_supabase_lockdown.sql` enables RLS on every table and revokes all `anon`/`authenticated` privileges, and `crm:migrate` fails if any table is missing RLS or has such grants. **Every new migration that creates a table must enable RLS on it.**
