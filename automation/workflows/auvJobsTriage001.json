@@ -3,7 +3,7 @@
   "name": "10 Jobs \u00b7 triage alert emails",
   "nodes": [
     {
-      "id": "c5925765-86d7-4c4f-bf1b-e1c0c79f1f34",
+      "id": "43b99458-9d1e-457b-a3fb-f160ff7138fd",
       "name": "Job alert email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "6e5f9a50-ddd3-4465-80bc-5107ad972777",
+      "id": "fcd8bb14-42a1-478c-a615-017b329def21",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -25,11 +25,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
       }
     },
     {
-      "id": "2dd27c3a-de7f-4799-9701-9896d88b99d3",
+      "id": "3c3e904b-2ca4-427b-86d7-427b22246301",
       "name": "Split alert into jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "70dcec79-a51e-45ae-9e8f-97acbd3c9e89",
+      "id": "b75db338-e7bf-4ddc-988c-ea338b255c38",
       "name": "Skip jobs already seen",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "c4a3ab16-6248-4c00-902c-822108b23727",
+      "id": "d5c2f7b4-4854-4aa7-98f5-be6c9097bd58",
       "name": "Build job prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
       }
     },
     {
-      "id": "5f795b18-ee60-4471-99fe-991996c2bf2a",
+      "id": "43d6b28d-acfc-4014-8758-7c3332d926c5",
       "name": "Local AI: extract & score",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -109,7 +109,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "d061d68a-4035-480c-bcfe-bc64b66bd204",
+      "id": "309d0f38-64db-41b1-ad7c-bdda01e134c8",
       "name": "Validate extraction",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -122,7 +122,7 @@
       }
     },
     {
-      "id": "082adbb5-d851-4bc1-9ac0-0f01fec7451f",
+      "id": "853309c8-53ba-41e7-9f91-3cc31a02c924",
       "name": "Save job",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -148,7 +148,7 @@
       }
     },
     {
-      "id": "0701e351-2d96-4742-b0ac-fdf84bc249e0",
+      "id": "bdaf0e06-4340-4b71-a90b-f3cb7650893a",
       "name": "Strong match?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -165,7 +165,7 @@
           },
           "conditions": [
             {
-              "id": "9640dfcc-4252-4ccc-b859-d5479c1fc3df",
+              "id": "fa2f6033-6b18-4471-9ac7-eee15b24ab58",
               "leftValue": "={{ $('Validate extraction').item.json.fit_score }}",
               "rightValue": "={{ $('Config').first().json.alertThreshold }}",
               "operator": {
@@ -180,7 +180,7 @@
       }
     },
     {
-      "id": "192a7393-0342-4aeb-abab-11b26fafc1c4",
+      "id": "bb487945-3a35-45ff-9794-194d4cdb0567",
       "name": "Restore job fields",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -194,7 +194,7 @@
       }
     },
     {
-      "id": "4d772534-0b32-44bc-9635-2a7d3de563d0",
+      "id": "2dee9480-ff5c-42df-975f-52c66140b0c5",
       "name": "Compose alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -207,7 +207,7 @@
       }
     },
     {
-      "id": "648e5849-0485-414b-bdda-4a3871ce04c4",
+      "id": "d9bc2228-bc55-4a25-98d2-9691d6794e0a",
       "name": "Email strong matches",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -233,7 +233,7 @@
       }
     },
     {
-      "id": "af0e8602-ba4c-4121-ad81-dc14a91d9e62",
+      "id": "97b02d80-a685-4b7c-95a0-391132ea8228",
       "name": "Mark alerted",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -246,7 +246,7 @@
       }
     },
     {
-      "id": "cfd5659f-9203-4bf3-8609-35352ff730ab",
+      "id": "20f762cd-9e3f-471d-8159-0987882fccf0",
       "name": "Flag alerted jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

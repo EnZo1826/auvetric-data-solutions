@@ -3,7 +3,7 @@
   "name": "20 Website \u00b7 process enquiries",
   "nodes": [
     {
-      "id": "14a69565-dc73-4d9f-9fd6-8943df22949b",
+      "id": "d22d3d96-3879-49e0-bed8-61051e8da096",
       "name": "Website enquiry email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "b239b1aa-0d3e-4cf2-9b66-4e254ca1d31c",
+      "id": "3fa60055-4c26-4470-823a-cbe6dabba46f",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -25,11 +25,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n}}];"
       }
     },
     {
-      "id": "9073141b-0d65-4809-a9ab-22ceee14c404",
+      "id": "e8b0a35a-1b3a-45ce-81d4-bf34585b389a",
       "name": "Parse submission",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "72af85dc-03d8-4f38-ab91-7a1f5d2d8cd7",
+      "id": "f73114aa-f762-4735-8bed-e00a95bbdf53",
       "name": "Skip duplicates",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "85dac150-482f-472c-af21-0e91cd3719ec",
+      "id": "59d6df8b-4bd9-4e9d-852f-d72dc58a7935",
       "name": "Build enquiry prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
       }
     },
     {
-      "id": "08dc72eb-4f18-4d78-8778-f62ee3311fcd",
+      "id": "964b6d42-ead6-446c-b7ba-61684620338f",
       "name": "Local AI: triage enquiry",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -109,7 +109,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "7089128a-1f31-4f7d-807f-d9534e08be5a",
+      "id": "fc71460f-94d8-49ce-bf8e-0e22ead01343",
       "name": "Validate triage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -122,7 +122,7 @@
       }
     },
     {
-      "id": "4cd0db1b-b934-4433-a031-d3e5669d97f7",
+      "id": "2b2f47f9-f419-4f7b-bd54-d68a54d29145",
       "name": "Save enquiry",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -148,7 +148,7 @@
       }
     },
     {
-      "id": "703ebeec-9521-4f98-a145-bd0cc5b0deb7",
+      "id": "47f11e1f-51d2-421b-8e80-1cd68d7dbfe2",
       "name": "Not spam?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -165,7 +165,7 @@
           },
           "conditions": [
             {
-              "id": "d2a6ca67-e4e8-4e48-984d-a9eec1e45c22",
+              "id": "3bdbe70a-028f-4ba8-b072-e019388cba91",
               "leftValue": "={{ $('Validate triage').item.json.spam_score }}",
               "rightValue": 70,
               "operator": {
@@ -180,7 +180,7 @@
       }
     },
     {
-      "id": "565f4d52-b566-4cac-8cc9-8c05ee281a81",
+      "id": "8492ead2-20b3-467c-84b4-1e5afb09b522",
       "name": "Compose partner alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -194,7 +194,7 @@
       }
     },
     {
-      "id": "4ce36ff2-8fb1-4c66-a9a3-137c94060754",
+      "id": "b8960822-72e7-4203-ac14-dd5b4e8d4341",
       "name": "Email partners",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -221,7 +221,7 @@
       }
     },
     {
-      "id": "99fb2b8d-7174-442b-9395-8f25f7b0bf34",
+      "id": "224e57a1-1e3e-4013-953f-631cdbbd992b",
       "name": "Flag alerted",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

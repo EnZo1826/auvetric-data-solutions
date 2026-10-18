@@ -3,7 +3,7 @@
   "name": "05 Mail \u00b7 inbox router",
   "nodes": [
     {
-      "id": "9f81ef69-1331-47b0-a99e-bb8bbc198cda",
+      "id": "0ba15e44-e868-472a-b329-87d1622827b1",
       "name": "New email in mailbox",
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2.1,
@@ -30,7 +30,7 @@
       }
     },
     {
-      "id": "88ca74c6-d719-4b36-a9b5-a3cb7c514f56",
+      "id": "9f86ae1e-a1be-4575-bdc9-2b8ea835b39c",
       "name": "Classify email",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -43,7 +43,7 @@
       }
     },
     {
-      "id": "0cf96034-e908-46b8-b73e-6b31a2a9719f",
+      "id": "6fb6da92-2771-4337-8898-f451bd16ca5d",
       "name": "Job alerts",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -60,7 +60,7 @@
           },
           "conditions": [
             {
-              "id": "302c2c85-c630-403b-8472-c6f5af59e0c1",
+              "id": "3758fffa-7c6e-4d24-b60d-769f46eae3e8",
               "leftValue": "={{ $json._route }}",
               "rightValue": "jobs",
               "operator": {
@@ -75,7 +75,7 @@
       }
     },
     {
-      "id": "65bd2ff5-3bb3-4760-8350-67a5de1bae46",
+      "id": "ec12786f-0cbe-410f-a2f2-1fd3995c133c",
       "name": "Website enquiries",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -92,7 +92,7 @@
           },
           "conditions": [
             {
-              "id": "fcea02e2-6de0-4ecb-91ed-ebacd6cfe7c2",
+              "id": "0e13527b-67e2-4107-98d6-caca4c9f5eae",
               "leftValue": "={{ $json._route }}",
               "rightValue": "enquiry",
               "operator": {
@@ -107,7 +107,7 @@
       }
     },
     {
-      "id": "8b587d73-a42b-431d-a1ce-9e0577e2c6a0",
+      "id": "a0847411-ca82-4973-878e-e80ac694e0cc",
       "name": "Run 10 Jobs triage",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
@@ -135,7 +135,7 @@
       }
     },
     {
-      "id": "94870c82-3aca-43d8-825d-8bf2ec59013a",
+      "id": "56534e04-5e66-42da-8569-929c5e6cd074",
       "name": "Run 20 Website enquiries",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,

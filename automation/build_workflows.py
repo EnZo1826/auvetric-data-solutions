@@ -30,7 +30,7 @@ CONFIG_JS = """// ── Edit these values, then save. Shared settings for this 
 return [{ json: {
   ollamaUrl: 'http://host.docker.internal:11434',
   model: 'qwen3:8b',
-  alertTo: 'info@auvetric.com',             // comma-separated: Jakes and Alex
+  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex
   fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)
   alertThreshold: 70,                       // jobs scoring >= this are emailed immediately
   timezone: 'Africa/Windhoek',
