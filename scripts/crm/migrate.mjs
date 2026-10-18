@@ -43,7 +43,8 @@ try {
   let pending = 0;
   for (const f of files) {
     const body = await readFile(path.join(dir, f), 'utf8');
-    const sum = createHash('sha256').update(body).digest('hex');
+    // Hash with normalised line endings so a CRLF checkout (Windows autocrlf) matches what was applied.
+    const sum = createHash('sha256').update(body.replace(/\r\n/g, '\n')).digest('hex');
     if (applied.has(f)) {
       if (applied.get(f) !== sum) throw new Error(`${f} was edited after it was applied. Add a new migration instead.`);
       continue;
