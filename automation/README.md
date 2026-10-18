@@ -43,6 +43,17 @@ Website form ─► Web3Forms ─────┘                                
 5. **Website form.** Sign up at https://web3forms.com with the Auvetric mailbox address and copy the access key (it is public by design). Then add it as a **repository variable** (not a secret): GitHub → *auvetric-data-solutions → Settings → Secrets and variables → Actions → Variables → New*, name `WEB3FORMS_ACCESS_KEY`. Re-run the *Deploy GitHub Pages* workflow. The contact page switches from "unavailable" to the live form automatically.
 6. **Stop the test mail server** once real credentials work: `docker compose --profile test stop mailtest`.
 
+> **Changing mailbox (test → Zoho, or any switch later):** the router remembers the last message number it saw, and every mailbox numbers its messages independently. After pointing the IMAP credential at a different mailbox, reset the router's stored state or new mail is silently skipped:
+> ```bash
+> python -c "import json;w=json.load(open('workflows/auvMailRouter001.json',encoding='utf-8'));w['staticData']={};open('backups/router-reset.json','w',encoding='utf-8').write(json.dumps(w))"
+> docker cp backups/router-reset.json auvetric-n8n:/tmp/r.json
+> docker exec -e N8N_RUNNERS_BROKER_PORT=5691 auvetric-n8n sh -c 'n8n import:workflow --input=/tmp/r.json && n8n publish:workflow --id=auvMailRouter001'
+> docker restart auvetric-n8n
+> ```
+> n8n's IMAP credential has no built-in test, so "No testing function found for this credential" in the editor is normal. Verify by sending a test email and checking *05 Mail · inbox router → Executions*.
+
+**Zoho Mail (auvetric.com):** IMAP `imappro.zoho.com:993` SSL; SMTP `smtppro.zoho.com:465` SSL; user `info@auvetric.com`. IMAP access must be enabled in Zoho Mail settings, and with two-factor sign-in on you must use an app password. Set `fromAddress` to the same mailbox.
+
 ## Operating
 
 ```bash
