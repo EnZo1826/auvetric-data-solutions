@@ -8,6 +8,7 @@ Design rules
   (website enquiries awaiting triage). Nothing on this PC is exposed.
 - The CRM (auvetric.com/crm) is the system of record: workflow 12 pushes jobs/relay enquiries to it,
   workflow 21 pulls website enquiries from it for AI triage.
+- AI: Claude (Anthropic API) by default, or local Ollama (Config.aiProvider). Same prompts, same JSON schema.
 - Email/job text is UNTRUSTED. The model only classifies/extracts into a fixed JSON schema; its
   output is stored and emailed to the partners, never executed or used to contact third parties.
 - If the model fails, the record is still stored with extraction_status=failed so nothing is lost.
@@ -27,14 +28,19 @@ IMAP = {"imap": {"id": "auvImapMailbox01", "name": "Auvetric mailbox (IMAP)"}}
 SMTP = {"smtp": {"id": "auvSmtpMailbox01", "name": "Auvetric mailbox (SMTP)"}}
 # Header Auth credential: name "Authorization", value "Bearer <token from CRM → Integrations>".
 CRM_AUTH = {"httpHeaderAuth": {"id": "auvCrmIngest001", "name": "Auvetric CRM (ingest token)"}}
+# Header Auth credential: name "x-api-key", value = Anthropic API key (console.anthropic.com). Edited in the n8n UI only.
+ANTHROPIC_AUTH = {"httpHeaderAuth": {"id": "auvAnthropic0001", "name": "Anthropic API key"}}
 
 JOBS_TABLE = "auvetric_jobs"
 ENQ_TABLE = "auvetric_enquiries"
 
 CONFIG_JS = """// ── Edit these values, then save. Shared settings for this workflow. ──
 return [{ json: {
+  aiProvider: 'anthropic',                 // 'anthropic' (Claude API, credential "Anthropic API key") or 'ollama' (local)
+  anthropicUrl: 'https://api.anthropic.com',
+  anthropicModel: 'claude-haiku-4-5',
   ollamaUrl: 'http://host.docker.internal:11434',
-  model: 'qwen3:8b',
+  model: 'qwen3:8b',                        // Ollama model
   alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex
   fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)
   alertThreshold: 70,                       // jobs scoring >= this are emailed immediately
@@ -150,14 +156,57 @@ def run_subworkflow(name, pos, wid):
         "mode": "once", "options": {"waitForSubWorkflow": True}})
 
 
-def ollama_http(name, pos):
-    return node(name, "n8n-nodes-base.httpRequest", 4.2, pos, {
-        "method": "POST",
-        "url": "={{ $('Config').first().json.ollamaUrl }}/api/chat",
-        "sendBody": True, "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ollama_request) }}",
-        "options": {"timeout": 600000},  # first model load from disk can take ~4 min
-    }, onError="continueRegularOutput", retryOnFail=True, maxTries=2, waitBetweenTries=5000)
+PREPARE_AI_JS = r"""
+// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.
+// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.
+const cfg = $('Config').first().json;
+const r = $json.ollama_request;
+let ai_http;
+if ((cfg.aiProvider || 'ollama') === 'anthropic') {
+  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {
+    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,
+    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\n\n'),
+    messages: r.messages.filter(m => m.role !== 'system'),
+    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],
+    tool_choice: { type: 'tool', name: 'record_result' },
+  } };
+} else {
+  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };
+}
+return { json: { ...$json, ai_http } };
+"""
+
+NORMALISE_AI_JS = r"""
+// Every provider's reply → Ollama's shape { message: { content: '<json>' } } or { error: { message } },
+// which is what the validation step reads. Order is preserved (validation pairs items by index).
+return $input.all().map(item => {
+  const j = item.json || {};
+  if (j.error) return { json: { error: { message: String(j.error.message || j.error.description || JSON.stringify(j.error)).slice(0, 300) } } };
+  if (Array.isArray(j.content)) {
+    const t = j.content.find(c => c.type === 'tool_use');
+    return { json: t ? { message: { content: JSON.stringify(t.input) }, provider: 'anthropic', model: j.model, usage: j.usage }
+                     : { error: { message: `no structured reply (${j.stop_reason || 'unknown'})` } } };
+  }
+  return { json: j };
+});
+"""
+
+
+def ai_nodes(name, pos):
+    """Prepare → call → normalise. Provider is chosen by Config.aiProvider at run time."""
+    x, y = pos
+    return [
+        code(f"Prepare AI request ({name})", [x, y + 180], PREPARE_AI_JS, mode="runOnceForEachItem"),
+        node(name, "n8n-nodes-base.httpRequest", 4.2, [x, y], {
+            "method": "POST", "url": "={{ $json.ai_http.url }}",
+            "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+            "sendHeaders": True, "headerParameters": {"parameters": [{"name": "anthropic-version", "value": "2023-06-01"}]},
+            "sendBody": True, "specifyBody": "json", "jsonBody": "={{ JSON.stringify($json.ai_http.body) }}",
+            # first local model load can take ~4 min; batching keeps well inside API rate limits
+            "options": {"timeout": 600000, "batching": {"batch": {"batchSize": 4, "batchInterval": 1500}}},
+        }, credentials=ANTHROPIC_AUTH, onError="continueRegularOutput", retryOnFail=True, maxTries=3, waitBetweenTries=5000),
+        code(f"Normalise AI reply ({name})", [x, y - 180], NORMALISE_AI_JS),
+    ]
 
 
 # ═══════════════════════════════ 00 Setup ═══════════════════════════════
@@ -383,7 +432,7 @@ def jobs():
             "resource": "row", "operation": "rowNotExists", "dataTableId": table(JOBS_TABLE), "matchType": "allConditions",
             "filters": {"conditions": [{"keyName": "job_key", "condition": "eq", "keyValue": "={{ $json.job_key }}"}]}}),
         code("Build job prompt", [880, 0], js_prompt, mode="runOnceForEachItem"),
-        ollama_http("Local AI: extract & score", [1100, 0]),
+        *ai_nodes("AI: extract & score", [1100, 0]),
         code("Validate extraction", [1320, 0], JOB_VALIDATE_JS),
         node("Save job", "n8n-nodes-base.dataTable", 1.1, [1540, 0], {
             "resource": "row", "operation": "insert", "dataTableId": table(JOBS_TABLE),
@@ -585,7 +634,7 @@ def enquiries():
             "resource": "row", "operation": "rowNotExists", "dataTableId": table(ENQ_TABLE), "matchType": "allConditions",
             "filters": {"conditions": [{"keyName": "enquiry_key", "condition": "eq", "keyValue": "={{ $json.enquiry_key }}"}]}}),
         code("Build enquiry prompt", [880, 0], ep, mode="runOnceForEachItem"),
-        ollama_http("Local AI: triage enquiry", [1100, 0]),
+        *ai_nodes("AI: triage enquiry", [1100, 0]),
         code("Validate triage", [1320, 0], ENQ_VALIDATE_JS),
         node("Save enquiry", "n8n-nodes-base.dataTable", 1.1, [1540, 0], {
             "resource": "row", "operation": "insert", "dataTableId": table(ENQ_TABLE),
@@ -719,7 +768,7 @@ def crm_triage():
         crm_http("Claim enquiries from CRM", [440, 0], "POST", "/enquiries/claim", "={{ JSON.stringify({ limit: 3 }) }}"),
         code("One item per enquiry", [660, 0], CLAIMED_JS),
         code("Build enquiry prompt", [880, 0], ep, mode="runOnceForEachItem"),
-        ollama_http("Local AI: triage enquiry", [1100, 0]),
+        *ai_nodes("AI: triage enquiry", [1100, 0]),
         code("Validate triage", [1320, 0], ENQ_VALIDATE_JS),
         crm_http("Save triage to CRM", [1540, 0], "PATCH", "/enquiries/{{ $json.crm_id }}/triage", TRIAGE_BODY),
         node("Alert partners?", "n8n-nodes-base.filter", 2.2, [1760, 0], {

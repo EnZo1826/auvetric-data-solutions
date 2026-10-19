@@ -3,7 +3,7 @@
   "name": "11 Jobs \u00b7 daily digest",
   "nodes": [
     {
-      "id": "e395a3cf-677a-46f4-aee0-797ab5a93aad",
+      "id": "f428fe82-c216-492a-a56a-4c644604ce1e",
       "name": "Every morning 07:30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "id": "320a3b66-ecdf-43b1-9a21-4d5ad1338d81",
+      "id": "562e03b1-b52b-4461-b21c-fffa23c2ccf7",
       "name": "Run now (localhost webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -40,7 +40,7 @@
       "webhookId": "auvetric-run-digest"
     },
     {
-      "id": "95c8d48e-d6ae-417a-8bbc-9c50f285c6ae",
+      "id": "e4904520-3ba1-4770-b553-1833301f9074",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -49,11 +49,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  aiProvider: 'anthropic',                 // 'anthropic' (Claude API, credential \"Anthropic API key\") or 'ollama' (local)\n  anthropicUrl: 'https://api.anthropic.com',\n  anthropicModel: 'claude-haiku-4-5',\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',                        // Ollama model\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
       }
     },
     {
-      "id": "b2475759-d611-4649-a9e5-45113db5bd8c",
+      "id": "a63a93bc-297e-4d44-9eaf-ee6e9cb6be7d",
       "name": "Undigested jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -86,7 +86,7 @@
       "alwaysOutputData": true
     },
     {
-      "id": "78f17d13-4168-424e-8bd2-9457fc9e6f55",
+      "id": "73af2a75-c118-488b-a150-c46e344d2618",
       "name": "Compose digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -99,7 +99,7 @@
       }
     },
     {
-      "id": "652dd899-4852-4721-990c-9e95d47feac4",
+      "id": "0aa54b55-745b-4b6c-9a63-92a87850d506",
       "name": "Email digest",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -125,7 +125,7 @@
       }
     },
     {
-      "id": "1105d636-567e-400c-a1db-8abb5119540f",
+      "id": "7510c1a3-07c8-4785-ac0b-477027e5f107",
       "name": "One item per job",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -138,7 +138,7 @@
       }
     },
     {
-      "id": "a0fec6a5-4b2c-49bd-90f4-884b3c171596",
+      "id": "f026d98e-9ffe-4de6-970d-ee022ca268db",
       "name": "Mark digested",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

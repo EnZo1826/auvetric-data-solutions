@@ -3,7 +3,7 @@
   "name": "21 CRM \u00b7 triage website enquiries",
   "nodes": [
     {
-      "id": "61b26f6b-7abd-4932-8939-ff385d75ad73",
+      "id": "6bf537ed-27ea-4620-9d61-e91e07e7713f",
       "name": "Every 5 minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "id": "a98daa07-b8d9-4e3b-bb47-d32c0f6c0b74",
+      "id": "044afd3b-71be-4a60-bd9c-20f01a7ec490",
       "name": "Run now (localhost webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -40,7 +40,7 @@
       "webhookId": "auvetric-crm-triage"
     },
     {
-      "id": "40d97581-bcc0-40db-8ccc-b135f272db41",
+      "id": "66beeb0a-0c5d-4545-a8e7-6ccf4404445d",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -49,11 +49,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  aiProvider: 'anthropic',                 // 'anthropic' (Claude API, credential \"Anthropic API key\") or 'ollama' (local)\n  anthropicUrl: 'https://api.anthropic.com',\n  anthropicModel: 'claude-haiku-4-5',\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',                        // Ollama model\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
       }
     },
     {
-      "id": "9b73c018-ffae-4deb-b647-626ab0149541",
+      "id": "e86acb94-4f0d-4980-8b4e-97d45bb64ea4",
       "name": "Claim enquiries from CRM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -84,7 +84,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "ea14eea4-2aef-4725-9f24-252e68dcd8af",
+      "id": "3cf036f8-eddb-4a88-bab9-9227af3272d9",
       "name": "One item per enquiry",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -97,7 +97,7 @@
       }
     },
     {
-      "id": "f72804d1-32cc-46ea-b7f3-94c878366528",
+      "id": "b6f43f3b-9bec-49b4-870a-31e18fe58f22",
       "name": "Build enquiry prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -111,8 +111,22 @@
       }
     },
     {
-      "id": "6c9f70e7-17ec-4b5f-885a-09b214e58b75",
-      "name": "Local AI: triage enquiry",
+      "id": "d98d3892-e91d-49a9-986d-c80f01c43705",
+      "name": "Prepare AI request (AI: triage enquiry)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        180
+      ],
+      "parameters": {
+        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "0e9e7579-5efe-4645-b1cc-5ce6120a76ac",
+      "name": "AI: triage enquiry",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -121,21 +135,57 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Config').first().json.ollamaUrl }}/api/chat",
+        "url": "={{ $json.ai_http.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ollama_request) }}",
+        "jsonBody": "={{ JSON.stringify($json.ai_http.body) }}",
         "options": {
-          "timeout": 600000
+          "timeout": 600000,
+          "batching": {
+            "batch": {
+              "batchSize": 4,
+              "batchInterval": 1500
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "auvAnthropic0001",
+          "name": "Anthropic API key"
         }
       },
       "onError": "continueRegularOutput",
       "retryOnFail": true,
-      "maxTries": 2,
+      "maxTries": 3,
       "waitBetweenTries": 5000
     },
     {
-      "id": "67aebf9f-9fc9-49fd-ada6-5e673d5a5893",
+      "id": "df33e96a-da7e-483f-8057-e5902e367e23",
+      "name": "Normalise AI reply (AI: triage enquiry)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "\n// Every provider's reply \u2192 Ollama's shape { message: { content: '<json>' } } or { error: { message } },\n// which is what the validation step reads. Order is preserved (validation pairs items by index).\nreturn $input.all().map(item => {\n  const j = item.json || {};\n  if (j.error) return { json: { error: { message: String(j.error.message || j.error.description || JSON.stringify(j.error)).slice(0, 300) } } };\n  if (Array.isArray(j.content)) {\n    const t = j.content.find(c => c.type === 'tool_use');\n    return { json: t ? { message: { content: JSON.stringify(t.input) }, provider: 'anthropic', model: j.model, usage: j.usage }\n                     : { error: { message: `no structured reply (${j.stop_reason || 'unknown'})` } } };\n  }\n  return { json: j };\n});\n"
+      }
+    },
+    {
+      "id": "d743a7af-fa8c-47bb-9443-b373fdeaffab",
       "name": "Validate triage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -148,7 +198,7 @@
       }
     },
     {
-      "id": "3ad7173c-ffd5-4f21-ac84-5f3fe28feb6d",
+      "id": "0ed52b4b-e605-4359-b7d3-981314c3e431",
       "name": "Save triage to CRM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -179,7 +229,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "16c16363-c1e4-4cb7-8649-9d06618641c7",
+      "id": "7a96f93a-e8d6-45c3-8f9a-1c83e7f959ff",
       "name": "Alert partners?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -196,7 +246,7 @@
           },
           "conditions": [
             {
-              "id": "c0b40e07-019f-40fd-a908-6a90f74b7d70",
+              "id": "1d885f0b-00f8-4e1d-9c90-21169b580048",
               "leftValue": "={{ $json.alert }}",
               "rightValue": true,
               "operator": {
@@ -212,7 +262,7 @@
       }
     },
     {
-      "id": "235cfbb7-e95d-4b8b-988c-c21feab34bc8",
+      "id": "75c6edd4-bfd3-442e-a213-9ba690c62771",
       "name": "Compose partner alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -226,7 +276,7 @@
       }
     },
     {
-      "id": "f4a83f71-7d16-4a0d-8769-2f2841f2a342",
+      "id": "08722e5e-c29d-4080-8057-16c0bc5dad2e",
       "name": "Email partners",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -302,14 +352,36 @@
       "main": [
         [
           {
-            "node": "Local AI: triage enquiry",
+            "node": "Prepare AI request (AI: triage enquiry)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Local AI: triage enquiry": {
+    "Prepare AI request (AI: triage enquiry)": {
+      "main": [
+        [
+          {
+            "node": "AI: triage enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: triage enquiry": {
+      "main": [
+        [
+          {
+            "node": "Normalise AI reply (AI: triage enquiry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise AI reply (AI: triage enquiry)": {
       "main": [
         [
           {

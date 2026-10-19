@@ -5,7 +5,7 @@ auvetric-n8n container running. Run from the repo root:  python automation/test/
 
 What it does (and undoes):
   - creates a local integration token (hash in the LOCAL CRM db) and imports it into n8n as credential auvCrmIngest001
-  - imports test copies of workflows 12/21 pointing at http://host.docker.internal:3100, Ollama at a mock on :11435,
+  - imports test copies of workflows 12/21 pointing at http://host.docker.internal:3100, the Anthropic API replaced by a mock on :11435 (no real key is used),
     with "Email partners" DISABLED (no mail is sent), empty cursors (full backfill)
   - submits a website enquiry, triggers both workflows, checks the CRM database
 Afterwards re-import the production workflows (README → "CRM link").
@@ -36,13 +36,22 @@ def psql(q: str) -> str:
     return sh("docker", "exec", "auvetric-crm-db", "psql", "-U", "auvetric", "-d", "auvetric_crm", "-tAc", q).strip()
 
 
-class MockOllama(http.server.BaseHTTPRequestHandler):
+SEEN = {}
+
+
+class MockAnthropic(http.server.BaseHTTPRequestHandler):
+    """Stands in for POST /v1/messages: checks auth/version headers and the forced tool, answers with tool_use."""
     def do_POST(self):  # noqa: N802
-        self.rfile.read(int(self.headers.get("content-length", 0)))
-        content = json.dumps({"who_is_selling": "sender_wants_our_services", "summary": f"MOCK triage {RUN}: telemetry for 40 pumps.",
+        req = json.loads(self.rfile.read(int(self.headers.get("content-length", 0))) or b"{}")
+        SEEN.update(path=self.path, key=bool(self.headers.get("x-api-key")), version=self.headers.get("anthropic-version"),
+                    tool=req.get("tool_choice", {}).get("name"), schema="properties" in (req.get("tools") or [{}])[0].get("input_schema", {}),
+                    system=bool(req.get("system")), model=req.get("model"))
+        content = ({"who_is_selling": "sender_wants_our_services", "summary": f"MOCK triage {RUN}: telemetry for 40 pumps.",
                               "key_requirements": ["MQTT", "Alarms"], "questions_to_ask": ["Which PLCs?"], "category": "project",
                               "practice": "engineering", "priority": "high", "spam_score": 2, "suggested_reply": "Thank you (mock)."})
-        body = json.dumps({"message": {"role": "assistant", "content": content}, "done": True}).encode()
+        body = json.dumps({"id": "msg_mock", "type": "message", "role": "assistant", "model": req.get("model"), "stop_reason": "tool_use",
+                           "content": [{"type": "tool_use", "id": "toolu_mock", "name": "record_result", "input": content}],
+                           "usage": {"input_tokens": 1, "output_tokens": 1}}).encode()
         self.send_response(200); self.send_header("content-type", "application/json"); self.end_headers(); self.wfile.write(body)
 
     def log_message(self, *a):
@@ -75,6 +84,17 @@ def wait_http(url, timeout=90):
     raise RuntimeError(f"{url} not up")
 
 
+def backup_credential():
+    """Keep the production CRM credential: the rehearsal temporarily replaces it with a local token."""
+    sh("docker", "exec", "-e", "N8N_RUNNERS_BROKER_PORT=5691", CTR, "n8n", "export:credentials", "--id=auvCrmIngest001", "--decrypted", "--output=/tmp/crm-cred-backup.json")
+
+
+def restore_credential():
+    sh("docker", "exec", "-e", "N8N_RUNNERS_BROKER_PORT=5691", CTR, "n8n", "import:credentials", "--input=/tmp/crm-cred-backup.json")
+    sh("docker", "exec", "-u", "root", CTR, "rm", "-f", "/tmp/crm-cred-backup.json")
+    print("production CRM credential restored")
+
+
 def main():
     # 1 · local token
     token = "auvi_" + secrets.token_urlsafe(32)
@@ -91,7 +111,8 @@ def main():
             if n["name"] == "Config":
                 n["parameters"]["jsCode"] = (n["parameters"]["jsCode"]
                                              .replace("crmUrl: 'https://auvetric.com'", "crmUrl: 'http://host.docker.internal:3100'")
-                                             .replace("ollamaUrl: 'http://host.docker.internal:11434'", f"ollamaUrl: 'http://host.docker.internal:{MOCK_PORT}'"))
+                                             .replace("aiProvider: 'anthropic'", "aiProvider: 'anthropic'")
+                                             .replace("anthropicUrl: 'https://api.anthropic.com'", f"anthropicUrl: 'http://host.docker.internal:{MOCK_PORT}'"))
             if n["name"] == "Email partners":
                 n["disabled"] = True
         wf["staticData"] = {}
@@ -105,7 +126,7 @@ def main():
     print("workflows imported, published, n8n restarted")
 
     # 3 · mock Ollama
-    srv = http.server.ThreadingHTTPServer(("0.0.0.0", MOCK_PORT), MockOllama)
+    srv = http.server.ThreadingHTTPServer(("0.0.0.0", MOCK_PORT), MockAnthropic)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
 
     # 4 · push (backfill) jobs + relay enquiries
@@ -142,6 +163,8 @@ def main():
             break
         time.sleep(2)
     print("triage:", st)
+    print("mock Anthropic saw:", SEEN)
+    assert SEEN.get("path") == "/v1/messages" and SEEN.get("key") and SEEN.get("version") == "2023-06-01" and SEEN.get("tool") == "record_result" and SEEN.get("schema") and SEEN.get("system"), SEEN
     assert st.startswith("done|new|MOCK triage"), st
 
     # 6 · n8n execution check: alert composed with CRM link, email node disabled
@@ -159,4 +182,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    backup_credential()
+    try:
+        main()
+    finally:
+        restore_credential()
+        print("Re-import the production workflows 12 and 21 now (README → CRM link); the test copies point at this PC.")
