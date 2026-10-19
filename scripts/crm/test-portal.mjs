@@ -48,8 +48,13 @@ function smtpSink(creds) {
   const stop = () => { for (const s of sockets) s.destroy(); server.close(); };
   return new Promise((res) => server.listen(0, '127.0.0.1', () => res({ stop, port: server.address().port, messages })));
 }
-/** Decodes a quoted-printable/plain text body enough to find links. */
-const plain = (raw) => raw.replace(/=\r\n/g, '').replace(/=3D/g, '=').replace(/=([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+/** Text of a raw message: quoted-printable and base64 text parts decoded, enough to find links. */
+function plain(raw) {
+  let out = raw.replace(/=\r\n/g, '').replace(/=([0-9A-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  for (const m of raw.matchAll(/Content-Transfer-Encoding: base64\r\n(?:[^\r\n]+\r\n)*\r\n([A-Za-z0-9+/=\r\n]+)/gi)) out += '\n' + Buffer.from(m[1].replace(/\r\n/g, ''), 'base64').toString('utf8');
+  return out;
+}
+const linkIn = (raw) => plain(raw).match(/\/portal\/verify\?t=([\w-]+)/)?.[1];
 async function waitMail(sink, to, n = 1) {
   for (let i = 0; i < 50; i++) { const m = sink.messages.filter((x) => x.rcpt.includes(to)); if (m.length >= n) return m[n - 1]; await sleep(100); }
   throw new Error(`no email to ${to}`);
@@ -171,9 +176,9 @@ try {
   // ── sign-in link ──
   r = await pc.post('/api/portal/login', { email: MARIA.toUpperCase() });
   expect(r, 200, 'login');
-  const msg = plain((await waitMail(sink, MARIA, 2)).data);
-  const token = msg.match(/\/portal\/verify\?t=([\w-]+)/)?.[1];
-  assert.ok(token, 'link in the email'); assert.ok(!sink.messages.at(-1).rcpt.includes('info@auvetric.test'), 'sign-in links are not BCC-copied');
+  const loginMail = await waitMail(sink, MARIA, 2);
+  const token = linkIn(loginMail.data);
+  assert.ok(token, `link in the email:\n${loginMail.data.slice(0, 1500)}`); assert.ok(!sink.messages.at(-1).rcpt.includes('info@auvetric.test'), 'sign-in links are not BCC-copied');
   r = await pc.get(`/portal/verify?t=${token}`);
   expect(r, 200, 'verify page'); assert.equal(r.headers.get('x-robots-tag'), 'noindex, nofollow, noarchive');
   assert.equal((await sql`select used_at from portal_tokens where token_hash = encode(sha256(${token}::bytea), 'hex')`)[0].used_at, null, 'opening the page does not use the link');
@@ -183,7 +188,8 @@ try {
   const pc2 = client('10.99.1.2', 'auv_portal');
   expect(await pc2.post('/api/portal/verify', { token }), 410, 'link reuse');
   await pc2.post('/api/portal/login', { email: ACC });
-  const t2 = plain((await waitMail(sink, ACC)).data).match(/verify\?t=([\w-]+)/)[1];
+  const t2 = linkIn((await waitMail(sink, ACC)).data);
+  assert.ok(t2, 'second link');
   await sql`update portal_tokens set expires_at = now() - interval '1 minute' where token_hash = encode(sha256(${t2}::bytea), 'hex')`;
   expect(await pc2.post('/api/portal/verify', { token: t2 }), 410, 'expired link');
   const before = sink.messages.length;
