@@ -5,6 +5,7 @@ import "@/crm/server/api/routes";
 import "@/crm/server/api/sales";
 import "@/crm/server/api/finance";
 import "@/crm/server/api/insights";
+import "@/crm/server/api/portal";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -30,7 +30,7 @@
   font: 14px/1.45 var(--font-sans);
   min-height: 100dvh;
 }
-html[data-crm-theme="light"] .crm {
+html[data-crm-theme="light"] .crm, .crm.portal {
   --bg: #f1f5fb;
   --panel: #ffffff;
   --panel-2: #f7f9fd;
@@ -308,3 +308,17 @@ html[data-crm-theme="light"] .crm .auth-card .lock img { filter: invert(1) hue-r
 @media (prefers-reduced-motion: reduce) {
   .crm *, .crm *::before, .crm *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ── client portal (always light) ── */
+.crm.portal { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.crm .portal-top { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #0a1830; }
+.crm .portal-brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+.crm .portal-brand b { letter-spacing: 0.08em; }
+.crm .portal-brand small { color: #9dc2ff; margin-left: 4px; font-size: 12px; letter-spacing: 0.04em; }
+.crm .portal-main { flex: 1; width: 100%; max-width: 1060px; margin: 0 auto; padding: 24px 16px 40px; }
+.crm .portal-main:focus { outline: none; }
+.crm .portal-narrow { max-width: 460px; margin: 6vh auto 0; padding: 24px; }
+.crm .portal-foot { text-align: center; font-size: 12px; color: var(--dim); padding: 14px; border-top: 1px solid var(--line); }
+.crm .ok-box { border: 1px solid color-mix(in srgb, var(--ok) 50%, transparent); background: color-mix(in srgb, var(--ok) 10%, transparent); color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+.crm.portal .print-stage .a4 { max-width: 100%; }
+@media (max-width: 860px) { .crm.portal .print-stage { overflow-x: auto; } }

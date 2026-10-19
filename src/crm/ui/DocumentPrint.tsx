@@ -106,8 +106,10 @@ export function DocumentPrint({ doc, company }: { doc: PrintableDoc; company: { 
         ) : (
           <div>
             <h4>Acceptance</h4>
-            <div>To accept, reply to this quotation or sign below.</div>
-            <div style={{ marginTop: "8mm", borderTop: "0.3mm solid #9fb0c8", paddingTop: "1.5mm" }}>Name, signature and date</div>
+            {d.acceptance && ["accepted", "invoiced"].includes(doc.status ?? "") ? <div>Accepted electronically by <b>{d.acceptance.name}</b> ({d.acceptance.email}) on {new Date(d.acceptance.at).toLocaleString("en-NA", { timeZone: "Africa/Windhoek", dateStyle: "medium", timeStyle: "short" })} via the Auvetric client portal.</div> : <>
+              <div>To accept, reply to this quotation or sign below.</div>
+              <div style={{ marginTop: "8mm", borderTop: "0.3mm solid #9fb0c8", paddingTop: "1.5mm" }}>Name, signature and date</div>
+            </>}
           </div>
         )}
         {c.terms && <div><h4>Terms</h4><div className="pre">{c.terms}</div></div>}

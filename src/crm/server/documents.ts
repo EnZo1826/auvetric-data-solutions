@@ -69,6 +69,7 @@ export async function saveDocument(input: DocInput, userId: string | null, exist
   const sql = db();
   const type: DocType = existing?.type ?? input.type ?? "invoice";
   if (existing && LOCKED.has(existing.status)) throw new HttpError(409, `This ${type} is ${existing.status} and can no longer be edited.`);
+  if (existing?.status === "accepted" && existing.data?.acceptance) throw new HttpError(409, "The client accepted this quote in the portal, so it can't be changed. Duplicate it to make a revised quote.");
   const company = existing ? (await sql`select id, name, data from companies where id = ${existing.company_id}`)[0] as { id: string; data: CompanyData } : await defaultCompany();
   const cd = company.data;
 
@@ -123,6 +124,9 @@ export async function saveDocument(input: DocInput, userId: string | null, exist
   const data = {
     client: snapshot, remarks: d.remarks, lines, discount: d.discount, vatRate, notes: d.notes,
     ...(type === "quote" ? { proposal: { intro: "", scope: "", deliverables: "", assumptions: "", timeline: "", ...(d.proposal ?? (existing?.data?.proposal as object) ?? {}) } } : {}),
+    // Portal decisions are history: never dropped by an edit.
+    ...(existing?.data?.acceptance ? { acceptance: existing.data.acceptance } : {}),
+    ...(existing?.data?.decline ? { decline: existing.data.decline } : {}),
   };
   // The editor always sends the full document, so missing links mean "none".
   const contactId = input.contact_id ?? null;

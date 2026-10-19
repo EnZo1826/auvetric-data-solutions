@@ -1,5 +1,6 @@
 "use client";
 
+import { NoticesBanner } from "./PortalAdmin";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -13,9 +14,9 @@ const SHORT_METHOD: Record<string, string> = { eft: "EFT", cash: "cash", card: "
 export const METHOD_LABEL: Record<string, string> = { eft: "EFT / bank transfer", cash: "Cash", card: "Card", upwork: "Upwork", paypal: "PayPal", wise: "Wise", other: "Other" };
 type Payment = { id: string; document_id: string; date: string; amount: number; method: string; reference: string; notes: string; auto: boolean; created_by_name?: string | null; number?: string; currency?: Currency; client_id?: string | null; client_name?: string };
 
-export function RecordPaymentModal({ invoice, onClose, onSaved }: { invoice: { id: string; number: string; currency: Currency; balance: number }; onClose: () => void; onSaved: () => void }) {
+export function RecordPaymentModal({ invoice, onClose, onSaved, initial }: { invoice: { id: string; number: string; currency: Currency; balance: number }; onClose: () => void; onSaved: () => void; initial?: { date?: string; amount?: number; reference?: string; notes?: string } }) {
   const { toast } = useCrm();
-  const [f, setF] = useState({ date: todayISO(), amount: String(invoice.balance.toFixed(2)), method: "eft", reference: "", notes: "" });
+  const [f, setF] = useState({ date: initial?.date ?? todayISO(), amount: String((initial?.amount != null ? Math.min(initial.amount, invoice.balance) : invoice.balance).toFixed(2)), method: "eft", reference: initial?.reference ?? "", notes: initial?.notes ?? "" });
   const [busy, setBusy] = useState(false);
   const save = async () => {
     setBusy(true);
@@ -91,6 +92,7 @@ export function PaymentsScreen() {
   return (
     <>
       <PageHead title="Payments" />
+      <NoticesBanner />
       <div className="filters"><Tabs value={tab} onChange={setTab} tabs={[{ key: "payments", label: "Payments received" }, { key: "ageing", label: "Debtors ageing" }]} /></div>
       {tab === "payments" ? <PaymentList /> : <Ageing />}
     </>

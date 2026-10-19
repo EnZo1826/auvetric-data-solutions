@@ -1,5 +1,6 @@
 "use client";
 
+import { PortalCard } from "./PortalAdmin";
 import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -212,6 +213,7 @@ export function ClientDetail({ id }: { id: string }) {
             <section className="card"><AttachmentsPanel entity="client" entityId={c.id} title="Files (contracts, NDAs, specs)" /></section>
           </div>
           <aside className="stack">
+            <PortalCard clientId={c.id} />
             <section className="card">
               <h2>Details</h2>
               <dl className="kv">

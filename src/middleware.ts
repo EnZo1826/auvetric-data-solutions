@@ -20,6 +20,8 @@ function harden(res: NextResponse) {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  // Client portal: same hardening headers; its pages and API check the portal session themselves.
+  if (pathname === "/portal" || pathname.startsWith("/portal/") || pathname.startsWith("/api/portal/")) return harden(NextResponse.next());
   const hasCookie = Boolean(req.cookies.get(COOKIE)?.value);
   const isApi = pathname.startsWith("/api/crm");
 
@@ -33,4 +35,4 @@ export function middleware(req: NextRequest) {
   return harden(NextResponse.next());
 }
 
-export const config = { matcher: ["/crm", "/crm/:path*", "/api/crm/:path*"] };
+export const config = { matcher: ["/crm", "/crm/:path*", "/api/crm/:path*", "/portal", "/portal/:path*", "/api/portal/:path*"] };

@@ -61,6 +61,9 @@ export interface DocData {
   vatRate: number;
   notes: string; // internal, never printed
   proposal?: ProposalSections;
+  /** Set when the client accepts or declines a quote in the portal. */
+  acceptance?: { name: string; email: string; at: string; ip?: string; via?: string };
+  decline?: { email: string; at: string; reason?: string; via?: string };
 }
 
 export interface Doc {

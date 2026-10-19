@@ -129,7 +129,7 @@ Money is stored as numeric(14,2) with a currency code and an optional exchange r
 | **2 · Sales + n8n** (built 19 Oct 2026) | Enquiries, opportunities, leads pipeline, activities, tasks; ingest API, n8n push and pull workflows, backfill; website form → CRM | A real Upwork/LinkedIn alert appears in Opportunities within minutes; a website enquiry is stored with the PC off and triaged when it comes back on |
 | **3 · Delivery + finance** (live 19 Oct 2026; emailing documents shipped in phase 4 via Zoho SMTP) | Time tracking → invoice lines, payments, expenses, marketplace earnings, debtors ageing, statements, emailing documents (Zoho transactional mail / ZeptoMail) | Monthly close: every invoice paid or aged, billable hours invoiced |
 | **4 · Insights + hardening** (built 19 Oct 2026, with document email) | Reports, attachments, audit log UI, nightly backups, accessibility pass | Reports reconcile with raw data (automated checks); restore from backup tested |
-| **5 · Optional** | Client portal (view and accept quotes, view invoices), online payments | Separate decision later |
+| **5 · Client portal** (built 19 Oct 2026) | Client portal: email sign-in links, view quotes/invoices/statement, accept or decline quotes, EFT proof-of-payment notices. Card payments deferred until a merchant account (DPO Pay / PayToday / PayPal) exists | A client accepts a quote and reports a payment without contacting the partners |
 | **Wrap-up** | Retire or freeze the GitHub Pages mirror; website form posts only to the CRM; docs and runbook | auvetric.com is the single live site with the CRM at `/crm` |
 
 Each phase ships working software with automated tests and a live deployment, the same way the website was built.

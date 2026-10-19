@@ -13,7 +13,7 @@ export const BACKUP_SCHEMA = "auvetric-crm/4";
 /** Tables in the export, parents before children (restore order). */
 export const BACKUP_TABLES = [
   "users", "companies", "settings", "clients", "contacts", "services", "enquiries", "opportunities", "projects", "retainers", "documents",
-  "leads", "tasks", "activities", "payments", "time_entries", "expenses", "marketplace_earnings", "attachments", "emails", "audit_log",
+  "leads", "tasks", "activities", "payments", "time_entries", "expenses", "marketplace_earnings", "attachments", "payment_notices", "portal_events", "emails", "audit_log",
 ] as const;
 
 export async function buildExport() {

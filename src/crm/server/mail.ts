@@ -96,7 +96,7 @@ function html(text: string) {
 }
 
 /** Sends one message. Throws HttpError(502) with the server's reason on failure (the caller logs it). */
-export async function sendMail(m: OutMail): Promise<{ messageId: string; accepted: string[] }> {
+export async function sendMail(m: OutMail, opts: { bcc?: boolean } = {}): Promise<{ messageId: string; accepted: string[] }> {
   const s = await loadStored();
   if (!s?.passwordSealed) throw new HttpError(409, "Email is not set up yet. An admin can add the mail server under Settings → Email.");
   const transport = nodemailer.createTransport({
@@ -112,7 +112,7 @@ export async function sendMail(m: OutMail): Promise<{ messageId: string; accepte
     const info = await transport.sendMail({
       from: { name: s.fromName || s.fromEmail, address: s.fromEmail },
       to: m.to, cc: m.cc.length ? m.cc : undefined,
-      bcc: s.bccSender ? s.fromEmail : undefined,
+      bcc: s.bccSender && opts.bcc !== false ? s.fromEmail : undefined,
       replyTo: s.replyTo || undefined,
       subject: m.subject, text: m.text, html: html(m.text),
       attachments: m.attachments.map((a) => ({ filename: a.filename, content: Buffer.from(a.content), contentType: a.contentType })),
