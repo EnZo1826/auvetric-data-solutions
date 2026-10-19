@@ -1,4 +1,5 @@
 /** CRM JSON API · Phase 3 finance: payments, debtors ageing, statements, time, expenses, marketplace earnings. */
+import { purgeAttachments } from "../attachments";
 import { z } from "zod";
 import { db } from "../db";
 import { audit, HttpError } from "../http";
@@ -227,6 +228,7 @@ route("DELETE", "/expenses/:id", async ({ params, session, meta }) => {
   const eid = id(params.id, "Expense");
   const [e] = await sql()`delete from expenses where id = ${eid} and invoice_id is null returning amount, currency`;
   if (!e) throw new HttpError(409, "Expense not found, or it is on an invoice.");
+  await purgeAttachments("expense", [eid]);
   await audit(session.user.id, "expense.delete", meta, e, "expense", eid);
   return { ok: true };
 });

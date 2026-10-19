@@ -1,4 +1,5 @@
 /** CRM JSON API · Phase 2 sales: enquiries, opportunities, leads pipeline, tasks, integrations. */
+import { purgeAttachments } from "../attachments";
 import { z } from "zod";
 import { db } from "../db";
 import { audit, HttpError } from "../http";
@@ -109,6 +110,7 @@ route("DELETE", "/enquiries/:id", async ({ params, session, meta }) => {
   const [e] = await sql()`delete from enquiries where id = ${eid} returning email`;
   if (!e) throw new HttpError(404, "Enquiry not found.");
   await sql()`delete from activities where entity = 'enquiry' and entity_id = ${eid}`;
+  await purgeAttachments("enquiry", [eid]);
   await sql()`delete from tasks where entity = 'enquiry' and entity_id = ${eid}`;
   await audit(session.user.id, "enquiry.delete", meta, {}, "enquiry", eid);
   return { ok: true };
@@ -295,6 +297,7 @@ route("DELETE", "/leads/:id", async ({ params, session, meta }) => {
   const [l] = await sql()`delete from leads where id = ${lid} returning title, enquiry_id, opportunity_id`;
   if (!l) throw new HttpError(404, "Lead not found.");
   await sql()`delete from activities where entity = 'lead' and entity_id = ${lid}`;
+  await purgeAttachments("lead", [lid]);
   await sql()`delete from tasks where entity = 'lead' and entity_id = ${lid}`;
   // The enquiry goes back to the inbox unless it also became a client.
   if (l.enquiry_id) await sql()`update enquiries set status = 'reviewed', updated_at = now() where id = ${l.enquiry_id} and status = 'converted' and client_id is null`;

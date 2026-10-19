@@ -296,7 +296,7 @@ try {
   // ── export, print, pages ──
   r = await admin.get('/api/crm/export');
   expect(r, 200, 'export');
-  assert.equal(r.json.schema, 'auvetric-crm/3'); assert.ok(r.json.documents.length > 0);
+  assert.equal(r.json.schema, 'auvetric-crm/4'); assert.ok(r.json.documents.length > 0);
   assert.ok(r.json.users.every((u) => !('password_hash' in u) && !('totp_secret' in u)), 'no secrets in backup');
   r = await admin.req(`/crm/print?ids=${q1.id},${inv.id}`);
   expect(r, 200, 'print page');

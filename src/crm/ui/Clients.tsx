@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -208,6 +209,7 @@ export function ClientDetail({ id }: { id: string }) {
               <h2>Activity</h2>
               <Timeline entity="client" entityId={c.id} items={d.activities} onChange={load} />
             </section>
+            <section className="card"><AttachmentsPanel entity="client" entityId={c.id} title="Files (contracts, NDAs, specs)" /></section>
           </div>
           <aside className="stack">
             <section className="card">

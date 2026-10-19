@@ -157,7 +157,7 @@ try {
   assert.equal(r.status, 200); assert.match(r.text, /Good to see you/); assert.match(r.text, /Test Partner/);
   ok('dashboard renders for the signed-in partner');
   r = await a.req('/crm/reports');
-  assert.equal(r.status, 200); assert.match(r.text, /Scheduled · Phase/);
+  assert.equal(r.status, 200); assert.match(r.text, /<title>Reports/); assert.doesNotMatch(r.text, /Scheduled · Phase/);
   r = await a.req('/crm/account');
   assert.equal(r.status, 200); assert.match(r.text, /this browser/);
   r = await a.req('/crm/does-not-exist');

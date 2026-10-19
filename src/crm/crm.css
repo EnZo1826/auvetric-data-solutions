@@ -37,15 +37,15 @@ html[data-crm-theme="light"] .crm {
   --raised: #eef3fa;
   --text: #0a1830;
   --muted: #52647e;
-  --dim: #6b7c95;
+  --dim: #56667f;
   --line: #dde5f0;
   --line-strong: #c3d0e2;
   --brand: #0058d1;
   --brand-hover: #0069f5;
   --brand-ink: #0058d1;
   --data: #007f8e;
-  --ok: #128a68;
-  --warn: #a8640a;
+  --ok: #0b6e52;
+  --warn: #8a5207;
   --err: #c0283a;
   --input-bg: #ffffff;
   --shadow: 0 1px 2px rgba(10, 24, 48, 0.06), 0 4px 16px rgba(10, 24, 48, 0.06);
@@ -296,4 +296,15 @@ html[data-crm-theme="light"] .crm .auth-card .lock img { filter: invert(1) hue-r
   .a4 { box-shadow: none; width: 210mm; min-height: 297mm; break-after: page; }
   .a4:last-child { break-after: auto; }
   .a4 .ph { background: none; }
+}
+
+/* ── accessibility ── */
+.crm .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.crm .skip-link { position: absolute; left: 8px; top: -60px; z-index: 300; background: var(--brand); color: #fff; padding: 8px 14px; border-radius: 6px; font-weight: 600; text-decoration: none; }
+.crm .skip-link:focus { top: 8px; }
+.crm a:focus-visible, .crm button:focus-visible, .crm [role="tab"]:focus-visible, .crm summary:focus-visible, .crm [tabindex]:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.crm .modal:focus, .crm main.content:focus { outline: none; }
+.crm input[type="checkbox"]:focus-visible, .crm input[type="radio"]:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .crm *, .crm *::before, .crm *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

@@ -6,6 +6,7 @@ import { requireSession } from "@/crm/server/page-auth";
 import { clientStatement } from "@/crm/server/finance";
 import { HttpError } from "@/crm/server/http";
 import { PrintButton } from "@/crm/ui/PrintButton";
+import { StatementActions } from "@/crm/ui/StatementActions";
 import { formatDate, formatMoney } from "@/crm/shared/calc";
 import { PLACEHOLDER, type CompanyData } from "@/crm/shared/types";
 
@@ -15,7 +16,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 /** /crm/print/statement?client_id=…&from=YYYY-MM-DD&to=YYYY-MM-DD — A4 statement of account, one section per currency. */
 export default async function StatementPage({ searchParams }: { searchParams: Promise<{ client_id?: string; from?: string; to?: string }> }) {
-  await requireSession();
+  const session = await requireSession();
   const q = await searchParams;
   if (!/^\d{1,18}$/.test(q.client_id ?? "")) notFound();
   const iso = (v?: string) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
@@ -40,6 +41,7 @@ export default async function StatementPage({ searchParams }: { searchParams: Pr
           <button className="sm" type="submit">Update</button>
         </form>
         <div className="grow" />
+        <StatementActions clientId={String(cl.id)} from={st.from} to={st.to} canSend={session.user.role !== "readonly"} />
         <PrintButton />
       </div>
       <div className="print-stage">

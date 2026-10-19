@@ -204,7 +204,7 @@ try {
   ok('marketplace: fee rule, net = gross − fee');
 
   r = await admin.get('/api/crm/export');
-  assert.equal(r.json.schema, 'auvetric-crm/3'); assert.ok(Array.isArray(r.json.payments) && Array.isArray(r.json.time_entries));
+  assert.equal(r.json.schema, 'auvetric-crm/4'); assert.ok(Array.isArray(r.json.payments) && Array.isArray(r.json.time_entries));
   for (const p of ['/crm/time', '/crm/payments', '/crm/expenses', '/crm/marketplace', `/crm/invoices/${inv.id}`, `/crm/clients/${nadClient.id}`, '/crm']) expect(await member.req(p), 200, p);
   r = await member.req('/crm');
   assert.match(r.text, /Unbilled time/);

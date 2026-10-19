@@ -270,7 +270,7 @@ try {
   r = await member.post('/api/crm/leads', { title: 'ZZ Test throwaway' });
   expect(await member.del(`/api/crm/leads/${r.json.id}`), 200, 'delete lead');
   r = await admin.get('/api/crm/export');
-  assert.equal(r.json.schema, 'auvetric-crm/3'); assert.ok(r.json.leads.length >= 3 && r.json.enquiries.length >= 1 && Array.isArray(r.json.tasks));
+  assert.equal(r.json.schema, 'auvetric-crm/4'); assert.ok(r.json.leads.length >= 3 && r.json.enquiries.length >= 1 && Array.isArray(r.json.tasks));
   assert.ok(!('token_hash' in r.json) && !r.json.integration_tokens, 'tokens not exported');
   ok('lead delete; backup export includes sales data and never tokens');
 

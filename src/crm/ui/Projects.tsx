@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -159,7 +160,7 @@ function ProjectModal({ initial, clients, users, columns, onClose, onSaved }: {
       <button onClick={onClose}>Close</button>
       {rw && <button className="primary" disabled={busy || !f.title?.trim()} onClick={save}>{busy ? "Saving…" : "Save"}</button>}
     </>}>
-      <Tabs value={tab} onChange={setTab} tabs={[{ key: "details", label: "Details" }, { key: "checklist", label: `Checklist & milestones (${done}/${data.checklist.length})` }, ...(f.id ? [{ key: "activity" as const, label: "Activity & documents" }] : [])]} />
+      <Tabs value={tab} onChange={setTab} tabs={[{ key: "details", label: "Details" }, { key: "checklist", label: `Checklist & milestones (${done}/${data.checklist.length})` }, ...(f.id ? [{ key: "activity" as const, label: "Activity, files & documents" }] : [])]} />
       {tab === "details" && (
         <div className="stack">
           <Field label="Title"><input autoFocus value={f.title ?? ""} readOnly={!rw} onChange={(e) => set({ title: e.target.value })} /></Field>
@@ -213,7 +214,9 @@ function ProjectModal({ initial, clients, users, columns, onClose, onSaved }: {
       )}
       {tab === "activity" && f.id && (
         <div className="grid2">
-          <section><h3>Activity</h3>{detail ? <Timeline entity="project" entityId={f.id} items={detail.activities} onChange={loadDetail} /> : <Empty>Loading…</Empty>}</section>
+          <section className="stack"><h3>Activity</h3>{detail ? <Timeline entity="project" entityId={f.id} items={detail.activities} onChange={loadDetail} /> : <Empty>Loading…</Empty>}
+            <AttachmentsPanel entity="project" entityId={f.id} />
+          </section>
           <section>
             <h3>Quotes & invoices</h3>
             {!detail?.documents.length ? <div className="dim" style={{ fontSize: 13 }}>None linked. Link documents from the quote or invoice editor.</div> : (

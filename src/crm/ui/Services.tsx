@@ -86,7 +86,7 @@ export function ServicesScreen() {
             </div>
             {items.length ? (
               <div className="tbl-wrap"><table className="tbl">
-                <thead><tr><th>Service</th><th>Unit</th><th className="r">Rate</th><th></th></tr></thead>
+                <thead><tr><th>Service</th><th>Unit</th><th className="r">Rate</th><th><span className="sr-only">Actions</span></th></tr></thead>
                 <tbody>
                   {items.map((s) => (
                     <tr key={s.id} style={s.active ? undefined : { opacity: 0.55 }}>

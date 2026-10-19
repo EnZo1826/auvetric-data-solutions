@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -175,6 +176,7 @@ function EnquiryModal({ id, onClose, onChanged }: { id: string; onClose: () => v
           <section className="card stack" style={{ gap: 6 }}>
             <h2 style={{ margin: 0 }}>Activity</h2>
             <Timeline entity="enquiry" entityId={e.id} items={d.activities} onChange={load} />
+            <div style={{ marginTop: 12 }}><AttachmentsPanel entity="enquiry" entityId={e.id} /></div>
           </section>
         </div>
         <div className="stack">

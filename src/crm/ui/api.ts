@@ -1,11 +1,12 @@
 /** Browser-side fetch wrapper for the CRM API: JSON in/out, readable errors, 401 → sign-in. */
 export async function crmFetch<T = unknown>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<T> {
   let res: Response;
+  const form = typeof FormData !== "undefined" && opts.body instanceof FormData;
   try {
     res = await fetch(path, {
       method: opts.method ?? "GET",
-      headers: opts.body !== undefined ? { "Content-Type": "application/json" } : undefined,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      headers: opts.body !== undefined && !form ? { "Content-Type": "application/json" } : undefined,
+      body: opts.body === undefined ? undefined : form ? (opts.body as FormData) : JSON.stringify(opts.body),
       credentials: "same-origin",
       cache: "no-store",
     });
