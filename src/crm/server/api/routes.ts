@@ -1,4 +1,4 @@
-/** CRM JSON API routes (Phase 1). Registered on import; dispatched by app/api/crm/[...path]/route.ts. */
+/** CRM JSON API routes (Phase 1; Phase 2 sales routes live in ./sales.ts). Registered on import; dispatched by app/api/crm/[...path]/route.ts. */
 import { z } from "zod";
 import { db } from "../db";
 import { audit, HttpError } from "../http";
@@ -13,12 +13,12 @@ import { randomInt } from "node:crypto";
 
 const sql = () => db();
 
-async function logActivity(entity: "client" | "project" | "document", entityId: string | null, body: string, userId: string | null, kind = "system") {
+export async function logActivity(entity: "client" | "project" | "document" | "lead" | "enquiry" | "opportunity", entityId: string | null, body: string, userId: string | null, kind = "system") {
   if (!entityId) return;
   await sql()`insert into activities (entity, entity_id, kind, body, user_id) values (${entity}, ${entityId}, ${kind}, ${body}, ${userId})`;
 }
 
-async function parse<T>(req: Request, schema: z.ZodType<T>): Promise<T> {
+export async function parse<T>(req: Request, schema: z.ZodType<T>): Promise<T> {
   const raw = await req.text();
   if (raw.length > 512_000) throw new HttpError(413, "Request too large.");
   let body: unknown;
@@ -135,11 +135,12 @@ route("DELETE", "/contacts/:id", async ({ params }) => {
 });
 
 // ───────────────────────── activity timeline ─────────────────────────
-const ActivityBody = z.object({ entity: z.enum(["client", "project"]), entity_id: z.union([z.string(), z.number()]), kind: z.enum(["note", "call", "email", "meeting"]), body: name("Note", 10000) });
+const ACTIVITY_TABLES = { client: "clients", project: "projects", lead: "leads", enquiry: "enquiries", opportunity: "opportunities" } as const;
+const ActivityBody = z.object({ entity: z.enum(["client", "project", "lead", "enquiry", "opportunity"]), entity_id: z.union([z.string(), z.number()]), kind: z.enum(["note", "call", "email", "meeting"]), body: name("Note", 10000) });
 route("POST", "/activities", async ({ req, session }) => {
   const b = await parse(req, ActivityBody);
   const eid = id(b.entity_id);
-  const exists = b.entity === "client" ? await sql()`select 1 from clients where id = ${eid}` : await sql()`select 1 from projects where id = ${eid}`;
+  const exists = await sql()`select 1 from ${sql()(ACTIVITY_TABLES[b.entity])} where id = ${eid}`;
   if (!exists.length) throw new HttpError(404, "Record not found.");
   const [a] = await sql()`insert into activities (entity, entity_id, kind, body, user_id) values (${b.entity}, ${eid}, ${b.kind}, ${b.body}, ${session.user.id}) returning *`;
   return { ...a, user_name: session.user.name };
@@ -492,13 +493,14 @@ route("POST", "/users/:id/reset", async ({ req, params, session, meta }) => {
 
 route("GET", "/export", async ({ session, meta }) => {
   const s = sql();
-  const [companies, clients, contacts, services, retainers, projects, documents, activities, settings, users] = await Promise.all([
+  const [companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks] = await Promise.all([
     s`select * from companies`, s`select * from clients`, s`select * from contacts`, s`select * from services`, s`select * from retainers`,
     s`select * from projects`, s`select * from documents`, s`select * from activities`, s`select * from settings`,
     s`select id, email, name, role, totp_enabled, disabled, created_at from users`,
+    s`select * from enquiries`, s`select * from opportunities`, s`select * from leads`, s`select * from tasks`,
   ]);
-  await audit(session.user.id, "backup.export", meta, { documents: documents.length });
-  return { exported_at: new Date().toISOString(), schema: "auvetric-crm/1", companies, clients, contacts, services, retainers, projects, documents, activities, settings, users };
+  await audit(session.user.id, "backup.export", meta, { documents: documents.length, leads: leads.length });
+  return { exported_at: new Date().toISOString(), schema: "auvetric-crm/2", companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks };
 }, { admin: true });
 
 route("POST", "/run-daily", async ({ session, meta }) => {

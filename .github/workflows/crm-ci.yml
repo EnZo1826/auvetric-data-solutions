@@ -32,6 +32,7 @@ jobs:
     env:
       DATABASE_URL: postgres://auvetric:auvetric_ci@localhost:5432/auvetric_crm
       NEXT_PUBLIC_ALLOW_INDEXING: 'false'
+      CONTACT_PROVIDER: crm
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v6
@@ -48,12 +49,13 @@ jobs:
       - run: npm run crm:migrate
       - run: npm run crm:migrate -- --status
       - run: npm run build
-      - name: Start server and run sign-in and API tests
+      - name: Start server and run sign-in, API and sales tests
         run: |
           npx next start -p 3100 > next.log 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3100/ && break; sleep 1; done
           CRM_TEST_URL=http://localhost:3100 npm run crm:test:auth
           CRM_TEST_URL=http://localhost:3100 npm run crm:test:api
+          CRM_TEST_URL=http://localhost:3100 npm run crm:test:sales
       - name: Server log on failure
         if: failure()
         run: cat next.log || true

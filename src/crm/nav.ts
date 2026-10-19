@@ -9,7 +9,8 @@ export type NavItem = {
 export type NavGroup = { label: string; items: NavItem[] };
 
 /** Modules that are live. Add each slug as its phase ships; everything else renders as scheduled. */
-export const BUILT = new Set(["", "account", "clients", "projects", "quotes", "invoices", "retainers", "company", "services", "users", "settings"]);
+export const BUILT = new Set(["", "account", "clients", "projects", "quotes", "invoices", "retainers", "company", "services", "users", "settings",
+  "enquiries", "opportunities", "leads", "tasks", "integrations"]);
 
 export const NAV: NavGroup[] = [
   { label: "Overview", items: [

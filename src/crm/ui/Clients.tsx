@@ -111,7 +111,7 @@ type Detail = {
 
 const ACT_ICON = { note: MessageSquare, call: Phone, email: Mail, meeting: Calendar, system: Settings2 };
 
-export function Timeline({ entity, entityId, items, onChange }: { entity: "client" | "project"; entityId: string; items: Activity[]; onChange: () => void }) {
+export function Timeline({ entity, entityId, items, onChange }: { entity: "client" | "project" | "lead" | "enquiry" | "opportunity"; entityId: string; items: Activity[]; onChange: () => void }) {
   const { me, toast } = useCrm();
   const [kind, setKind] = useState<"note" | "call" | "email" | "meeting">("note");
   const [body, setBody] = useState("");

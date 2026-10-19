@@ -43,7 +43,15 @@ npm run crm:user -- unlock <email> | disable <email> | enable <email>
 - Without the database password on the PC, SQL can be run through the logged-in Supabase CLI: `npx supabase db query --linked --project-ref qjywbkesrweqfahmgvom -f file.sql` (Management API, runs as `postgres`). Applying a migration this way: wrap the file in `begin; … insert into schema_migrations (name, checksum) values (…); commit;` with the same sha256 the runner computes (LF line endings).
 - Netlify site `auvetric` (functions region us-east-2): `CRM_ENCRYPTION_KEY` and `CRM_CRON_SECRET` are secrets with a Production value only. The free plan can't narrow scopes below builds/functions/runtime for secrets. `DATABASE_URL` must be the Supabase **session pooler** string (port 5432).
 
-## Supabase specifics
+## Phase 2: sales and the n8n link
+
+- Modules: Enquiries, Opportunities, Leads (pipeline board), Tasks, Admin → Integrations. Migration `0004_sales.sql`.
+- Website form: `CONTACT_PROVIDER=crm` (Netlify, Production) stores submissions in `enquiries`. Abuse limits: honeypot, 3 s timing trap, consent, 5 per IP per 10 minutes and 100 per hour in total (counted in the database, so they hold across serverless instances), optional Turnstile.
+- Ingest API `/api/ingest/*` (outside the cookie middleware) accepts only `Authorization: Bearer auvi_…` integration tokens (sha256 stored). Endpoints: `GET /ping`, `POST /opportunities`, `POST /enquiries`, `POST /enquiries/claim`, `PATCH /enquiries/:id/triage`. n8n-owned listing fields are updated on re-ingest; status, notes and lead links set in the CRM are never overwritten.
+- Triage queue: claims are atomic (`for update skip locked`), released after 20 minutes, 3 attempts; after the last failure the partners are still alerted.
+- Tests: `npm run crm:test:sales` (server started with `CONTACT_PROVIDER=crm`); n8n rehearsal `python automation/test/e2e_crm_link.py`.
+- Production token: CRM → Integrations → New token, paste into the n8n credential, revoke the old one.
+
 
 - Supabase is used as plain Postgres. The anon/publishable key is never used by the app; the Data API would expose `public` tables to it, so migration `0003_supabase_lockdown.sql` enables RLS on every table and revokes all `anon`/`authenticated` privileges, and `crm:migrate` fails if any table is missing RLS or has such grants. **Every new migration that creates a table must enable RLS on it.**
 - Connection: session pooler (port 5432). The transaction pooler (6543) hangs postgres.js when parameterless and parameterised queries are pipelined on one connection (reproduced with Supavisor 2.9.13); `db.ts` refuses a 6543 URL.

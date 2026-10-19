@@ -4,7 +4,10 @@ Run:  python automation/build_workflows.py      -> automation/workflows/*.json
 Edit CONFIG / prompts here, rebuild, re-import (scripts in automation/README.md).
 
 Design rules
-- Inputs arrive only by IMAP (job-alert emails, Web3Forms relay emails). Nothing on this PC is exposed.
+- Inputs arrive by IMAP (job-alert emails, Web3Forms relay emails) or by OUTGOING polls to the CRM
+  (website enquiries awaiting triage). Nothing on this PC is exposed.
+- The CRM (auvetric.com/crm) is the system of record: workflow 12 pushes jobs/relay enquiries to it,
+  workflow 21 pulls website enquiries from it for AI triage.
 - Email/job text is UNTRUSTED. The model only classifies/extracts into a fixed JSON schema; its
   output is stored and emailed to the partners, never executed or used to contact third parties.
 - If the model fails, the record is still stored with extraction_status=failed so nothing is lost.
@@ -22,6 +25,8 @@ OUT.mkdir(exist_ok=True)
 # edit the credential (host/user/password) in n8n, never the workflows.
 IMAP = {"imap": {"id": "auvImapMailbox01", "name": "Auvetric mailbox (IMAP)"}}
 SMTP = {"smtp": {"id": "auvSmtpMailbox01", "name": "Auvetric mailbox (SMTP)"}}
+# Header Auth credential: name "Authorization", value "Bearer <token from CRM → Integrations>".
+CRM_AUTH = {"httpHeaderAuth": {"id": "auvCrmIngest001", "name": "Auvetric CRM (ingest token)"}}
 
 JOBS_TABLE = "auvetric_jobs"
 ENQ_TABLE = "auvetric_enquiries"
@@ -34,6 +39,7 @@ return [{ json: {
   fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)
   alertThreshold: 70,                       // jobs scoring >= this are emailed immediately
   timezone: 'Africa/Windhoek',
+  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)
 }}];"""
 
 PROFILE = """Auvetric Data Solutions is a two-partner technology consultancy in Windhoek, Namibia (UTC+2), working remotely for international clients.
@@ -605,8 +611,133 @@ def enquiries():
     return workflow("20 Website · process enquiries", n, chain(*[x["name"] for x in n]), "auvEnquiries0001")
 
 
+# ═══════════════════════════════ CRM link (Phase 2) ═══════════════════════════════
+def crm_http(name, pos, method, path_expr, body_expr):
+    return node(name, "n8n-nodes-base.httpRequest", 4.2, pos, {
+        "method": method, "url": "={{ $('Config').first().json.crmUrl }}/api/ingest" + path_expr,
+        "authentication": "genericCredentialType", "genericAuthType": "httpHeaderAuth",
+        "sendBody": True, "specifyBody": "json", "jsonBody": body_expr,
+        "options": {"timeout": 30000},
+    }, credentials=CRM_AUTH, retryOnFail=True, maxTries=3, waitBetweenTries=5000)
+
+
+SYNC_JOBS_JS = r"""
+// Rows changed since the last successful push (cursor in workflow static data; empty = backfill everything).
+const st = $getWorkflowStaticData('global');
+const cursor = st.jobsCursor || '1970-01-01T00:00:00.000Z';
+const rows = $input.all().map(i => i.json).filter(r => r && r.job_key && String(r.updatedAt || r.createdAt || '') > cursor);
+if (!rows.length) return [];
+const items = rows.map(r => ({
+  job_key: r.job_key, source: r.source, url: r.url, title: r.title, company: r.company, location: r.location, remote: r.remote,
+  employment_type: r.employment_type, budget: r.budget, skills: r.skills, experience_level: r.experience_level, summary: r.summary,
+  fit_score: r.fit_score, practice: r.practice, reasons: r.reasons, red_flags: r.red_flags, action: r.action,
+  extraction_status: r.extraction_status, received_at: r.received_at || r.createdAt,
+}));
+const max = rows.map(r => String(r.updatedAt || r.createdAt)).sort().pop();
+const out = [];
+for (let i = 0; i < items.length; i += 100) out.push({ json: { items: items.slice(i, i + 100), max } });
+return out;
+"""
+
+SYNC_ENQ_JS = r"""
+// Web3Forms-relay enquiries (already triaged by workflow 20) → CRM, as source 'relay'. Idempotent by submission_id.
+const st = $getWorkflowStaticData('global');
+const cursor = st.enqCursor || '1970-01-01T00:00:00.000Z';
+const rows = $input.all().map(i => i.json).filter(r => r && r.enquiry_key && r.name && String(r.updatedAt || r.createdAt || '') > cursor);
+if (!rows.length) return [];
+const ok = r => String(r.extraction_status || '') === 'ok';
+const items = rows.map(r => ({
+  submission_id: r.enquiry_key, source: 'relay', submitted_at: r.submitted_at, name: r.name, organisation: r.organisation, email: r.email,
+  phone: r.phone, intent: r.intent, interest: r.interest, budget: r.budget, timeline: r.timeline, message: r.message,
+  ai: ok(r) ? { category: r.category, practice: r.practice, priority: r.priority, spam_score: r.spam_score, summary: r.summary,
+               key_requirements: r.key_requirements, questions_to_ask: r.questions_to_ask, suggested_reply: r.suggested_reply } : undefined,
+}));
+const max = rows.map(r => String(r.updatedAt || r.createdAt)).sort().pop();
+const out = [];
+for (let i = 0; i < items.length; i += 100) out.push({ json: { items: items.slice(i, i + 100), max } });
+return out;
+"""
+
+
+def advance(name, pos, key, source_node):
+    return code(name, pos, f"""// Only reached when every push above succeeded, so a failed push is retried next run.
+const st = $getWorkflowStaticData('global');
+const max = $('{source_node}').all().map(i => i.json.max).sort().pop();
+if (max && (!st.{key} || max > st.{key})) st.{key} = max;
+return [{{ json: {{ {key}: st.{key}, pushed: $('{source_node}').all().reduce((n, i) => n + i.json.items.length, 0) }} }}];""")
+
+
+def crm_sync():
+    n = [
+        node("Every 5 minutes", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], {"rule": {"interval": [{"field": "minutes", "minutesInterval": 5}]}}),
+        node("Run now (localhost webhook)", "n8n-nodes-base.webhook", 2, [0, 200],
+             {"httpMethod": "POST", "path": "auvetric-crm-sync", "responseMode": "onReceived", "options": {}}, webhookId="auvetric-crm-sync"),
+        code("Config", [220, 0], CONFIG_JS),
+        node("All jobs", "n8n-nodes-base.dataTable", 1.1, [440, 0], {
+            "resource": "row", "operation": "get", "dataTableId": table(JOBS_TABLE), "returnAll": True}, alwaysOutputData=True),
+        code("Jobs changed since last push", [660, 0], SYNC_JOBS_JS),
+        crm_http("Push jobs to CRM", [880, 0], "POST", "/opportunities", "={{ JSON.stringify({ items: $json.items }) }}"),
+        advance("Advance jobs cursor", [1100, 0], "jobsCursor", "Jobs changed since last push"),
+        node("All relay enquiries", "n8n-nodes-base.dataTable", 1.1, [440, 220], {
+            "resource": "row", "operation": "get", "dataTableId": table(ENQ_TABLE), "returnAll": True}, alwaysOutputData=True),
+        code("Enquiries changed since last push", [660, 220], SYNC_ENQ_JS),
+        crm_http("Push enquiries to CRM", [880, 220], "POST", "/enquiries", "={{ JSON.stringify({ items: $json.items }) }}"),
+        advance("Advance enquiries cursor", [1100, 220], "enqCursor", "Enquiries changed since last push"),
+    ]
+    con = merge(chain("Every 5 minutes", "Config"), chain("Run now (localhost webhook)", "Config"),
+                chain("Config", "All jobs", "Jobs changed since last push", "Push jobs to CRM", "Advance jobs cursor"),
+                chain("Config", "All relay enquiries", "Enquiries changed since last push", "Push enquiries to CRM", "Advance enquiries cursor"))
+    return workflow("12 CRM · push jobs and relay enquiries", n, con, "auvCrmSync00001")
+
+
+CLAIMED_JS = r"""
+// One item per enquiry the CRM handed us. Field names match the website-enquiry prompt.
+const items = ($json.items || []);
+return items.map(e => ({ json: {
+  crm_id: String(e.id), enquiry_key: e.submission_id, submitted_at: e.submitted_at, name: e.name || '', organisation: e.organisation || '',
+  email: e.email || '', phone: e.phone || '', intent: e.intent || '', interest: e.interest || '', budget: e.budget || '',
+  timeline: e.timeline || '', message: e.message || '', parse_status: 'ok',
+}}));
+"""
+
+TRIAGE_BODY = ("={{ JSON.stringify({ ok: String($json.extraction_status) === 'ok', error: String($json.extraction_status).slice(0, 300), "
+               "ai: { category: $json.category, practice: $json.practice, priority: $json.priority, spam_score: $json.spam_score, "
+               "summary: $json.summary, key_requirements: $json.key_requirements, questions_to_ask: $json.questions_to_ask, "
+               "suggested_reply: $json.suggested_reply } }) }}")
+
+
+def crm_triage():
+    ep = ENQ_PROMPT_JS.replace("__SCHEMA__", json.dumps(ENQ_SCHEMA)).replace("__PROFILE__", json.dumps(PROFILE))
+    alert = ("const e = $('Validate triage').item.json;\n" + ENQ_ALERT_JS.replace("const e = $json;", "")).replace(
+        "Triage by a local AI model; nothing was sent to the client.</p></div>`",
+        "Triage by a local AI model; nothing was sent to the client. Open in the CRM: ${cfg.crmUrl}/crm/enquiries?open=${e.crm_id}</p></div>`")
+    n = [
+        node("Every 5 minutes", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], {"rule": {"interval": [{"field": "minutes", "minutesInterval": 5}]}}),
+        node("Run now (localhost webhook)", "n8n-nodes-base.webhook", 2, [0, 200],
+             {"httpMethod": "POST", "path": "auvetric-crm-triage", "responseMode": "onReceived", "options": {}}, webhookId="auvetric-crm-triage"),
+        code("Config", [220, 0], CONFIG_JS),
+        crm_http("Claim enquiries from CRM", [440, 0], "POST", "/enquiries/claim", "={{ JSON.stringify({ limit: 3 }) }}"),
+        code("One item per enquiry", [660, 0], CLAIMED_JS),
+        code("Build enquiry prompt", [880, 0], ep, mode="runOnceForEachItem"),
+        ollama_http("Local AI: triage enquiry", [1100, 0]),
+        code("Validate triage", [1320, 0], ENQ_VALIDATE_JS),
+        crm_http("Save triage to CRM", [1540, 0], "PATCH", "/enquiries/{{ $json.crm_id }}/triage", TRIAGE_BODY),
+        node("Alert partners?", "n8n-nodes-base.filter", 2.2, [1760, 0], {
+            "conditions": {"options": {"caseSensitive": True, "typeValidation": "loose", "version": 2},
+                           "conditions": [{"id": nid(), "leftValue": "={{ $json.alert }}", "rightValue": True,
+                                           "operator": {"type": "boolean", "operation": "true", "singleValue": True}}], "combinator": "and"}, "options": {}}),
+        code("Compose partner alert", [1980, 0], alert, mode="runOnceForEachItem"),
+        node("Email partners", "n8n-nodes-base.emailSend", 2.1, [2200, 0], {
+            "fromEmail": "={{ $json.from }}", "toEmail": "={{ $json.to }}", "subject": "={{ $json.subject }}",
+            "emailFormat": "html", "html": "={{ $json.html }}",
+            "options": {"appendAttribution": False, "replyTo": "={{ $json.email }}"}}, credentials=SMTP),
+    ]
+    names = [x["name"] for x in n if x["name"] != "Run now (localhost webhook)"]
+    return workflow("21 CRM · triage website enquiries", n, merge(chain(*names), chain("Run now (localhost webhook)", "Config")), "auvCrmTriage0001")
+
+
 if __name__ == "__main__":
-    for wf in (setup(), router(), jobs(), digest(), enquiries()):
+    for wf in (setup(), router(), jobs(), digest(), enquiries(), crm_sync(), crm_triage()):
         path = OUT / f"{wf['id']}.json"
         path.write_text(json.dumps(wf, indent=2), encoding="utf-8")
         print(f"{path.name:28} {wf['name']}  ({len(wf['nodes'])} nodes)")
