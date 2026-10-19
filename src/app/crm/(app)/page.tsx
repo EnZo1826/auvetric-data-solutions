@@ -53,7 +53,7 @@ export default async function Dashboard() {
   // Sales (Phase 2). Pipeline in NAD: USD leads at the company rate; probability falls back to the stage default.
   const [co] = await sql`select (data->>'usdToNad')::numeric as usd from companies where is_default`;
   const usd = Number(co?.usd ?? 18.5);
-  const [[sales], [unbilled], topJobs, myTasks] = await Promise.all([
+  const [[sales], topJobs, [unbilled], myTasks] = await Promise.all([
     sql`select
           (select count(*)::int from enquiries where status = 'new') as new_enquiries,
           (select count(*)::int from enquiries where triage_status in ('pending','claimed') and status <> 'spam') as awaiting_triage,
