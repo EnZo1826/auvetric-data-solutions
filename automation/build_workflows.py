@@ -163,11 +163,15 @@ const cfg = $('Config').first().json;
 const r = $json.ollama_request;
 let ai_http;
 if ((cfg.aiProvider || 'ollama') === 'anthropic') {
+  // Claude Haiku garbles array-typed tool parameters; ask for lists as one-item-per-line text instead.
+  const schema = JSON.parse(JSON.stringify(r.format));
+  for (const [k, v] of Object.entries(schema.properties || {}))
+    if (v.type === 'array') schema.properties[k] = { type: 'string', description: 'One item per line. No numbering, no bullets, no markup.' };
   ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {
     model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,
     system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\n\n'),
     messages: r.messages.filter(m => m.role !== 'system'),
-    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],
+    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: schema }],
     tool_choice: { type: 'tool', name: 'record_result' },
   } };
 } else {
@@ -386,7 +390,7 @@ return $input.all().map((item, i) => {
     title: s(r.title, 200) || '(extraction failed: see raw excerpt)', company: s(r.company, 150), location: s(r.location, 150),
     remote: pick(r.remote, ['remote','hybrid','onsite','unknown'], 'unknown'),
     employment_type: pick(r.employment_type, ['freelance_fixed','freelance_hourly','contract','full_time','part_time','unknown'], 'unknown'),
-    budget: s(r.budget, 120), skills: Array.isArray(r.skills) ? r.skills.map(x => s(x, 40)).filter(Boolean).slice(0, 15).join(', ') : '',
+    budget: s(r.budget, 120), skills: (Array.isArray(r.skills) ? r.skills : typeof r.skills === 'string' ? r.skills.split(/[\n,]+/) : []).map(x => s(String(x).replace(/<[^>]*>/g, '').replace(/^\s*[-*\u2022]\s*/, ''), 40)).filter(Boolean).slice(0, 15).join(', '),
     experience_level: s(r.experience_level, 60), summary: s(r.summary, 700), fit_score: status === 'ok' ? score : 0,
     practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','none'], 'none'),
     reasons: s(r.reasons, 600), red_flags: s(r.red_flags, 400),
@@ -588,7 +592,9 @@ return $input.all().map((item, i) => {
   try { const c = item.json?.message?.content; if (!c) throw new Error(item.json?.error?.message || 'empty model response'); r = JSON.parse(c); }
   catch (e) { status = 'failed: ' + s(e.message, 120); }
   r = r || {};
-  const list = a => Array.isArray(a) ? a.map(x => s(x, 200)).filter(Boolean).slice(0, 8).join('\n') : '';
+  // Lists may arrive as arrays (Ollama) or one-per-line text (Claude); strip bullets/markup either way.
+  const items = a => (Array.isArray(a) ? a : typeof a === 'string' ? a.split(/\n+/) : []).map(x => s(String(x).replace(/<[^>]*>/g, '').replace(/^\s*(?:[-*\u2022]|\d+[.)])\s*/, ''), 200)).filter(Boolean);
+  const list = a => items(a).slice(0, 8).join('\n');
   // Consistency guard: a vendor_pitch label contradicting the model's own who_is_selling answer is downgraded to review.
   if (r.category === 'vendor_pitch' && r.who_is_selling === 'sender_wants_our_services') r.category = base.intent === 'consultation' ? 'consultation' : 'project';
   return { json: { ...base,
@@ -785,8 +791,31 @@ def crm_triage():
     return workflow("21 CRM · triage website enquiries", n, merge(chain(*names), chain("Run now (localhost webhook)", "Config")), "auvCrmTriage0001")
 
 
+# ═══════════════════════════════ 98 AI provider check ═══════════════════════════════
+SAMPLE_ENQ_JS = r"""
+return [{ json: { enquiry_key: 'ai-check', name: 'Sample Person', organisation: 'Sample Water Utility', email: 'sample@example.com',
+  phone: '', intent: 'Discuss a Project', interest: 'Engineering & Development', budget: 'N$50 000 – N$150 000', timeline: 'Within 3 months',
+  message: 'AI provider check (not a real enquiry). We run 12 borehole pumps with PLCs and want a dashboard with alarms on our phones.' } }];
+"""
+
+
+def ai_check():
+    """localhost POST /webhook/auvetric-ai-check → one sample enquiry through the configured AI provider. No CRM, no email."""
+    ep = ENQ_PROMPT_JS.replace("__SCHEMA__", json.dumps(ENQ_SCHEMA)).replace("__PROFILE__", json.dumps(PROFILE))
+    n = [
+        node("Check (localhost webhook)", "n8n-nodes-base.webhook", 2, [0, 0],
+             {"httpMethod": "POST", "path": "auvetric-ai-check", "responseMode": "lastNode", "options": {}}, webhookId="auvetric-ai-check"),
+        code("Config", [220, 0], CONFIG_JS),
+        code("Sample enquiry", [440, 0], SAMPLE_ENQ_JS),
+        code("Build enquiry prompt", [660, 0], ep, mode="runOnceForEachItem"),
+        *ai_nodes("AI: triage enquiry", [880, 0]),
+        code("Validate triage", [1100, 0], ENQ_VALIDATE_JS),
+    ]
+    return workflow("98 Check · AI provider", n, chain(*[x["name"] for x in n]), "auvAiCheck00001")
+
+
 if __name__ == "__main__":
-    for wf in (setup(), router(), jobs(), digest(), enquiries(), crm_sync(), crm_triage()):
+    for wf in (setup(), router(), jobs(), digest(), enquiries(), crm_sync(), crm_triage(), ai_check()):
         path = OUT / f"{wf['id']}.json"
         path.write_text(json.dumps(wf, indent=2), encoding="utf-8")
         print(f"{path.name:28} {wf['name']}  ({len(wf['nodes'])} nodes)")

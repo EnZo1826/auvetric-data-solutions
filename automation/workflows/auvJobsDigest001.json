@@ -3,7 +3,7 @@
   "name": "11 Jobs \u00b7 daily digest",
   "nodes": [
     {
-      "id": "f428fe82-c216-492a-a56a-4c644604ce1e",
+      "id": "273e2d8d-26aa-4cf6-af38-4a6d6bf55461",
       "name": "Every morning 07:30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "id": "562e03b1-b52b-4461-b21c-fffa23c2ccf7",
+      "id": "becfb10a-5e83-4ab4-8e62-5d0f4b302b41",
       "name": "Run now (localhost webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -40,7 +40,7 @@
       "webhookId": "auvetric-run-digest"
     },
     {
-      "id": "e4904520-3ba1-4770-b553-1833301f9074",
+      "id": "9bc5b909-e989-4409-bf4c-a19f1bfac28a",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -53,7 +53,7 @@
       }
     },
     {
-      "id": "a63a93bc-297e-4d44-9eaf-ee6e9cb6be7d",
+      "id": "e00bcc43-111d-4194-925b-96c3a1182eaa",
       "name": "Undigested jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -86,7 +86,7 @@
       "alwaysOutputData": true
     },
     {
-      "id": "73af2a75-c118-488b-a150-c46e344d2618",
+      "id": "6e7c30d9-e49b-4b99-ae1f-2924beb6d806",
       "name": "Compose digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -99,7 +99,7 @@
       }
     },
     {
-      "id": "0aa54b55-745b-4b6c-9a63-92a87850d506",
+      "id": "66510bde-12b4-49c2-9290-bf74c447b87d",
       "name": "Email digest",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -125,7 +125,7 @@
       }
     },
     {
-      "id": "7510c1a3-07c8-4785-ac0b-477027e5f107",
+      "id": "e2e621c8-0765-4eab-84b6-99dbdb578320",
       "name": "One item per job",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -138,7 +138,7 @@
       }
     },
     {
-      "id": "f026d98e-9ffe-4de6-970d-ee022ca268db",
+      "id": "f19757fb-b441-411b-95d1-46bdfd99226f",
       "name": "Mark digested",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

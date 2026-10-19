@@ -3,7 +3,7 @@
   "name": "10 Jobs \u00b7 triage alert emails",
   "nodes": [
     {
-      "id": "1e2c6be2-6387-4eaf-976d-1ad941a7789c",
+      "id": "79eb80ee-ca22-44ad-b1fb-aba025dfcbd2",
       "name": "Job alert email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "e5f21cbb-eb8e-483b-968e-98d31b2ffe26",
+      "id": "d549d7dd-a905-47cc-a3ef-01341b5e012b",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -29,7 +29,7 @@
       }
     },
     {
-      "id": "5102e064-d081-47c2-a029-9a0d8cc42421",
+      "id": "3711c812-9c40-4fe0-ad76-8d638b439a26",
       "name": "Split alert into jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "9884532d-4e9b-4b74-bae4-ab0166c99dff",
+      "id": "3b73ccc1-35a7-4997-abeb-726052faa55b",
       "name": "Skip jobs already seen",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "ffd30723-5d39-4601-b613-d7217507eeed",
+      "id": "50efa364-7a40-4676-989e-7d8a3403cd43",
       "name": "Build job prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
       }
     },
     {
-      "id": "39f52898-ddc9-419c-bffa-0dafd09899d5",
+      "id": "7a2252fa-da47-46a4-bbe9-101e1e864ac8",
       "name": "Prepare AI request (AI: extract & score)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -94,12 +94,12 @@
         180
       ],
       "parameters": {
-        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
+        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  // Claude Haiku garbles array-typed tool parameters; ask for lists as one-item-per-line text instead.\n  const schema = JSON.parse(JSON.stringify(r.format));\n  for (const [k, v] of Object.entries(schema.properties || {}))\n    if (v.type === 'array') schema.properties[k] = { type: 'string', description: 'One item per line. No numbering, no bullets, no markup.' };\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: schema }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
         "mode": "runOnceForEachItem"
       }
     },
     {
-      "id": "71a696a4-a254-4138-a237-be3e46cccd94",
+      "id": "40e67251-d2dc-4ba4-8798-abfd0eb91945",
       "name": "AI: extract & score",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -146,7 +146,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "2853b3a8-58e5-48fb-a074-0996a144ca06",
+      "id": "a4505965-f28d-42a7-9cfa-1597395ef9da",
       "name": "Normalise AI reply (AI: extract & score)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -159,7 +159,7 @@
       }
     },
     {
-      "id": "dd6d5ce3-4c9e-4c7a-a6eb-70d1eba05d41",
+      "id": "8bf61039-284e-465b-aaeb-dc34e69f1e37",
       "name": "Validate extraction",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -168,11 +168,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "\n// Merge model output with the original job, validating every field. Failures are stored, not dropped.\nconst prompts = $('Build job prompt').all();\nconst clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(n) || 0)));\nconst pick = (v, allowed, dflt) => allowed.includes(v) ? v : dflt;\nconst s = (v, max = 600) => (v == null ? '' : String(v)).trim().slice(0, max);\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request;\n  let r = null, status = 'ok';\n  try {\n    const content = item.json?.message?.content;\n    if (!content) throw new Error(item.json?.error?.message || 'empty model response');\n    r = JSON.parse(content);\n  } catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  const score = r.fit_score == null ? 0 : clamp(r.fit_score, 0, 100);\n  return { json: {\n    job_key: base.job_key, source: base.source, url: base.url,\n    title: s(r.title, 200) || '(extraction failed: see raw excerpt)', company: s(r.company, 150), location: s(r.location, 150),\n    remote: pick(r.remote, ['remote','hybrid','onsite','unknown'], 'unknown'),\n    employment_type: pick(r.employment_type, ['freelance_fixed','freelance_hourly','contract','full_time','part_time','unknown'], 'unknown'),\n    budget: s(r.budget, 120), skills: Array.isArray(r.skills) ? r.skills.map(x => s(x, 40)).filter(Boolean).slice(0, 15).join(', ') : '',\n    experience_level: s(r.experience_level, 60), summary: s(r.summary, 700), fit_score: status === 'ok' ? score : 0,\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','none'], 'none'),\n    reasons: s(r.reasons, 600), red_flags: s(r.red_flags, 400),\n    action: status === 'ok' ? pick(r.action, ['apply_now','review','skip'], 'review') : 'review',\n    extraction_status: status, raw_excerpt: s(base.raw_excerpt, 2500), email_subject: s(base.email_subject, 250),\n    received_at: base.received_at, alerted: false, digested: false, status: 'new',\n  }};\n});\n"
+        "jsCode": "\n// Merge model output with the original job, validating every field. Failures are stored, not dropped.\nconst prompts = $('Build job prompt').all();\nconst clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(n) || 0)));\nconst pick = (v, allowed, dflt) => allowed.includes(v) ? v : dflt;\nconst s = (v, max = 600) => (v == null ? '' : String(v)).trim().slice(0, max);\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request;\n  let r = null, status = 'ok';\n  try {\n    const content = item.json?.message?.content;\n    if (!content) throw new Error(item.json?.error?.message || 'empty model response');\n    r = JSON.parse(content);\n  } catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  const score = r.fit_score == null ? 0 : clamp(r.fit_score, 0, 100);\n  return { json: {\n    job_key: base.job_key, source: base.source, url: base.url,\n    title: s(r.title, 200) || '(extraction failed: see raw excerpt)', company: s(r.company, 150), location: s(r.location, 150),\n    remote: pick(r.remote, ['remote','hybrid','onsite','unknown'], 'unknown'),\n    employment_type: pick(r.employment_type, ['freelance_fixed','freelance_hourly','contract','full_time','part_time','unknown'], 'unknown'),\n    budget: s(r.budget, 120), skills: (Array.isArray(r.skills) ? r.skills : typeof r.skills === 'string' ? r.skills.split(/[\\n,]+/) : []).map(x => s(String(x).replace(/<[^>]*>/g, '').replace(/^\\s*[-*\\u2022]\\s*/, ''), 40)).filter(Boolean).slice(0, 15).join(', '),\n    experience_level: s(r.experience_level, 60), summary: s(r.summary, 700), fit_score: status === 'ok' ? score : 0,\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','none'], 'none'),\n    reasons: s(r.reasons, 600), red_flags: s(r.red_flags, 400),\n    action: status === 'ok' ? pick(r.action, ['apply_now','review','skip'], 'review') : 'review',\n    extraction_status: status, raw_excerpt: s(base.raw_excerpt, 2500), email_subject: s(base.email_subject, 250),\n    received_at: base.received_at, alerted: false, digested: false, status: 'new',\n  }};\n});\n"
       }
     },
     {
-      "id": "09f646f9-fa8a-475f-be8d-9df3fe39e20e",
+      "id": "b69f2ac2-06b1-4c53-9979-ab2454083737",
       "name": "Save job",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -198,7 +198,7 @@
       }
     },
     {
-      "id": "74c8ef5c-e2f1-4ccc-8cbe-0dbc005db740",
+      "id": "4e08bb62-7d79-4a0d-a2cb-79066f7a4008",
       "name": "Strong match?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -215,7 +215,7 @@
           },
           "conditions": [
             {
-              "id": "6c89d5f0-6060-4b0f-ba17-6d0fb67fbcf2",
+              "id": "6304b510-cd5f-4bc5-9fa9-e20968eb8d71",
               "leftValue": "={{ $('Validate extraction').item.json.fit_score }}",
               "rightValue": "={{ $('Config').first().json.alertThreshold }}",
               "operator": {
@@ -230,7 +230,7 @@
       }
     },
     {
-      "id": "797d1dbe-c795-43e9-b051-daa78ff8a433",
+      "id": "550d559f-a5f0-4281-8350-5b470626fda6",
       "name": "Restore job fields",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -244,7 +244,7 @@
       }
     },
     {
-      "id": "a9e2c44f-57d8-437a-921a-7edcd99d1f56",
+      "id": "c729ae88-a7b9-4dfa-90a4-bde64feb4364",
       "name": "Compose alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -257,7 +257,7 @@
       }
     },
     {
-      "id": "1b247a36-3db8-4d43-92f8-7bff75becc62",
+      "id": "ae5ca380-2177-493c-8258-e6e5d206593f",
       "name": "Email strong matches",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -283,7 +283,7 @@
       }
     },
     {
-      "id": "9e501a05-0d88-44df-a2af-254992f9d71d",
+      "id": "6a7dc6a2-ce2e-425f-a3e9-ccbdaf2e0739",
       "name": "Mark alerted",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -296,7 +296,7 @@
       }
     },
     {
-      "id": "42bf7f0a-d646-4ca3-93d9-56f376bebc38",
+      "id": "0f01cec0-97c3-4f90-911e-c2db328dd460",
       "name": "Flag alerted jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

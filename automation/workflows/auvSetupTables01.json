@@ -3,7 +3,7 @@
   "name": "00 Setup \u00b7 create data tables",
   "nodes": [
     {
-      "id": "db08165c-2fd9-4858-8208-b21ce8ab215f",
+      "id": "4698d303-70aa-4952-adba-9ed09401a61e",
       "name": "Run once",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
@@ -14,7 +14,7 @@
       "parameters": {}
     },
     {
-      "id": "b2620de6-8371-4c2c-a6d6-9b0c4f172acc",
+      "id": "54f7c07d-c09f-4e23-99f8-4f9f5363432a",
       "name": "Setup webhook (localhost)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -31,7 +31,7 @@
       "webhookId": "auvetric-setup-tables"
     },
     {
-      "id": "3c97de3a-a726-41a4-93dd-87da94635de6",
+      "id": "db2a4709-ecb1-4f7a-96a0-b05602283f30",
       "name": "Create jobs table",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -149,7 +149,7 @@
       }
     },
     {
-      "id": "895ed76b-c8ad-448a-85ca-30cbaf638976",
+      "id": "7f12087b-2012-4e2b-b52f-b034e74ddc12",
       "name": "Create enquiries table",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
