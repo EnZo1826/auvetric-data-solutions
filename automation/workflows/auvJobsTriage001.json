@@ -3,7 +3,7 @@
   "name": "10 Jobs \u00b7 triage alert emails",
   "nodes": [
     {
-      "id": "ceef1a1f-880e-4e89-b2bd-4fdc27081288",
+      "id": "1e2c6be2-6387-4eaf-976d-1ad941a7789c",
       "name": "Job alert email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "0ea4e93f-d7e8-4680-945f-e38adf50ae95",
+      "id": "e5f21cbb-eb8e-483b-968e-98d31b2ffe26",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -25,11 +25,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  aiProvider: 'anthropic',                 // 'anthropic' (Claude API, credential \"Anthropic API key\") or 'ollama' (local)\n  anthropicUrl: 'https://api.anthropic.com',\n  anthropicModel: 'claude-haiku-4-5',\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',                        // Ollama model\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
       }
     },
     {
-      "id": "444d6226-01eb-4378-a485-514638d8a215",
+      "id": "5102e064-d081-47c2-a029-9a0d8cc42421",
       "name": "Split alert into jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "a104851a-baab-46aa-9987-f6b63b510f4c",
+      "id": "9884532d-4e9b-4b74-bae4-ab0166c99dff",
       "name": "Skip jobs already seen",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "710cd705-d4c7-4286-bb42-43ab7abba41d",
+      "id": "ffd30723-5d39-4601-b613-d7217507eeed",
       "name": "Build job prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,8 +85,22 @@
       }
     },
     {
-      "id": "3a5986c4-9010-475f-b1fd-b93fe8fc7b01",
-      "name": "Local AI: extract & score",
+      "id": "39f52898-ddc9-419c-bffa-0dafd09899d5",
+      "name": "Prepare AI request (AI: extract & score)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        180
+      ],
+      "parameters": {
+        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
+        "mode": "runOnceForEachItem"
+      }
+    },
+    {
+      "id": "71a696a4-a254-4138-a237-be3e46cccd94",
+      "name": "AI: extract & score",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -95,21 +109,57 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Config').first().json.ollamaUrl }}/api/chat",
+        "url": "={{ $json.ai_http.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ollama_request) }}",
+        "jsonBody": "={{ JSON.stringify($json.ai_http.body) }}",
         "options": {
-          "timeout": 600000
+          "timeout": 600000,
+          "batching": {
+            "batch": {
+              "batchSize": 4,
+              "batchInterval": 1500
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "auvAnthropic0001",
+          "name": "Anthropic API key"
         }
       },
       "onError": "continueRegularOutput",
       "retryOnFail": true,
-      "maxTries": 2,
+      "maxTries": 3,
       "waitBetweenTries": 5000
     },
     {
-      "id": "1d9bfb54-6723-420c-ae93-1b79a830744c",
+      "id": "2853b3a8-58e5-48fb-a074-0996a144ca06",
+      "name": "Normalise AI reply (AI: extract & score)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -180
+      ],
+      "parameters": {
+        "jsCode": "\n// Every provider's reply \u2192 Ollama's shape { message: { content: '<json>' } } or { error: { message } },\n// which is what the validation step reads. Order is preserved (validation pairs items by index).\nreturn $input.all().map(item => {\n  const j = item.json || {};\n  if (j.error) return { json: { error: { message: String(j.error.message || j.error.description || JSON.stringify(j.error)).slice(0, 300) } } };\n  if (Array.isArray(j.content)) {\n    const t = j.content.find(c => c.type === 'tool_use');\n    return { json: t ? { message: { content: JSON.stringify(t.input) }, provider: 'anthropic', model: j.model, usage: j.usage }\n                     : { error: { message: `no structured reply (${j.stop_reason || 'unknown'})` } } };\n  }\n  return { json: j };\n});\n"
+      }
+    },
+    {
+      "id": "dd6d5ce3-4c9e-4c7a-a6eb-70d1eba05d41",
       "name": "Validate extraction",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -122,7 +172,7 @@
       }
     },
     {
-      "id": "33026968-94f3-4a12-a146-56b62bfb4efa",
+      "id": "09f646f9-fa8a-475f-be8d-9df3fe39e20e",
       "name": "Save job",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -148,7 +198,7 @@
       }
     },
     {
-      "id": "69b521ff-0095-4eb0-8054-605a2009d8eb",
+      "id": "74c8ef5c-e2f1-4ccc-8cbe-0dbc005db740",
       "name": "Strong match?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -165,7 +215,7 @@
           },
           "conditions": [
             {
-              "id": "3831de60-1126-480c-8d9a-2a3329e235c4",
+              "id": "6c89d5f0-6060-4b0f-ba17-6d0fb67fbcf2",
               "leftValue": "={{ $('Validate extraction').item.json.fit_score }}",
               "rightValue": "={{ $('Config').first().json.alertThreshold }}",
               "operator": {
@@ -180,7 +230,7 @@
       }
     },
     {
-      "id": "c5d456d6-28a6-4278-9c7d-8a5f88942993",
+      "id": "797d1dbe-c795-43e9-b051-daa78ff8a433",
       "name": "Restore job fields",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -194,7 +244,7 @@
       }
     },
     {
-      "id": "7e30bd97-753e-42ad-809a-93d5ea217c13",
+      "id": "a9e2c44f-57d8-437a-921a-7edcd99d1f56",
       "name": "Compose alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -207,7 +257,7 @@
       }
     },
     {
-      "id": "a9bd6ade-ab4f-47ed-8839-1b62477f3bae",
+      "id": "1b247a36-3db8-4d43-92f8-7bff75becc62",
       "name": "Email strong matches",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -233,7 +283,7 @@
       }
     },
     {
-      "id": "2564dd92-6195-4a56-bff1-67cb09bbaa91",
+      "id": "9e501a05-0d88-44df-a2af-254992f9d71d",
       "name": "Mark alerted",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -246,7 +296,7 @@
       }
     },
     {
-      "id": "04da426c-b2fb-45ab-8730-f1de88552269",
+      "id": "42bf7f0a-d646-4ca3-93d9-56f376bebc38",
       "name": "Flag alerted jobs",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -343,14 +393,36 @@
       "main": [
         [
           {
-            "node": "Local AI: extract & score",
+            "node": "Prepare AI request (AI: extract & score)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Local AI: extract & score": {
+    "Prepare AI request (AI: extract & score)": {
+      "main": [
+        [
+          {
+            "node": "AI: extract & score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: extract & score": {
+      "main": [
+        [
+          {
+            "node": "Normalise AI reply (AI: extract & score)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise AI reply (AI: extract & score)": {
       "main": [
         [
           {
