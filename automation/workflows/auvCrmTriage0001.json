@@ -3,7 +3,7 @@
   "name": "21 CRM \u00b7 triage website enquiries",
   "nodes": [
     {
-      "id": "6bf537ed-27ea-4620-9d61-e91e07e7713f",
+      "id": "03b67674-4598-43a6-ba13-7e87bb8f4d08",
       "name": "Every 5 minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "id": "044afd3b-71be-4a60-bd9c-20f01a7ec490",
+      "id": "9a250b7a-7901-4e5e-9e59-4a246a519918",
       "name": "Run now (localhost webhook)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
@@ -40,7 +40,7 @@
       "webhookId": "auvetric-crm-triage"
     },
     {
-      "id": "66beeb0a-0c5d-4545-a8e7-6ccf4404445d",
+      "id": "35da704e-ecf0-4e4a-b5b5-927788befbdb",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -53,7 +53,7 @@
       }
     },
     {
-      "id": "e86acb94-4f0d-4980-8b4e-97d45bb64ea4",
+      "id": "c7171981-e4ad-4123-a0b5-a4708296ca60",
       "name": "Claim enquiries from CRM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -84,7 +84,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "3cf036f8-eddb-4a88-bab9-9227af3272d9",
+      "id": "95c1e7cf-b185-488e-b611-fb79b068c74a",
       "name": "One item per enquiry",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -97,7 +97,7 @@
       }
     },
     {
-      "id": "b6f43f3b-9bec-49b4-870a-31e18fe58f22",
+      "id": "f6e2119e-45ac-46f8-8a1e-426f860c53d4",
       "name": "Build enquiry prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -111,7 +111,7 @@
       }
     },
     {
-      "id": "d98d3892-e91d-49a9-986d-c80f01c43705",
+      "id": "faf4a67c-a21a-41e9-b6fb-7976f92ba65e",
       "name": "Prepare AI request (AI: triage enquiry)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -120,12 +120,12 @@
         180
       ],
       "parameters": {
-        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
+        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  // Claude Haiku garbles array-typed tool parameters; ask for lists as one-item-per-line text instead.\n  const schema = JSON.parse(JSON.stringify(r.format));\n  for (const [k, v] of Object.entries(schema.properties || {}))\n    if (v.type === 'array') schema.properties[k] = { type: 'string', description: 'One item per line. No numbering, no bullets, no markup.' };\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: schema }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
         "mode": "runOnceForEachItem"
       }
     },
     {
-      "id": "0e9e7579-5efe-4645-b1cc-5ce6120a76ac",
+      "id": "65fb7ad1-1d42-4056-a801-1f41aeee9df3",
       "name": "AI: triage enquiry",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -172,7 +172,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "df33e96a-da7e-483f-8057-e5902e367e23",
+      "id": "f4133432-a7df-4301-830b-660c6980f16e",
       "name": "Normalise AI reply (AI: triage enquiry)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -185,7 +185,7 @@
       }
     },
     {
-      "id": "d743a7af-fa8c-47bb-9443-b373fdeaffab",
+      "id": "bf6add1d-fd4c-4c50-8e33-1bc61d624d3b",
       "name": "Validate triage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -194,11 +194,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "\nconst prompts = $('Build enquiry prompt').all();\nconst s = (v, n = 600) => (v == null ? '' : String(v)).trim().slice(0, n);\nconst pick = (v, a, d) => a.includes(v) ? v : d;\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request; delete base.parse_status;\n  let r = null, status = 'ok';\n  try { const c = item.json?.message?.content; if (!c) throw new Error(item.json?.error?.message || 'empty model response'); r = JSON.parse(c); }\n  catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  const list = a => Array.isArray(a) ? a.map(x => s(x, 200)).filter(Boolean).slice(0, 8).join('\\n') : '';\n  // Consistency guard: a vendor_pitch label contradicting the model's own who_is_selling answer is downgraded to review.\n  if (r.category === 'vendor_pitch' && r.who_is_selling === 'sender_wants_our_services') r.category = base.intent === 'consultation' ? 'consultation' : 'project';\n  return { json: { ...base,\n    category: pick(r.category, ['project','consultation','partnership','general','job_seeker','vendor_pitch','spam'], 'general'),\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','unclear'], 'unclear'),\n    priority: status === 'ok' ? pick(r.priority, ['high','normal','low'], 'normal') : 'normal',\n    spam_score: status === 'ok' ? Math.max(0, Math.min(100, Math.round(Number(r.spam_score) || 0))) : 0,\n    summary: s(r.summary, 800) || '(AI triage failed: read the original message)', key_requirements: list(r.key_requirements),\n    questions_to_ask: list(r.questions_to_ask), suggested_reply: s(r.suggested_reply, 2500),\n    extraction_status: status, alerted: false, status: 'new' } };\n});\n"
+        "jsCode": "\nconst prompts = $('Build enquiry prompt').all();\nconst s = (v, n = 600) => (v == null ? '' : String(v)).trim().slice(0, n);\nconst pick = (v, a, d) => a.includes(v) ? v : d;\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request; delete base.parse_status;\n  let r = null, status = 'ok';\n  try { const c = item.json?.message?.content; if (!c) throw new Error(item.json?.error?.message || 'empty model response'); r = JSON.parse(c); }\n  catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  // Lists may arrive as arrays (Ollama) or one-per-line text (Claude); strip bullets/markup either way.\n  const items = a => (Array.isArray(a) ? a : typeof a === 'string' ? a.split(/\\n+/) : []).map(x => s(String(x).replace(/<[^>]*>/g, '').replace(/^\\s*(?:[-*\\u2022]|\\d+[.)])\\s*/, ''), 200)).filter(Boolean);\n  const list = a => items(a).slice(0, 8).join('\\n');\n  // Consistency guard: a vendor_pitch label contradicting the model's own who_is_selling answer is downgraded to review.\n  if (r.category === 'vendor_pitch' && r.who_is_selling === 'sender_wants_our_services') r.category = base.intent === 'consultation' ? 'consultation' : 'project';\n  return { json: { ...base,\n    category: pick(r.category, ['project','consultation','partnership','general','job_seeker','vendor_pitch','spam'], 'general'),\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','unclear'], 'unclear'),\n    priority: status === 'ok' ? pick(r.priority, ['high','normal','low'], 'normal') : 'normal',\n    spam_score: status === 'ok' ? Math.max(0, Math.min(100, Math.round(Number(r.spam_score) || 0))) : 0,\n    summary: s(r.summary, 800) || '(AI triage failed: read the original message)', key_requirements: list(r.key_requirements),\n    questions_to_ask: list(r.questions_to_ask), suggested_reply: s(r.suggested_reply, 2500),\n    extraction_status: status, alerted: false, status: 'new' } };\n});\n"
       }
     },
     {
-      "id": "0ed52b4b-e605-4359-b7d3-981314c3e431",
+      "id": "b7db14e1-5e3b-45e7-b0d3-78e119833ce6",
       "name": "Save triage to CRM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -229,7 +229,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "7a96f93a-e8d6-45c3-8f9a-1c83e7f959ff",
+      "id": "7167a0e7-0a5b-4183-a510-c6d513873c6c",
       "name": "Alert partners?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -246,7 +246,7 @@
           },
           "conditions": [
             {
-              "id": "1d885f0b-00f8-4e1d-9c90-21169b580048",
+              "id": "33dbc209-e120-4b27-829f-2698a03f5760",
               "leftValue": "={{ $json.alert }}",
               "rightValue": true,
               "operator": {
@@ -262,7 +262,7 @@
       }
     },
     {
-      "id": "75c6edd4-bfd3-442e-a213-9ba690c62771",
+      "id": "7d13e021-1aa4-4ec7-866f-2b3443ba43e9",
       "name": "Compose partner alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -276,7 +276,7 @@
       }
     },
     {
-      "id": "08722e5e-c29d-4080-8057-16c0bc5dad2e",
+      "id": "26da0e7a-63b9-42a7-8ea3-a7dbeb21ad63",
       "name": "Email partners",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,

@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic";
 
 // NAD equivalent of a document total (USD documents carry their own rate).
 const NAD = "case when currency = 'NAD' then total else total * fx_rate end";
+// Open balance (total less payments) in NAD.
+const BAL = "case when currency = 'NAD' then total - amount_paid else (total - amount_paid) * fx_rate end";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default async function Dashboard() {
@@ -18,11 +20,12 @@ export default async function Dashboard() {
   const today = todayISO();
   const period = today.slice(0, 7);
   const nad = sql.unsafe(NAD);
+  const bal = sql.unsafe(BAL);
   const [[inv], [qt], monthly, [ret], [proj], recent, due, [sec]] = await Promise.all([
     sql`select
-          coalesce(sum(${nad}) filter (where status in ('sent','overdue')), 0) as outstanding,
+          coalesce(sum(${bal}) filter (where status in ('sent','overdue')), 0) as outstanding,
           count(*) filter (where status in ('sent','overdue'))::int as outstanding_n,
-          coalesce(sum(${nad}) filter (where status = 'overdue' or (status = 'sent' and due_date < ${today})), 0) as overdue,
+          coalesce(sum(${bal}) filter (where status = 'overdue' or (status = 'sent' and due_date < ${today})), 0) as overdue,
           count(*) filter (where status = 'overdue' or (status = 'sent' and due_date < ${today}))::int as overdue_n,
           count(*) filter (where status = 'draft')::int as drafts,
           coalesce(sum(${nad}) filter (where to_char(date, 'YYYY-MM') = ${period} and status not in ('cancelled','draft')), 0) as this_month,
@@ -50,7 +53,7 @@ export default async function Dashboard() {
   // Sales (Phase 2). Pipeline in NAD: USD leads at the company rate; probability falls back to the stage default.
   const [co] = await sql`select (data->>'usdToNad')::numeric as usd from companies where is_default`;
   const usd = Number(co?.usd ?? 18.5);
-  const [[sales], topJobs, myTasks] = await Promise.all([
+  const [[sales], topJobs, [unbilled], myTasks] = await Promise.all([
     sql`select
           (select count(*)::int from enquiries where status = 'new') as new_enquiries,
           (select count(*)::int from enquiries where triage_status in ('pending','claimed') and status <> 'spam') as awaiting_triage,
@@ -64,6 +67,9 @@ export default async function Dashboard() {
           (select count(*)::int from opportunities where status = 'new' and fit_score >= 70 and received_at > now() - interval '7 days') as strong_jobs`,
     sql`select id, title, source, fit_score, budget from opportunities where status in ('new','shortlisted') and received_at > now() - interval '7 days'
         order by fit_score desc, received_at desc limit 6`,
+    sql`select coalesce(sum(minutes), 0)::int as minutes,
+               coalesce(sum(minutes / 60.0 * rate * case when currency = 'USD' then ${usd}::numeric else 1 end), 0) as value_nad
+        from time_entries where billable and invoice_id is null`,
     sql`select t.id, t.title, t.due_date, t.entity, t.entity_id from tasks t where not t.done and t.assignee_user_id = ${user.id}
           and (t.due_date is null or t.due_date <= ${today}::date + 7) order by t.due_date nulls last limit 8`,
   ]);
@@ -109,6 +115,10 @@ export default async function Dashboard() {
         <Link href="/crm/tasks" className="card kpi" style={{ textDecoration: "none", color: "inherit", ...(sales.follow_ups_due ? { borderColor: "color-mix(in srgb, var(--warn) 45%, transparent)" } : {}) }}>
           <span className="l">My tasks · 7 days</span><span className="v">{myTasks.length}</span>
           <span className="s">{sales.follow_ups_due ? `${sales.follow_ups_due} lead follow-up(s) due` : "no follow-ups due"}</span>
+        </Link>
+        <Link href="/crm/time" className="card kpi" style={{ textDecoration: "none", color: "inherit" }}>
+          <span className="l">Unbilled time</span><span className="v">{Math.round((unbilled.minutes / 60) * 10) / 10} h</span>
+          <span className="s">{unbilled.minutes ? `worth ${N(unbilled.value_nad)}` : "all billable time invoiced"}</span>
         </Link>
         <Link href="/crm/invoices" className="card kpi" style={{ textDecoration: "none", color: "inherit" }}>
           <span className="l">Outstanding</span><span className="v">{N(inv.outstanding)}</span><span className="s">{inv.outstanding_n} invoice(s) awaiting payment</span>

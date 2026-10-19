@@ -96,7 +96,7 @@ export function DocList({ type }: { type: DocType }) {
                       <td className="nowrap">{formatDate(r.date)}</td>
                       <td className="nowrap" style={late ? { color: "var(--err)" } : undefined}>{formatDate(r.due_date)}</td>
                       <td><StatusBadge s={late ? "overdue" : r.status} /></td>
-                      <td className="r"><Money v={Number(r.total)} c={r.currency} /></td>
+                      <td className="r"><Money v={Number(r.total)} c={r.currency} />{type === "invoice" && Number(r.amount_paid ?? 0) > 0 && ["sent", "overdue"].includes(r.status) && <div className="dim" style={{ fontSize: 11 }}>due {formatMoney(Number(r.total) - Number(r.amount_paid), r.currency)}</div>}</td>
                     </tr>
                   );
                 })}

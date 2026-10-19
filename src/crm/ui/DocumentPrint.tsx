@@ -3,7 +3,7 @@
 import { computeTotals, formatDate, formatMoney, formatQty, lineAmount } from "@/crm/shared/calc";
 import { PLACEHOLDER, PROPOSAL_FIELDS, type CompanyData, type Currency, type DocData, type DocType } from "@/crm/shared/types";
 
-export interface PrintableDoc { type: DocType; number: string; date: string; due_date: string; currency: Currency; fx_rate?: number | null; data: DocData; status?: string }
+export interface PrintableDoc { type: DocType; number: string; date: string; due_date: string; currency: Currency; fx_rate?: number | null; data: DocData; status?: string; amount_paid?: number | null }
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -84,6 +84,10 @@ export function DocumentPrint({ doc, company }: { doc: PrintableDoc; company: { 
           {c.vatRegistered && <tr><th>VAT ({d.vatRate}%)</th><td>{formatMoney(t.vat, cur)}</td></tr>}
           {t.discount > 0 && <tr><th>Discount</th><td>-{formatMoney(t.discount, cur)}</td></tr>}
           <tr className="grand"><th>Total {cur}</th><td>{formatMoney(t.total, cur)}</td></tr>
+          {!isQuote && Number(doc.amount_paid ?? 0) > 0 && doc.status !== "cancelled" && <>
+            <tr><th>Paid</th><td>-{formatMoney(Number(doc.amount_paid), cur)}</td></tr>
+            <tr className="grand"><th>Balance due {cur}</th><td>{formatMoney(Math.max(0, t.total - Number(doc.amount_paid)), cur)}</td></tr>
+          </>}
         </tbody>
       </table>
 

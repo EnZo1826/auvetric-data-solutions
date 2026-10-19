@@ -3,6 +3,7 @@ import { handle, json } from "@/crm/server/http";
 import { dispatch } from "@/crm/server/router";
 import "@/crm/server/api/routes";
 import "@/crm/server/api/sales";
+import "@/crm/server/api/finance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

@@ -10,7 +10,7 @@ export type NavGroup = { label: string; items: NavItem[] };
 
 /** Modules that are live. Add each slug as its phase ships; everything else renders as scheduled. */
 export const BUILT = new Set(["", "account", "clients", "projects", "quotes", "invoices", "retainers", "company", "services", "users", "settings",
-  "enquiries", "opportunities", "leads", "tasks", "integrations"]);
+  "enquiries", "opportunities", "leads", "tasks", "integrations", "time", "payments", "expenses", "marketplace"]);
 
 export const NAV: NavGroup[] = [
   { label: "Overview", items: [
@@ -31,7 +31,7 @@ export const NAV: NavGroup[] = [
     { slug: "quotes", label: "Quotes", icon: "FileText", phase: 1, summary: "Quotes and proposals with scope, deliverables and timeline. Accept, decline, convert to invoice or project." },
     { slug: "invoices", label: "Invoices", icon: "Receipt", phase: 1, summary: "NAD and USD invoices on the Auvetric letterhead, with payments and ageing." },
     { slug: "retainers", label: "Retainers", icon: "Repeat", phase: 1, summary: "Support, hosting, SLA and BI retainers that generate invoices monthly." },
-    { slug: "payments", label: "Payments", icon: "Banknote", phase: 3, summary: "Full and partial payments against invoices; client balances update." },
+    { slug: "payments", label: "Payments", icon: "Banknote", phase: 3, summary: "Full and partial payments against invoices, debtors ageing and statements." },
     { slug: "expenses", label: "Expenses", icon: "Wallet", phase: 3, summary: "Hosting, software and hardware costs, optionally re-billed to clients." },
     { slug: "marketplace", label: "Marketplace", icon: "Store", phase: 3, summary: "Upwork and Fiverr contract income and fees for complete revenue reporting." },
   ] },

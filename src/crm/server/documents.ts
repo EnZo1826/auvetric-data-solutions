@@ -119,6 +119,7 @@ export async function saveDocument(input: DocInput, userId: string | null, exist
   const vatRate = effectiveVatRate(cd, d.vatRate);
   const totals = computeTotals(lines, vatRate, d.discount);
   if (totals.total < 0) throw new HttpError(400, "The discount can't exceed the document total.");
+  if (existing && Number((existing as { amount_paid?: number }).amount_paid ?? 0) > totals.total) throw new HttpError(409, "Payments already recorded exceed the new total. Remove a payment first.");
   const data = {
     client: snapshot, remarks: d.remarks, lines, discount: d.discount, vatRate, notes: d.notes,
     ...(type === "quote" ? { proposal: { intro: "", scope: "", deliverables: "", assumptions: "", timeline: "", ...(d.proposal ?? (existing?.data?.proposal as object) ?? {}) } } : {}),

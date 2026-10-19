@@ -56,6 +56,7 @@ jobs:
           CRM_TEST_URL=http://localhost:3100 npm run crm:test:auth
           CRM_TEST_URL=http://localhost:3100 npm run crm:test:api
           CRM_TEST_URL=http://localhost:3100 npm run crm:test:sales
+          CRM_TEST_URL=http://localhost:3100 npm run crm:test:finance
       - name: Server log on failure
         if: failure()
         run: cat next.log || true

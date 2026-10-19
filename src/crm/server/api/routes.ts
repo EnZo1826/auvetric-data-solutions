@@ -10,6 +10,7 @@ import { destroyOtherSessions } from "../session";
 import { todayISO, uid } from "@/crm/shared/calc";
 import { DEFAULT_PROJECT_COLUMNS, INVOICE_STATUSES, QUOTE_STATUSES, type BoardColumn } from "@/crm/shared/types";
 import { randomInt } from "node:crypto";
+import { recomputeInvoice, releaseRemovedLines } from "../finance";
 
 const sql = () => db();
 
@@ -65,7 +66,7 @@ const ClientBody = z.object({
 });
 route("GET", "/clients", async () => sql()`
   select c.*, (select count(*)::int from documents d where d.client_id = c.id) as doc_count,
-    (select coalesce(sum(case when d.currency = 'NAD' then d.total else d.total * d.fx_rate end), 0) from documents d
+    (select coalesce(sum(case when d.currency = 'NAD' then d.total - d.amount_paid else (d.total - d.amount_paid) * d.fx_rate end), 0) from documents d
        where d.client_id = c.id and d.type = 'invoice' and d.status in ('sent','overdue')) as outstanding_nad,
     (select count(*)::int from projects p where p.client_id = c.id and p.status <> 'done') as open_projects,
     (select json_build_object('name', k.name, 'email', k.email) from contacts k where k.client_id = c.id order by k.is_primary desc, k.id limit 1) as primary_contact
@@ -76,7 +77,7 @@ route("GET", "/clients/:id", async ({ params }) => {
   if (!client) throw new HttpError(404, "Client not found.");
   const [contacts, documents, projects, retainers, activities] = await Promise.all([
     sql()`select * from contacts where client_id = ${cid} order by is_primary desc, name`,
-    sql()`select id, type, number, status, date, due_date, currency, fx_rate, total from documents where client_id = ${cid} order by date desc, id desc limit 200`,
+    sql()`select id, type, number, status, date, due_date, currency, fx_rate, total, amount_paid from documents where client_id = ${cid} order by date desc, id desc limit 200`,
     sql()`select id, title, status, priority, due_date from projects where client_id = ${cid} order by updated_at desc`,
     sql()`select id, name, kind, currency, active, auto from retainers where client_id = ${cid} order by name`,
     sql()`select a.*, u.name as user_name from activities a left join users u on u.id = a.user_id
@@ -176,7 +177,7 @@ route("GET", "/documents", async ({ query }) => {
   const projectId = query.get("project_id");
   const period = query.get("period");
   return s`
-    select id, type, number, status, date, due_date, currency, fx_rate, total, client_id, project_id, retainer_id, source_id,
+    select id, type, number, status, date, due_date, currency, fx_rate, total, amount_paid, client_id, project_id, retainer_id, source_id,
            data->'client'->>'name' as client_name, coalesce(data->>'remarks', '') as remarks
     from documents where true
       ${type === "invoice" || type === "quote" ? s`and type = ${type}` : s``}
@@ -209,7 +210,11 @@ route("POST", "/documents", async ({ req, session, meta }) => {
 route("PUT", "/documents/:id", async ({ req, params, session, meta }) => {
   const existing = await loadDoc(params.id);
   const b = await parse(req, DocBody);
-  const d = await saveDocument(b as DocInput, session.user.id, existing as never);
+  let d = await saveDocument(b as DocInput, session.user.id, existing as never);
+  if (d.type === "invoice") {
+    await releaseRemovedLines(d.id, d.data.lines ?? []);
+    if (Number(d.amount_paid) > 0) d = (await sql().begin((tx) => recomputeInvoice(tx, d.id))) ?? d;
+  }
   await audit(session.user.id, `${d.type}.update`, meta, { number: d.number, before: { total: existing.total, status: existing.status }, after: { total: d.total, status: d.status } }, "document", d.id);
   return d;
 });
@@ -221,10 +226,31 @@ async function setStatus(docId: string, status: string, userId: string, meta: Pa
   if (d.status === status) return d;
   if (d.type === "quote" && status === "invoiced") throw new HttpError(400, "Use “Convert to invoice” to invoice a quote.");
   if (d.status === "cancelled") throw new HttpError(409, "Cancelled invoices can't be reopened. Duplicate it instead.");
-  const [row] = await sql()`update documents set status = ${status},
-      sent_at = case when ${status} in ('sent','paid','overdue','accepted','declined') then coalesce(sent_at, now()) else sent_at end,
-      paid_at = case when ${status} = 'paid' then now() else null end, updated_at = now()
-    where id = ${d.id} returning *`;
+  const row = await sql().begin(async (tx) => {
+    if (d.type === "invoice") {
+      const [{ manual, auto }] = await tx`select coalesce(sum(amount) filter (where not auto), 0)::numeric as manual,
+                                                 coalesce(sum(amount) filter (where auto), 0)::numeric as auto from payments where document_id = ${d.id}`;
+      if ((status === "cancelled" || status === "draft") && Number(manual) > 0) throw new HttpError(409, "This invoice has payments recorded. Remove them first.");
+      if (status === "paid") {
+        if (d.status === "draft") await tx`update documents set sent_at = coalesce(sent_at, now()) where id = ${d.id}`;
+        if (d.status === "draft") await tx`update documents set status = 'sent' where id = ${d.id}`;
+        const balance = Math.round((Number(d.total) - Number(manual) - Number(auto)) * 100) / 100;
+        if (balance > 0) await tx`insert into payments (document_id, date, amount, method, reference, auto, created_by)
+                                  values (${d.id}, ${todayISO()}, ${balance}, 'other', 'Marked paid', true, ${userId})`;
+        return recomputeInvoice(tx, d.id);
+      }
+      if (d.status === "paid") {
+        await tx`delete from payments where document_id = ${d.id} and auto`;
+        if (Number(manual) >= Number(d.total) && Number(d.total) > 0) throw new HttpError(409, "Recorded payments cover this invoice. Remove a payment to reopen it.");
+        await tx`update documents set amount_paid = ${Number(manual)}, paid_at = null where id = ${d.id}`;
+      }
+    }
+    const [r] = await tx`update documents set status = ${status},
+        sent_at = case when ${status} in ('sent','paid','overdue','accepted','declined') then coalesce(sent_at, now()) else sent_at end,
+        paid_at = case when ${status} = 'paid' then now() else null end, updated_at = now()
+      where id = ${d.id} returning *`;
+    return r;
+  });
   await audit(userId, `${d.type}.status`, meta, { number: d.number, from: d.status, to: status }, "document", d.id);
   await logActivity("client", d.client_id, `${d.type === "invoice" ? "Invoice" : "Quote"} ${d.number} marked ${status}`, userId);
   return row;
@@ -376,7 +402,8 @@ const ProjectBody = z.object({
 });
 route("GET", "/projects", async () => sql()`
   select p.*, c.name as client_name, u.name as lead_name,
-    (select count(*)::int from documents d where d.project_id = p.id) as doc_count
+    (select count(*)::int from documents d where d.project_id = p.id) as doc_count,
+    (select coalesce(sum(t.minutes), 0)::int from time_entries t where t.project_id = p.id) as minutes_logged
   from projects p left join clients c on c.id = p.client_id left join users u on u.id = p.lead_user_id
   order by p.position`);
 route("GET", "/projects/:id", async ({ params }) => {
@@ -499,8 +526,11 @@ route("GET", "/export", async ({ session, meta }) => {
     s`select id, email, name, role, totp_enabled, disabled, created_at from users`,
     s`select * from enquiries`, s`select * from opportunities`, s`select * from leads`, s`select * from tasks`,
   ]);
+  const [payments, time_entries, expenses, marketplace_earnings] = await Promise.all([
+    s`select * from payments`, s`select * from time_entries`, s`select * from expenses`, s`select * from marketplace_earnings`,
+  ]);
   await audit(session.user.id, "backup.export", meta, { documents: documents.length, leads: leads.length });
-  return { exported_at: new Date().toISOString(), schema: "auvetric-crm/2", companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks };
+  return { exported_at: new Date().toISOString(), schema: "auvetric-crm/3", companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks, payments, time_entries, expenses, marketplace_earnings };
 }, { admin: true });
 
 route("POST", "/run-daily", async ({ session, meta }) => {

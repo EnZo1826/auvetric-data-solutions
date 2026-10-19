@@ -3,7 +3,7 @@
   "name": "20 Website \u00b7 process enquiries",
   "nodes": [
     {
-      "id": "0c1ceb06-1a7f-46f5-aef5-8b5f57ce07e0",
+      "id": "4a957648-fb9f-4a74-b7e3-ec7638a6a785",
       "name": "Website enquiry email",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -16,7 +16,7 @@
       }
     },
     {
-      "id": "ba148d38-9862-473d-ba41-2e4a061760d0",
+      "id": "a5a63e95-8d9c-4c0b-825f-d487d12fd61f",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -29,7 +29,7 @@
       }
     },
     {
-      "id": "feccaeeb-61ea-47d4-b874-2a9721aa5ef5",
+      "id": "4efeed50-a527-4abd-b6e8-0edbd0b5bb41",
       "name": "Parse submission",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -42,7 +42,7 @@
       }
     },
     {
-      "id": "02910a03-e5f1-460f-b976-ffa35b79902d",
+      "id": "dd901325-3e73-47e5-8b67-d92db4632c0c",
       "name": "Skip duplicates",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -71,7 +71,7 @@
       }
     },
     {
-      "id": "a349b596-a88c-4d88-a977-81d61a007386",
+      "id": "8986d68a-6d74-48f5-b98b-c71248c4f532",
       "name": "Build enquiry prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -85,7 +85,7 @@
       }
     },
     {
-      "id": "bf46b5a8-1717-48c2-a04a-984763dd589f",
+      "id": "3716e89f-a7cc-4b0e-acae-825eacc1671a",
       "name": "Prepare AI request (AI: triage enquiry)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -94,12 +94,12 @@
         180
       ],
       "parameters": {
-        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: r.format }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
+        "jsCode": "\n// Turns the provider-neutral request built by the prompt node into the chosen provider's API call.\n// Anthropic: the JSON schema becomes a forced tool, so the reply is always schema-shaped JSON.\nconst cfg = $('Config').first().json;\nconst r = $json.ollama_request;\nlet ai_http;\nif ((cfg.aiProvider || 'ollama') === 'anthropic') {\n  // Claude Haiku garbles array-typed tool parameters; ask for lists as one-item-per-line text instead.\n  const schema = JSON.parse(JSON.stringify(r.format));\n  for (const [k, v] of Object.entries(schema.properties || {}))\n    if (v.type === 'array') schema.properties[k] = { type: 'string', description: 'One item per line. No numbering, no bullets, no markup.' };\n  ai_http = { url: `${cfg.anthropicUrl}/v1/messages`, body: {\n    model: cfg.anthropicModel, max_tokens: 2048, temperature: 0.2,\n    system: r.messages.filter(m => m.role === 'system').map(m => m.content).join('\\n\\n'),\n    messages: r.messages.filter(m => m.role !== 'system'),\n    tools: [{ name: 'record_result', description: 'Record the structured result. Call it exactly once.', input_schema: schema }],\n    tool_choice: { type: 'tool', name: 'record_result' },\n  } };\n} else {\n  ai_http = { url: `${cfg.ollamaUrl}/api/chat`, body: r };\n}\nreturn { json: { ...$json, ai_http } };\n",
         "mode": "runOnceForEachItem"
       }
     },
     {
-      "id": "07f844bf-3cc8-4a7f-967e-031aab0eb401",
+      "id": "83e2c697-abcb-4fec-99dc-c7f91d6013cc",
       "name": "AI: triage enquiry",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -146,7 +146,7 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "11ce4e1d-3202-432c-ab3d-d05471249d03",
+      "id": "6d3e53a2-54fe-4da6-b872-38dfce03e289",
       "name": "Normalise AI reply (AI: triage enquiry)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -159,7 +159,7 @@
       }
     },
     {
-      "id": "cc1878b0-d4f2-4d9f-a677-815c7dc246ca",
+      "id": "e4f4e9a3-a8c0-4f5a-a964-bbd931b5c5b6",
       "name": "Validate triage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -168,11 +168,11 @@
         0
       ],
       "parameters": {
-        "jsCode": "\nconst prompts = $('Build enquiry prompt').all();\nconst s = (v, n = 600) => (v == null ? '' : String(v)).trim().slice(0, n);\nconst pick = (v, a, d) => a.includes(v) ? v : d;\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request; delete base.parse_status;\n  let r = null, status = 'ok';\n  try { const c = item.json?.message?.content; if (!c) throw new Error(item.json?.error?.message || 'empty model response'); r = JSON.parse(c); }\n  catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  const list = a => Array.isArray(a) ? a.map(x => s(x, 200)).filter(Boolean).slice(0, 8).join('\\n') : '';\n  // Consistency guard: a vendor_pitch label contradicting the model's own who_is_selling answer is downgraded to review.\n  if (r.category === 'vendor_pitch' && r.who_is_selling === 'sender_wants_our_services') r.category = base.intent === 'consultation' ? 'consultation' : 'project';\n  return { json: { ...base,\n    category: pick(r.category, ['project','consultation','partnership','general','job_seeker','vendor_pitch','spam'], 'general'),\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','unclear'], 'unclear'),\n    priority: status === 'ok' ? pick(r.priority, ['high','normal','low'], 'normal') : 'normal',\n    spam_score: status === 'ok' ? Math.max(0, Math.min(100, Math.round(Number(r.spam_score) || 0))) : 0,\n    summary: s(r.summary, 800) || '(AI triage failed: read the original message)', key_requirements: list(r.key_requirements),\n    questions_to_ask: list(r.questions_to_ask), suggested_reply: s(r.suggested_reply, 2500),\n    extraction_status: status, alerted: false, status: 'new' } };\n});\n"
+        "jsCode": "\nconst prompts = $('Build enquiry prompt').all();\nconst s = (v, n = 600) => (v == null ? '' : String(v)).trim().slice(0, n);\nconst pick = (v, a, d) => a.includes(v) ? v : d;\nreturn $input.all().map((item, i) => {\n  const base = { ...prompts[i].json }; delete base.ollama_request; delete base.parse_status;\n  let r = null, status = 'ok';\n  try { const c = item.json?.message?.content; if (!c) throw new Error(item.json?.error?.message || 'empty model response'); r = JSON.parse(c); }\n  catch (e) { status = 'failed: ' + s(e.message, 120); }\n  r = r || {};\n  // Lists may arrive as arrays (Ollama) or one-per-line text (Claude); strip bullets/markup either way.\n  const items = a => (Array.isArray(a) ? a : typeof a === 'string' ? a.split(/\\n+/) : []).map(x => s(String(x).replace(/<[^>]*>/g, '').replace(/^\\s*(?:[-*\\u2022]|\\d+[.)])\\s*/, ''), 200)).filter(Boolean);\n  const list = a => items(a).slice(0, 8).join('\\n');\n  // Consistency guard: a vendor_pitch label contradicting the model's own who_is_selling answer is downgraded to review.\n  if (r.category === 'vendor_pitch' && r.who_is_selling === 'sender_wants_our_services') r.category = base.intent === 'consultation' ? 'consultation' : 'project';\n  return { json: { ...base,\n    category: pick(r.category, ['project','consultation','partnership','general','job_seeker','vendor_pitch','spam'], 'general'),\n    practice: pick(r.practice, ['engineering','data_bi','automation','consultancy','unclear'], 'unclear'),\n    priority: status === 'ok' ? pick(r.priority, ['high','normal','low'], 'normal') : 'normal',\n    spam_score: status === 'ok' ? Math.max(0, Math.min(100, Math.round(Number(r.spam_score) || 0))) : 0,\n    summary: s(r.summary, 800) || '(AI triage failed: read the original message)', key_requirements: list(r.key_requirements),\n    questions_to_ask: list(r.questions_to_ask), suggested_reply: s(r.suggested_reply, 2500),\n    extraction_status: status, alerted: false, status: 'new' } };\n});\n"
       }
     },
     {
-      "id": "e80b3aad-318c-4da9-976f-4677497ddd65",
+      "id": "7019b68e-fb3f-4296-9160-c3c20c5d242d",
       "name": "Save enquiry",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -198,7 +198,7 @@
       }
     },
     {
-      "id": "8ae2cf4c-18a9-429a-9d93-9e1d86cdafba",
+      "id": "8b310d13-9588-42c5-bdcf-48dfda222431",
       "name": "Not spam?",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -215,7 +215,7 @@
           },
           "conditions": [
             {
-              "id": "69997ba2-ce27-4035-9740-56c3931b53ed",
+              "id": "928d9da6-b1de-47bf-b269-5f1a296c3d18",
               "leftValue": "={{ $('Validate triage').item.json.spam_score }}",
               "rightValue": 70,
               "operator": {
@@ -230,7 +230,7 @@
       }
     },
     {
-      "id": "4d468911-0280-457e-876c-186739aa996e",
+      "id": "d8a22ad5-6bec-4c58-a894-9645120a0749",
       "name": "Compose partner alert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -244,7 +244,7 @@
       }
     },
     {
-      "id": "ad52e8c2-6711-4d4b-a6cb-658e77cee975",
+      "id": "f8320613-7b47-4c85-8aed-10e026320505",
       "name": "Email partners",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -271,7 +271,7 @@
       }
     },
     {
-      "id": "73b24e91-94da-463e-a8b0-485d7fd7bb58",
+      "id": "0aac1e47-06fe-4851-a727-49297d09dd77",
       "name": "Flag alerted",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,

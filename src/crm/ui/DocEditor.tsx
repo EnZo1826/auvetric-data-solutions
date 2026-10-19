@@ -9,6 +9,7 @@ import { canWrite, errText, useCrm } from "./store";
 import { confirmAction, Empty, Field, StatusBadge } from "./ui";
 import { LineEditor } from "./LineEditor";
 import { DocumentPrint } from "./DocumentPrint";
+import { PaymentsPanel } from "./Payments";
 import { addDays, computeTotals, formatMoney, todayISO } from "@/crm/shared/calc";
 import { CURRENCIES, INVOICE_STATUSES, PROPOSAL_FIELDS, QUOTE_STATUSES, type ClientSnapshot, type Contact, type Currency, type Doc, type DocData, type DocType, type Project } from "@/crm/shared/types";
 
@@ -288,6 +289,12 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
                   </div>
                 )}
               </section>
+            )}
+
+            {!isNew && type === "invoice" && meta.status !== "draft" && doc.id && (
+              <PaymentsPanel invoice={{ id: doc.id, number: doc.number, status: meta.status, currency: doc.currency, total: totals?.total ?? 0 }} onChange={async () => {
+                try { const d = await crmFetch<Loaded>(`/api/crm/documents/${docId}`); setDoc({ ...d }); setMeta((m) => ({ ...m, status: d.status })); setDirty(false); } catch (e) { toast(errText(e), "err"); }
+              }} />
             )}
 
             {!isNew && (meta.source || meta.derived.length > 0 || doc.retainer_id) && (
