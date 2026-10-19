@@ -7,14 +7,14 @@ Upwork / LinkedIn job alerts ──┐
                                ├─► Auvetric mailbox ─IMAP─► 05 inbox router ─► 10 Jobs triage ──► auvetric_jobs ─► instant alert (fit ≥ 70)
 Website form ─► Web3Forms ─────┘                                            │                                  └► 11 daily digest 07:30
                                                                             └► 20 Website enquiries ─► auvetric_enquiries ─► partner alert + draft reply
-                                             AI: Ollama qwen3:8b on this PC (host.docker.internal:11434)
+                                             AI: Claude (Anthropic API) by default; Ollama on this PC optional
 ```
 
 ## Why it is built this way
 
 - **No scraping.** Upwork shut down RSS feeds in August 2024, and LinkedIn's terms prohibit bots and scrapers, with account restriction as the penalty. Both platforms will email you saved-search alerts, and that is what this system reads. Your accounts stay safe.
 - **Nothing exposed to the internet.** n8n listens on `127.0.0.1:5678` only. Every input arrives by email (IMAP). The website form goes through Web3Forms, which emails the mailbox.
-- **Private AI.** Job and enquiry text is processed by Ollama on this PC; nothing is sent to an AI provider.
+- **AI model.** Claude via the Anthropic API by default (`aiProvider: 'anthropic'`, model `anthropicModel`, credential **Anthropic API key**: Header Auth, name `x-api-key`, value = your key). Set `aiProvider: 'ollama'` in the Config node to use a local model instead. The JSON schema is enforced as a forced tool call, so the reply is always schema-shaped. Job and enquiry text is therefore sent to Anthropic; the website privacy notice says so.
 - **Untrusted text stays data.** The model only fills a fixed JSON schema. Its output is stored and emailed to the partners. It never triggers actions or contacts anyone.
 - **Nothing is lost.** If the model fails, the record is stored with `extraction_status = failed` and the raw text.
 
