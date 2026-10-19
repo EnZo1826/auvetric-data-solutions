@@ -99,7 +99,7 @@ export default async function PracticePage({ params }: { params: Promise<{ slug:
           </div>
           <div>
             <h2 className="font-display text-3xl tracking-[-0.02em] text-ink sm:text-4xl">Example architecture</h2>
-            <p className="mt-3 text-sm text-dim">{p.architecture.title} — illustrative, adapted per engagement.</p>
+            <p className="mt-3 text-sm text-dim">{p.architecture.title} — adapted per engagement.</p>
             <ol className="mt-8 space-y-0" aria-label={p.architecture.title}>
               {p.architecture.nodes.map((n, i) => (
                 <li key={n.label} className="relative pl-10">

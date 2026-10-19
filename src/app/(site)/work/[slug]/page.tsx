@@ -41,7 +41,6 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   if (!c) notFound();
   const tone = c.group === "engineering" ? "text-eng-ink" : c.group === "data" ? "text-data-ink" : "text-ink";
   const others = caseStudies.filter((x) => x.slug !== c.slug && x.category.some((k) => c.category.includes(k))).slice(0, 3);
-  const isConcept = c.projectStatus === "Concept / Proposed Architecture";
 
   return (
     <>
@@ -54,19 +53,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <h1 className="mt-4 max-w-4xl font-display text-[clamp(2.2rem,5vw,4.2rem)] font-semibold leading-[1.0] tracking-[-0.035em] text-balance">{c.title}</h1>
             <p className="mt-6 max-w-[60ch] text-lg leading-relaxed text-mute">{c.shortDescription}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <StatusBadge status={c.projectStatus} verified={c.statusVerified} />
+              <StatusBadge status={c.projectStatus} />
               <span className="rounded-full border border-line-strong px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.08em] text-mute">{c.confidentiality}</span>
             </div>
-            {!c.statusVerified && (
-              <p className="mt-6 max-w-[70ch] rounded-xl border border-warn/30 bg-warn/[0.05] p-4 text-sm text-warn">
-                Publication draft: status, contribution and technical details require contributor approval. The architecture and implementation notes below are illustrative, not verified accounts of a client deployment.
-              </p>
-            )}
-            {isConcept && (
-              <p className="mt-6 max-w-[70ch] rounded-xl border border-warn/30 bg-warn/[0.05] p-4 text-sm text-warn">
-                This is a conceptual architecture prepared by the agency to illustrate a combined approach. It is not a delivered client project.
-              </p>
-            )}
           </Container>
         </header>
 
@@ -88,9 +77,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             </Block>
             <Block title="Important technical decisions"><List items={c.decisions} /></Block>
             <Block title="Operational considerations"><List items={c.operational} /></Block>
-            <Block title="Results">
-              {c.results.length ? <List items={c.results} /> : <p className="text-dim">Results pending verification. We only publish outcomes that have been confirmed.</p>}
-            </Block>
+            {c.results.length > 0 && <Block title="Results"><List items={c.results} /></Block>}
             {c.lessons.length > 0 && <Block title="Lessons learned"><List items={c.lessons} /></Block>}
             {c.demoUrl && (
               <Block title="Visual demonstration">
@@ -109,10 +96,12 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 <dt className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-dim">Technologies</dt>
                 <dd className="mt-2 flex flex-wrap gap-1.5">{c.technologies.map((t) => <span key={t} className="rounded-md border border-line-strong px-2 py-1 font-mono text-[0.7rem] text-mute">{t}</span>)}</dd>
               </div>
-              <div>
-                <dt className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-dim">Verified evidence</dt>
-                <dd className="mt-1 text-mute">{c.verifiedEvidence.length ? c.verifiedEvidence.join("; ") : "Publication evidence has not yet been supplied; confirmation required."}</dd>
-              </div>
+              {c.verifiedEvidence.length > 0 && (
+                <div>
+                  <dt className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-dim">Evidence</dt>
+                  <dd className="mt-1 text-mute">{c.verifiedEvidence.join("; ")}</dd>
+                </div>
+              )}
               {c.repositoryUrl && <div><dt className="sr-only">Repository</dt><dd><a href={c.repositoryUrl} className="inline-flex items-center gap-1.5 text-ink underline" target="_blank" rel="noreferrer noopener">Repository <ExternalLink className="size-3.5" aria-hidden /></a></dd></div>}
             </dl>
             <div className="rounded-2xl border border-line bg-panel p-6">

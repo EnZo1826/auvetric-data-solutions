@@ -67,7 +67,7 @@ export function SiteFooter() {
         </div>
       </Container>
       <Container className="flex flex-col gap-3 border-t border-line py-6 text-xs text-dim sm:flex-row sm:items-center sm:justify-between">
-        <p>© {year} {agency.legalName ?? agency.name}. Legal entity details to be confirmed.</p>
+        <p>© {year} {agency.legalName ?? agency.name}.</p>
         <p className="flex gap-5">
           <Link href="/privacy" className="hover:text-ink">Privacy</Link>
           <Link href="/terms" className="hover:text-ink">Terms</Link>

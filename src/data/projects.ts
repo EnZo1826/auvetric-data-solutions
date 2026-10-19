@@ -4,7 +4,7 @@ export type ProjectStatus =
   | "Operational"
   | "In Development"
   | "Prototype / Experiment"
-  | "Concept / Proposed Architecture";
+  | "Working Concept";
 
 export type Category =
   | "Software Engineering"
@@ -35,7 +35,7 @@ export interface CaseStudy {
   group: "engineering" | "data" | "unified";
   category: Category[];
   projectType: string;
-  /** Best current knowledge. Shown with a "pending verification" mark until statusVerified is true. */
+  /** Internal publication flag; not shown on the site. */
   projectStatus: ProjectStatus;
   statusVerified: boolean;
   contributor: FounderId[];
@@ -48,7 +48,7 @@ export interface CaseStudy {
   architecture: string[];
   decisions: string[];
   operational: string[];
-  /** Only verified results. Empty array renders as "Results pending verification". */
+  /** Published results. An empty array hides the Results section. */
   results: string[];
   lessons: string[];
   verifiedEvidence: string[];
@@ -401,7 +401,7 @@ export const caseStudies: CaseStudy[] = [
     projectStatus: "Prototype / Experiment",
     statusVerified: true,
     contributor: ["alex", "jakes"],
-    contributionDescription: "Website demonstration illustrating the supplied data-governance capabilities. Individual attribution is pending partner approval.",
+    contributionDescription: "Website demonstration illustrating the supplied data-governance capabilities.",
     confidentiality: "Synthetic demonstration",
     technologies: ["Data profiling", "Validation rules", "TypeScript"],
     businessChallenge: "Cleansing is usually done once, by hand, and then lost. It needs to be a repeatable, explainable process.",
@@ -426,7 +426,7 @@ export const caseStudies: CaseStudy[] = [
     group: "unified",
     category: ["Business Intelligence", "Data Governance", "Automation", "Enterprise Systems"],
     projectType: "Agency concept",
-    projectStatus: "Concept / Proposed Architecture",
+    projectStatus: "Working Concept",
     statusVerified: true,
     contributor: ["alex", "jakes"],
     contributionDescription: "Joint concept: data rules and reporting (Alex), integration and automation (Jakes).",
@@ -453,7 +453,7 @@ export const caseStudies: CaseStudy[] = [
     group: "unified",
     category: ["Industrial IoT", "Business Intelligence", "Data Governance"],
     projectType: "Agency concept",
-    projectStatus: "Concept / Proposed Architecture",
+    projectStatus: "Working Concept",
     statusVerified: true,
     contributor: ["jakes", "alex"],
     contributionDescription: "Joint concept: telemetry engineering (Jakes), validation and reporting (Alex).",
@@ -480,7 +480,7 @@ export const caseStudies: CaseStudy[] = [
     group: "unified",
     category: ["Industrial IoT", "Automation", "Business Intelligence"],
     projectType: "Agency concept",
-    projectStatus: "Concept / Proposed Architecture",
+    projectStatus: "Working Concept",
     statusVerified: true,
     contributor: ["jakes", "alex"],
     contributionDescription: "Joint concept.",

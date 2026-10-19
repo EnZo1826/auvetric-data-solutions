@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Auvetric CRM – User Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  :root { --ink: #0b1526; --dim: #56667f; --line: #d9e1ec; --blue: #0069f5; --cyan: #00b8cc; --soft: #f2f6fb; --warn: #8a5207; --ok: #0b6e52; }
+  * { box-sizing: border-box; }
+  body { font: 10.5pt/1.55 "Segoe UI", Inter, Arial, sans-serif; color: var(--ink); margin: 0 auto; max-width: 980px; padding: 0 24px; }
+  h1, h2, h3 { font-family: "Space Grotesk", "Segoe UI", Arial, sans-serif; line-height: 1.2; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid var(--blue); }
+  h2 { font-size: 14pt; margin: 7mm 0 2mm; color: #0a2a5c; }
+  h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+  h2 + p, h2 + ul, h2 + ol { break-before: avoid-page; }
+  h3 { font-size: 11.5pt; margin: 5mm 0 1.5mm; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin: 0 0 1mm; }
+  b, strong { font-weight: 600; }
+  code, .k { font-family: Consolas, "JetBrains Mono", monospace; font-size: 9.5pt; background: var(--soft); border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; }
+  .btn { display: inline-block; font-size: 9pt; font-weight: 600; border: 1px solid #9fb3cc; border-radius: 4px; padding: 0 5px; background: #fff; white-space: nowrap; }
+  .chapter { page-break-before: always; break-before: page; }
+  figure { margin: 3mm 0 5mm; page-break-inside: avoid; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; max-height: 225mm; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 1px 4px rgba(10, 30, 60, .12); }
+  figure.half img { max-width: 62%; }
+  figure.phone img { max-height: 150mm; }
+  figcaption { font-size: 9pt; color: var(--dim); margin-top: 1.5mm; }
+  .tip, .warn, .note { border-left: 4px solid var(--cyan); background: #eefbfd; padding: 2.5mm 4mm; margin: 3mm 0; border-radius: 0 4px 4px 0; page-break-inside: avoid; }
+  .warn { border-color: #e0a03a; background: #fff7ea; }
+  .note { border-color: var(--blue); background: #eef4ff; }
+  .tip b:first-child, .warn b:first-child, .note b:first-child { display: block; margin-bottom: .5mm; }
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm; font-size: 9.5pt; page-break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 1.5mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: center; }
+  .cover img { width: 70mm; margin-bottom: 14mm; }
+  .cover h1 { font-size: 34pt; border: 0; margin: 0 0 3mm; }
+  .cover .sub { font-size: 14pt; color: var(--dim); margin-bottom: 16mm; }
+  .cover .meta { font-size: 10pt; color: var(--dim); border-top: 1px solid var(--line); padding-top: 4mm; }
+  .toc ol { columns: 2; column-gap: 10mm; padding-left: 5mm; }
+  .toc li { margin-bottom: 1.5mm; break-inside: avoid; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .flow { display: flex; flex-wrap: wrap; gap: 2mm; align-items: center; margin: 3mm 0 4mm; font-size: 9.5pt; }
+  .flow span { border: 1px solid var(--blue); color: #0a2a5c; border-radius: 12px; padding: .5mm 3mm; background: #f3f8ff; font-weight: 600; }
+  .flow i { color: var(--dim); font-style: normal; }
+  .muted { color: var(--dim); }
+  @media screen { body { padding-top: 24px; padding-bottom: 60px; } .chapter { margin-top: 18mm; border-top: 1px dashed var(--line); padding-top: 8mm; } .cover { height: auto; padding: 30mm 0; } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <img src="../../public/brand/auvetric-logo-original.png" alt="Auvetric Data Solutions">
+  <h1>Auvetric CRM</h1>
+  <div class="sub">User guide for partners: how the system works, screen by screen</div>
+  <div class="meta">
+    Version 1.0 · October 2026 · Covers CRM phases 0–5 (live at <b>auvetric.com/crm</b>) and the client portal (<b>auvetric.com/portal</b>)<br>
+    The screenshots use made-up demo clients and figures. Your own screens show your real data.
+  </div>
+</section>
+
+<section class="chapter toc">
+  <h1>Contents</h1>
+  <ol>
+    <li><a href="#start">Getting started</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#enquiries">Enquiries</a></li>
+    <li><a href="#opportunities">Opportunities</a></li>
+    <li><a href="#leads">Leads (pipeline)</a></li>
+    <li><a href="#clients">Clients &amp; contacts</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#time">Time</a></li>
+    <li><a href="#tasks">Tasks</a></li>
+    <li><a href="#quotes">Quotes</a></li>
+    <li><a href="#invoices">Invoices</a></li>
+    <li><a href="#retainers">Retainers</a></li>
+    <li><a href="#payments">Payments, debtors &amp; statements</a></li>
+    <li><a href="#expenses">Expenses</a></li>
+    <li><a href="#marketplace">Marketplace earnings</a></li>
+    <li><a href="#reports">Reports</a></li>
+    <li><a href="#portal">The client portal</a></li>
+    <li><a href="#admin">Admin: company, services, users, settings</a></li>
+    <li><a href="#workflows">Everyday workflows</a></li>
+    <li><a href="#rules">Rules worth knowing &amp; troubleshooting</a></li>
+  </ol>
+  <h2>How the pieces fit together</h2>
+  <p>The CRM follows a piece of work from the first contact to the money in the bank:</p>
+  <div class="flow"><span>Website enquiry / Upwork &amp; LinkedIn listing</span><i>→</i><span>Lead</span><i>→</i><span>Client</span><i>→</i><span>Quote</span><i>→</i><span>Accepted</span><i>→</i><span>Project</span><i>→</i><span>Time &amp; expenses</span><i>→</i><span>Invoice</span><i>→</i><span>Payment</span><i>→</i><span>Reports</span></div>
+  <p>Every step leaves a trace on the client's <b>timeline</b>: who did what, and when. Financial changes also go into the <b>audit log</b>. Nothing has to be typed twice. A lead becomes a client with one click, a quote becomes an invoice, logged hours become invoice lines, and re-billable expenses are added to the next invoice.</p>
+</section>
+
+<!-- 1 -->
+<section class="chapter" id="start">
+  <h1>1. Getting started</h1>
+  <h2>Signing in</h2>
+  <p>Go to <b>auvetric.com/crm</b>. Sign-in has two steps:</p>
+  <ol>
+    <li>Your <b>email and password</b>. The first time, you use the one-time password you were given, and the CRM asks you to choose your own (at least 12 characters).</li>
+    <li>A <b>6-digit code</b> from your authenticator app (Google Authenticator, Microsoft Authenticator, Authy, 1Password…). On first sign-in you scan a QR code to link the app. Two-factor sign-in is mandatory for everyone.</li>
+  </ol>
+  <figure class="half"><img src="img/01-login.png" alt="CRM sign-in"><figcaption>The sign-in page. After the password step, the CRM asks for the code from your authenticator app.</figcaption></figure>
+  <div class="warn"><b>Security limits</b>Five wrong passwords lock the account for 15 minutes. Five wrong codes cancel the sign-in attempt. A session ends after 12 hours of inactivity and after 7 days at most. Each code works only once.</div>
+
+  <h2>The screen layout</h2>
+  <ul>
+    <li><b>Sidebar (left)</b>: every module, in groups: <i>Overview, Sales, Delivery, Finance, Insights, Admin</i>. Your name and <span class="btn">Sign out</span> are at the bottom.</li>
+    <li><b>Top bar</b>: the page name, a link to the public website, and the <b>sun/moon button</b>, which switches between the dark and the light theme. Each person's choice is remembered.</li>
+    <li><b>Lists</b>: click any row to open it. Rows also work with the keyboard: Tab to a row, then Enter.</li>
+    <li><b>Detail panels</b> open over the list. Close them with ✕ or the Escape key.</li>
+  </ul>
+  <figure><img src="img/31-dashboard-light.png" alt="Light theme"><figcaption>The same dashboard in the light theme. Printed documents are always white A4, whichever theme you use.</figcaption></figure>
+  <figure class="phone"><img src="img/32-mobile.png" alt="Mobile view"><figcaption>On a phone the sidebar folds into the ☰ menu, so the CRM works on site visits.</figcaption></figure>
+
+  <h2>Roles</h2>
+  <table>
+    <tr><th>Role</th><th>Can do</th></tr>
+    <tr><td><b>Admin</b></td><td>Everything, including Company profile, Users, Settings (email, backups, board columns, daily job), Integrations and the Audit log.</td></tr>
+    <tr><td><b>Member</b></td><td>All day-to-day work: sales, clients, projects, time, quotes, invoices, payments, expenses, reports. No admin screens.</td></tr>
+    <tr><td><b>Read-only</b></td><td>Can look at everything a member sees but can't change anything. Useful for an accountant or auditor.</td></tr>
+  </table>
+  <p>Jakes and Alex are both admins.</p>
+
+  <h2>My account</h2>
+  <p><b>Admin → My account</b> is where you change your password, see your signed-in devices and <span class="btn">Sign out everywhere</span> (for example, if a laptop goes missing).</p>
+  <figure><img src="img/29-account.png" alt="My account"><figcaption>My account: password, active sessions and two-factor status.</figcaption></figure>
+</section>
+
+<!-- 2 -->
+<section class="chapter" id="dashboard">
+  <h1>2. Dashboard</h1>
+  <p>The first screen after sign-in. It answers "what needs my attention today?" without opening any other module. All money figures are converted to <b>N$</b>; USD amounts use each document's own exchange rate.</p>
+  <figure><img src="img/02-dashboard.png" alt="Dashboard"><figcaption>Dashboard: twelve key figures, then job matches, your tasks, invoicing per month, deadlines and recently changed documents.</figcaption></figure>
+  <table>
+    <tr><th>Tile</th><th>What it means</th></tr>
+    <tr><td>New enquiries</td><td>Website enquiries still in the inbox, and whether the AI has triaged them.</td></tr>
+    <tr><td>Open pipeline</td><td>Total value of open leads, plus the <i>weighted</i> value (value × probability).</td></tr>
+    <tr><td>Strong job matches</td><td>Upwork/LinkedIn listings from the last 7 days with a fit score of 70 or more.</td></tr>
+    <tr><td>My tasks · 7 days</td><td>Your tasks due in the next week, including lead follow-ups.</td></tr>
+    <tr><td>Unbilled time</td><td>Billable hours not yet on an invoice, and what they are worth.</td></tr>
+    <tr><td>Outstanding / Overdue</td><td>Money owed on sent invoices; the red tile is the part past its due date.</td></tr>
+    <tr><td>Invoiced (month) / Paid (year)</td><td>Invoiced this month, and payments received this year.</td></tr>
+    <tr><td>Open quotes</td><td>Value of quotes waiting for an answer, and the 12-month win rate.</td></tr>
+    <tr><td>Active projects / Retainers</td><td>Projects in progress (and how many are late); retainers invoiced this month.</td></tr>
+  </table>
+  <p>The <span class="btn">New quote</span> and <span class="btn">New invoice</span> buttons at the top right are shortcuts.</p>
+</section>
+
+<!-- 3 -->
+<section class="chapter" id="enquiries">
+  <h1>3. Enquiries</h1>
+  <p>Every contact form sent from auvetric.com lands here automatically. Within a minute or two, the n8n automation on Jakes's PC asks Claude (AI) to <b>triage</b> it, and both partners get an email.</p>
+  <figure><img src="img/03-enquiries.png" alt="Enquiries inbox"><figcaption>The enquiry inbox. The tabs filter by status: Inbox, Converted, Spam, Archived and All.</figcaption></figure>
+  <h2>The enquiry panel</h2>
+  <figure><img src="img/03b-enquiry-detail.png" alt="Enquiry detail"><figcaption>An enquiry opened: AI triage on the left, contact details, linked lead, tasks and internal notes on the right.</figcaption></figure>
+  <ul>
+    <li><b>AI triage</b>: a summary, the priority, the category and the matching practice, the key requirements and suggested questions to ask. <span class="btn">Triage again</span> re-runs it.</li>
+    <li><b>Draft reply</b>: an AI-written first reply. Always read and adjust it before sending. <span class="btn">Copy</span> copies it; <span class="btn">Open in mail</span> starts an email to the sender with the text filled in.</li>
+    <li><b>Activity</b>: log calls, emails, meetings and notes.</li>
+    <li><b>Actions</b>: <span class="btn">Convert to lead</span> (puts it on the pipeline), <span class="btn">Create client</span>, <span class="btn">Mark reviewed</span>, <span class="btn">Spam</span>, <span class="btn">Archive</span>.</li>
+    <li><span class="btn">Log enquiry</span> (top right) adds an enquiry that came in by phone or in person.</li>
+  </ul>
+  <div class="note"><b>Deleting vs archiving</b>Archive anything you're done with. Use <i>Delete</i> only when someone asks for their data to be erased (privacy request).</div>
+</section>
+
+<!-- 4 -->
+<section class="chapter" id="opportunities">
+  <h1>4. Opportunities</h1>
+  <p>Job listings from <b>Upwork and LinkedIn alerts</b>. n8n reads the alert emails, extracts each listing and scores how well it fits Auvetric (0–100). The score comes with reasons and red flags.</p>
+  <figure><img src="img/04-opportunities.png" alt="Opportunities"><figcaption>Opportunities: fit score, source, practice and budget. Tabs filter by status (Open, New, Shortlisted, Applied, All).</figcaption></figure>
+  <p>Work each listing through its statuses: <b>New → Shortlisted → Applied → Interviewing → Won / Lost</b>, or <b>Skipped</b>. In the panel:</p>
+  <ul>
+    <li><span class="btn">Open listing</span> opens the original job post.</li>
+    <li><span class="btn">Shortlist</span> / <span class="btn">Skip</span> are quick decisions.</li>
+    <li><span class="btn">Add to pipeline</span> creates a lead linked to the listing. When that lead is won or lost, the listing follows automatically.</li>
+  </ul>
+</section>
+
+<!-- 5 -->
+<section class="chapter" id="leads">
+  <h1>5. Leads (the sales pipeline)</h1>
+  <p>A board with one column per stage: <b>New → Qualified → Discovery → Proposal sent → Negotiation → Won / Lost</b>. Drag a card to move it. The header shows the total and the weighted value of the open pipeline.</p>
+  <figure><img src="img/05-leads.png" alt="Leads board"><figcaption>The pipeline board. Each card shows organisation, value, probability, source, next follow-up and owner.</figcaption></figure>
+  <figure><img src="img/05b-lead-detail.png" alt="Lead detail"><figcaption>A lead opened: deal details on the left; links, tasks and quick actions on the right.</figcaption></figure>
+  <ul>
+    <li><b>Probability</b>: leave it blank to use the stage default (for example, Proposal = 60%).</li>
+    <li><b>Next follow-up</b>: shows on the owner's dashboard when it's due.</li>
+    <li><b>Source</b> (website, Upwork, LinkedIn, referral, direct…) feeds the win-rate-by-source report.</li>
+    <li><span class="btn">Create client</span> turns the organisation into a client record.</li>
+    <li><span class="btn">New quote</span> starts a quote for that client.</li>
+    <li><span class="btn">Start project</span> creates the project when the lead is won.</li>
+    <li>When moving a lead to <b>Lost</b>, record the reason. The reasons are reviewed in Reports.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section class="chapter" id="clients">
+  <h1>6. Clients &amp; contacts</h1>
+  <p>One record per organisation, with its people (contacts), documents, projects, files and full history.</p>
+  <figure><img src="img/06-clients.png" alt="Clients list"><figcaption>The client list with industry, primary contact, open projects and outstanding balance. Search to find a client quickly.</figcaption></figure>
+  <h2>The client page</h2>
+  <figure><img src="img/07-client-detail.png" alt="Client detail"><figcaption>A client page: activity timeline and files on the left; portal access, details and contacts on the right.</figcaption></figure>
+  <ul>
+    <li><b>Tabs</b>: <i>Overview</i> (timeline), <i>Documents</i> (all quotes and invoices) and <i>Projects &amp; retainers</i>.</li>
+    <li><b>Activity</b>: choose Note, Call, Email or Meeting, type and press <span class="btn">Log note</span>. System events (invoice sent, payment received, portal activity) are added automatically.</li>
+    <li><b>Files</b>: contracts, NDAs and specifications. Drag files in or use <span class="btn">Upload</span>. The limit is 4 MB per file; PDFs, images and Office documents are allowed.</li>
+    <li><b>Contacts</b>: <span class="btn">Add</span> people. The ★ marks the primary contact used on documents.</li>
+    <li><b>Client portal</b> card: see <a href="#portal">chapter 17</a>.</li>
+    <li>Buttons at the top: <span class="btn">New quote</span>, <span class="btn">New invoice</span>, <span class="btn">Statement</span>, <span class="btn">Edit</span>.</li>
+    <li><b>Billing</b>: currency (NAD or USD) and payment terms. Leave the terms empty to use the company default (14 days).</li>
+  </ul>
+  <div class="tip"><b>Archive rather than delete</b>A client with documents can't be deleted, because that would break the invoice history. <i>Delete or archive client</i> archives it instead: it disappears from lists and pickers but keeps its history.</div>
+</section>
+
+<!-- 7 -->
+<section class="chapter" id="projects">
+  <h1>7. Projects</h1>
+  <p>A board of delivery work. The default columns are <b>Planned → In progress → Waiting on client → Review / UAT → Done</b>; admins can rename, recolour or add columns in Settings. Drag cards between columns.</p>
+  <figure><img src="img/08-projects.png" alt="Projects board"><figcaption>The project board. Each card shows the client, priority, checklist progress, hours logged against the budget and the due date.</figcaption></figure>
+  <figure><img src="img/09-project-detail.png" alt="Project detail"><figcaption>A project opened: details, budget (amount and hours), lead partner, dates, description, checklist and milestones.</figcaption></figure>
+  <ul>
+    <li><b>Budget</b>: an amount and/or hours. Logged time is compared with the budget hours, so overruns show early.</li>
+    <li><b>Checklist</b> for the work items; <b>milestones</b> with due dates (tick them off as they're reached).</li>
+    <li><b>Activity, files &amp; documents</b> tab: notes, uploads, and every quote and invoice linked to the project.</li>
+    <li><span class="btn">New invoice</span> starts an invoice already linked to the project.</li>
+    <li>Projects due in the next 14 days appear on the dashboard.</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section class="chapter" id="time">
+  <h1>8. Time</h1>
+  <p>Log hours per project. Billable hours carry an hourly rate and later become invoice lines, so no time is forgotten when billing.</p>
+  <figure><img src="img/10-time.png" alt="Time list"><figcaption>Time entries filtered to <i>This month · Everyone</i>. The totals at the top right show hours, billable hours and the unbilled value.</figcaption></figure>
+  <figure><img src="img/10b-log-time.png" alt="Log time"><figcaption>Logging time. The duration accepts <code>1.5</code>, <code>1,5</code>, <code>1:30</code>, <code>90m</code> or <code>2h</code>.</figcaption></figure>
+  <h2>Turning time into an invoice</h2>
+  <ol>
+    <li>Set the filter to <b>Billable, not invoiced</b> (and the period, e.g. <i>All time</i>).</li>
+    <li>Tick the entries to bill (the checkbox at the start of each row).</li>
+    <li>Press <span class="btn">Invoice selected</span>. Choose a new draft invoice or an existing draft, and whether you want one line per time entry or one summarised line per project and rate.</li>
+  </ol>
+  <p>Invoiced entries show <span class="btn">invoiced</span> and become read-only. If you remove the line from the draft, or delete the draft, the hours become unbilled again.</p>
+  <div class="tip"><b>Admins can log for others</b>An admin can choose the person on an entry, for example when entering Alex's hours from his notes. The hours per week set in Users drive the utilisation report.</div>
+</section>
+
+<!-- 9 -->
+<section class="chapter" id="tasks">
+  <h1>9. Tasks</h1>
+  <p>Follow-ups and reminders for either partner. A task can stand alone or be linked to a client, project, lead, enquiry or opportunity, where it also shows in that record's panel.</p>
+  <figure><img src="img/11-tasks.png" alt="Tasks"><figcaption>Tasks for everyone. Overdue tasks are red; tick the box to complete one.</figcaption></figure>
+  <ul>
+    <li>Tabs: <i>Open, Overdue, Today, Upcoming, No due date, Done, All</i>. The person filter switches between your tasks, everyone's and a specific partner's.</li>
+    <li>Your open tasks for the next 7 days are on your dashboard.</li>
+  </ul>
+</section>
+
+<!-- 10 -->
+<section class="chapter" id="quotes">
+  <h1>10. Quotes</h1>
+  <p>Quotations, with optional proposal sections, printed on the Auvetric letterhead. Numbers are automatic (<code>AUV-QUO-2026-0001</code>…).</p>
+  <figure><img src="img/12-quotes.png" alt="Quotes list"><figcaption>The quote list. Filter by status or search; tick several to print or update them together.</figcaption></figure>
+  <h2>Creating a quote</h2>
+  <figure><img src="img/13-quote-editor.png" alt="Quote editor"><figcaption>The quote editor: client and reference, proposal sections, lines and totals; number, dates, currency and actions on the right.</figcaption></figure>
+  <ol>
+    <li><span class="btn">New quote</span> (from Quotes, the dashboard, a client or a lead). Choose the <b>client</b> and contact.</li>
+    <li>Add lines with <span class="btn">+ Add services</span> (picks from the service catalogue with its rates) or <span class="btn">+ Blank line</span>. Each line has an item, description, unit, quantity and rate. Use the arrows to reorder, the copy icon to duplicate a line, and ★ to save it to the catalogue.</li>
+    <li>Optional <b>proposal sections</b>: introduction, scope, deliverables, assumptions and timeline. They print as a proposal before the price table.</li>
+    <li>The <b>valid until</b> date defaults to 30 days. <b>Internal notes</b> are never printed or shown to the client.</li>
+    <li><span class="btn">Save</span>, check with <span class="btn">Preview</span>, then send it (<span class="btn">Email</span> or <span class="btn">PDF</span>) and press <span class="btn">Mark sent</span>.</li>
+  </ol>
+  <h2>After sending</h2>
+  <ul>
+    <li><span class="btn">Accepted</span> / <span class="btn">Declined</span> record the client's answer. If the client accepts in the portal, this happens automatically.</li>
+    <li><span class="btn">Convert to invoice</span> copies the lines into a new invoice. The quote becomes <i>invoiced</i>.</li>
+    <li><span class="btn">Duplicate</span> makes a revised copy. <span class="btn">Reopen</span> returns a quote to draft.</li>
+  </ul>
+  <figure><img src="img/14-quote-accepted.png" alt="Accepted quote"><figcaption>A quote accepted in the client portal: the green panel records who accepted it, when, and from which IP address. The quote is then locked.</figcaption></figure>
+</section>
+
+<!-- 11 -->
+<section class="chapter" id="invoices">
+  <h1>11. Invoices</h1>
+  <p>NAD or USD invoices with automatic numbering (<code>AUV-INV-2026-0001</code>…). Statuses: <b>Draft → Sent → Paid</b>. A sent invoice past its due date becomes <b>Overdue</b> automatically (the daily job). Invoices can also be <b>Cancelled</b>.</p>
+  <figure><img src="img/15-invoices.png" alt="Invoices list"><figcaption>The invoice list: totals, balance and status per invoice. Tick invoices to print, mark sent or mark paid together.</figcaption></figure>
+  <h2>The invoice editor</h2>
+  <figure><img src="img/16-invoice-editor.png" alt="Invoice editor"><figcaption>An invoice with a part payment and a payment the client reported in the portal (yellow panel).</figcaption></figure>
+  <ul>
+    <li><b>Top bar</b>: status badge, <span class="btn">Preview</span>, <span class="btn">Print</span>, <span class="btn">PDF</span>, <span class="btn">Email</span>, <span class="btn">Save</span>.</li>
+    <li><b>Client details printed on this invoice</b> (fold-out): a snapshot of the name and address at the time of invoicing, which you can adjust for this invoice only.</li>
+    <li><b>Currency</b>: for USD, enter the exchange rate to NAD. Reports and the dashboard use it.</li>
+    <li><b>Project</b>: links the invoice to a project, for project and practice reporting.</li>
+    <li><b>Actions</b>: <span class="btn">Mark sent</span>, <span class="btn">Mark paid</span> (records a payment for the full balance), <span class="btn">Undo paid</span>, <span class="btn">Cancel invoice</span>, <span class="btn">Duplicate</span>, <span class="btn">Make monthly retainer</span>.</li>
+    <li><b>Payments</b> panel: every payment, the amount paid and the balance due.</li>
+    <li><b>Files</b>: attach supporting documents (timesheets, delivery notes).</li>
+  </ul>
+  <figure><img src="img/16d-add-services.png" alt="Add services"><figcaption><span class="btn">+ Add services</span> picks lines from the service catalogue, grouped by practice, with their standard rates.</figcaption></figure>
+
+  <h2>Printing and PDF</h2>
+  <figure class="half"><img src="img/17-invoice-print.png" alt="Printed invoice"><figcaption>The A4 invoice. Banking details and the payment reference print at the bottom.</figcaption></figure>
+  <p><span class="btn">PDF</span> downloads a ready-made PDF. <span class="btn">Print</span> opens the A4 page for the browser's Print / Save as PDF. On the lists, tick several documents to print them in one go.</p>
+  <div class="note"><b>No VAT yet</b>While Auvetric isn't VAT-registered, documents print as "INVOICE" without VAT. Once registered, switch it on in Company profile; from then on, documents print as "TAX INVOICE" with 15% VAT.</div>
+
+  <h2>Emailing</h2>
+  <figure><img src="img/16b-email-dialog.png" alt="Email dialog"><figcaption>Emailing an invoice: recipients come from the client and its contacts. The message comes from the template in Settings and can be edited before sending. The PDF is attached automatically.</figcaption></figure>
+  <p>Emails go out through the <b>info@auvetric.com</b> Zoho mailbox, with a BCC copy to the mailbox so it appears in Zoho's Sent folder. Each send is noted on the client timeline. Settings → Email must be set up first.</p>
+
+  <h2>Recording a payment</h2>
+  <figure><img src="img/16c-record-payment.png" alt="Record payment"><figcaption>Record payment: date, amount (defaults to the balance), method and the bank reference. Part payments are fine.</figcaption></figure>
+  <p>When payments cover the total, the invoice becomes <b>Paid</b> automatically. Removing a payment reopens it.</p>
+</section>
+
+<!-- 12 -->
+<section class="chapter" id="retainers">
+  <h1>12. Retainers</h1>
+  <p>Monthly recurring work: support, hosting, SLA and BI retainers. Each retainer is a template of invoice lines for one client.</p>
+  <figure><img src="img/18-retainers.png" alt="Retainers"><figcaption>Retainers: type, monthly value, day of month, auto on/off, and whether this month's invoice exists.</figcaption></figure>
+  <ul>
+    <li><b>Auto</b> on: the daily job (06:00) creates a <b>draft</b> invoice on the chosen day each month. You review it and send it.</li>
+    <li>Auto off: press <span class="btn">Invoice now</span> when you're ready.</li>
+    <li>A retainer never invoices twice in the same month, so pressing the button again is safe.</li>
+    <li>A retainer can be created from an existing invoice with <span class="btn">Make monthly retainer</span>.</li>
+    <li>Deleting a retainer that already has invoices pauses it instead.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section class="chapter" id="payments">
+  <h1>13. Payments, debtors &amp; statements</h1>
+  <figure><img src="img/19-payments.png" alt="Payments"><figcaption>Payments: the yellow banner lists payments clients reported in the portal that are waiting to be checked. Below are debtors ageing and all payments received.</figcaption></figure>
+  <ul>
+    <li><b>Portal notices</b> (yellow): payments clients said they've made. Check each against the bank statement, then open the invoice and use <span class="btn">Record payment</span> or <span class="btn">Dismiss</span>.</li>
+    <li><b>Debtors ageing</b>: what each client owes, split by how late it is (1–30, 31–60, 61–90 and 90+ days). Use it for collection calls.</li>
+    <li><b>Payments received</b>: every payment, with filters by period and client.</li>
+  </ul>
+  <h2>Client statements</h2>
+  <p>From the client page or the debtors list, press <span class="btn">Statement</span>. Choose the period, then print it, download the PDF or email it to the client.</p>
+  <figure class="half"><img src="img/30-statement.png" alt="Statement"><figcaption>A client statement: opening balance, invoices and payments with a running balance, and the amount due.</figcaption></figure>
+</section>
+
+<!-- 14 -->
+<section class="chapter" id="expenses">
+  <h1>14. Expenses</h1>
+  <p>Business costs: hosting, software, hardware, travel, subcontractors, fees and office costs. Together with income they make up the cash-flow report.</p>
+  <figure><img src="img/20-expenses.png" alt="Expenses"><figcaption>Expenses with category, supplier, the NAD amount, and whether each one is to be re-billed to a client.</figcaption></figure>
+  <ul>
+    <li>Enter the amount <b>as paid, including VAT</b>, and the VAT part separately if any.</li>
+    <li><b>USD costs</b> (cloud services, AI tools) need the exchange rate on the day.</li>
+    <li>Attach the receipt to the expense.</li>
+    <li><b>Re-billable</b>: tick it, choose the client and an optional markup %. Then use <span class="btn">Re-bill to client</span> to add the expenses to a draft invoice, the same way time is invoiced.</li>
+  </ul>
+</section>
+
+<!-- 15 -->
+<section class="chapter" id="marketplace">
+  <h1>15. Marketplace earnings</h1>
+  <p>Income earned through Upwork, Fiverr or Freelancer isn't invoiced from the CRM. Record each payout here so reports show all revenue.</p>
+  <figure><img src="img/21-marketplace.png" alt="Marketplace"><figcaption>Marketplace earnings: gross, platform fee and net, converted to N$.</figcaption></figure>
+  <p>Enter the <b>gross</b> amount, the <b>platform fee</b> and the exchange rate (usually USD). Optionally link it to a client and project.</p>
+</section>
+
+<!-- 16 -->
+<section class="chapter" id="reports">
+  <h1>16. Reports</h1>
+  <p>Business figures for any period: <b>This month, Last month, This year, Last year, Last 12 months</b>, or your own dates. Every table can be downloaded as <span class="btn">CSV</span> for Excel.</p>
+  <figure><img src="img/22-reports.png" alt="Reports"><figcaption>Reports: headline figures, a monthly chart (invoiced, received, expenses) and breakdowns.</figcaption></figure>
+  <table>
+    <tr><th>Tab</th><th>Contents</th></tr>
+    <tr><td>Revenue</td><td>Invoiced by month, practice, client, project and partner; platform income; expenses by category; cash flow.</td></tr>
+    <tr><td>Sales</td><td>Pipeline by stage, win rate by source, opportunities by source.</td></tr>
+    <tr><td>Hours</td><td>Utilisation per partner: billable hours compared with available hours.</td></tr>
+    <tr><td>Recurring &amp; debtors</td><td>Monthly recurring income by retainer type; debtors ageing.</td></tr>
+    <tr><td>VAT</td><td>Working figures for when Auvetric is VAT-registered.</td></tr>
+  </table>
+  <div class="note"><b>How revenue is counted</b>Revenue is sent, paid and overdue invoices, excluding VAT, dated by invoice date and converted to N$ at each invoice's own rate. Drafts and cancelled invoices are left out. Cash flow is payments received plus marketplace net income, minus expenses.</div>
+</section>
+
+<!-- 17 -->
+<section class="chapter" id="portal">
+  <h1>17. The client portal</h1>
+  <p>At <b>auvetric.com/portal</b>, a client's people can sign in to see their documents, accept quotes and tell you about payments, without emailing back and forth. The portal is <b>off</b> for every client until you switch it on.</p>
+  <h2>Giving a client access (CRM side)</h2>
+  <ol>
+    <li>Open the client. In the <b>Client portal</b> card, press <span class="btn">Switch on</span>.</li>
+    <li>The card lists every address that can sign in: the client email and each contact's email.</li>
+    <li>Press <span class="btn">Invite</span> next to a person. They get an email explaining the portal, with a link to it.</li>
+  </ol>
+  <p>Switching the portal off, or removing an email address from the client or contact, ends that person's access immediately. <i>Portal activity</i> on the card shows sign-ins, views, acceptances and payment notices.</p>
+  <div class="warn"><b>Before inviting anyone</b>1) Settings → Email must be working, because sign-in links are emailed. 2) Enter the real banking details in Company profile. Until they're filled in, the portal tells clients to contact you for banking details.</div>
+
+  <h2>What the client sees</h2>
+  <figure class="half"><img src="img/40-portal-login.png" alt="Portal sign-in"><figcaption>Step 1: the client enters their email address. There are no passwords to remember.</figcaption></figure>
+  <figure class="half"><img src="img/41-portal-verify.png" alt="Portal verify"><figcaption>Step 2: they click the link in the email (valid 15 minutes, works once), then press Sign in.</figcaption></figure>
+  <figure><img src="img/42-portal-home.png" alt="Portal home"><figcaption>The client's home page: balance due, quotes awaiting a response, their invoices and quotations, and a statement download.</figcaption></figure>
+  <p>Clients only see <b>sent</b> documents for their own organisation. Drafts, cancelled invoices and internal notes never appear. The first time a client opens a document, it's noted on your timeline.</p>
+
+  <h2>Accepting a quote</h2>
+  <figure><img src="img/43-portal-quote.png" alt="Portal quote"><figcaption>A quote in the portal, with <i>Accept quotation</i> and <i>Decline</i> buttons above the document.</figcaption></figure>
+  <figure><img src="img/44-portal-accept.png" alt="Portal accept"><figcaption>To accept, the client types their full name and ticks the confirmation box.</figcaption></figure>
+  <p>On acceptance, the quote is marked <b>accepted</b> and locked. The name, email, time and IP address are recorded and printed on the quote. Both partners get an email. If the client declines, they can give a reason, which lands on the timeline. Quotes past their valid-until date can't be accepted.</p>
+
+  <h2>Reporting a payment</h2>
+  <figure><img src="img/45-portal-invoice-pay.png" alt="Portal payment"><figcaption>An invoice in the portal: EFT details with the invoice number as reference, and the "I've paid" form with an optional proof-of-payment upload.</figcaption></figure>
+  <p>When a client reports a payment, you get an email and the notice appears on the invoice and the Payments page. <b>Nothing is marked paid automatically.</b> Check the bank first, then press <span class="btn">Record payment</span> on the notice; it fills in the payment form for you. Card payments aren't available yet; they need a merchant account (DPO Pay, PayToday or PayPal Business).</p>
+  <figure class="phone"><img src="img/46-portal-mobile.png" alt="Portal mobile"><figcaption>The portal on a phone.</figcaption></figure>
+</section>
+
+<!-- 18 -->
+<section class="chapter" id="admin">
+  <h1>18. Admin: company, services, users, settings</h1>
+  <h2>Company profile</h2>
+  <figure><img src="img/23-company.png" alt="Company profile"><figcaption>Company profile: identity, banking, VAT, document numbering and texts, with a live letterhead preview.</figcaption></figure>
+  <ul>
+    <li><b>Identity</b>: legal and trading name, registration number, address, phone, email, website.</li>
+    <li><b>Banking</b>: printed on invoices and shown in the portal.</li>
+    <li><b>VAT</b>: VAT registration, VAT number and rate.</li>
+    <li><b>Documents</b>: number prefixes and next numbers, payment terms, quote validity, USD→NAD default rate, terms and footer text.</li>
+  </ul>
+  <div class="warn"><b>"[to be confirmed]"</b>Fields still showing this text are highlighted in yellow on printed documents and the portal. Fill them in before sending documents to clients.</div>
+
+  <h2>Services</h2>
+  <figure><img src="img/24-services.png" alt="Services"><figcaption>The service catalogue, grouped by the four practices, with units and standard rates.</figcaption></figure>
+  <p>Services fill in quote and invoice lines quickly, and tie revenue to a practice in Reports. Inactive services stay on old documents but can't be picked for new ones.</p>
+
+  <h2>Users</h2>
+  <figure><img src="img/25-users.png" alt="Users"><figcaption>Users: role, two-factor status, last sign-in, status and working hours per week.</figcaption></figure>
+  <ul>
+    <li><span class="btn">Add user</span> shows a <b>one-time password once</b>. Hand it over by phone or in person, never by email.</li>
+    <li><span class="btn">New password</span> issues a new one-time password and signs the person out everywhere.</li>
+    <li><span class="btn">Reset 2FA</span> is for a lost or replaced phone: the person links their authenticator again at the next sign-in.</li>
+    <li><span class="btn">Unlock</span> clears a lockout after too many wrong passwords. <span class="btn">Disable</span> blocks access but keeps the person's history.</li>
+    <li><b>Hours / week</b> is used for the utilisation report.</li>
+  </ul>
+
+  <h2>Settings</h2>
+  <figure><img src="img/26-settings.png" alt="Settings"><figcaption>Settings: project board columns, data download, daily job, email (Zoho SMTP) with message templates, and backups.</figcaption></figure>
+  <ul>
+    <li><b>Project board columns</b>: rename, recolour, reorder and add columns. A column can only be removed once it's empty.</li>
+    <li><b>Data</b>: <span class="btn">Download backup</span> saves every record as one JSON file. Keep it somewhere safe; it contains client details.</li>
+    <li><b>Daily job</b>: runs at 06:00 Windhoek time. It creates due retainer invoices, marks overdue invoices and takes the nightly backup. <span class="btn">Run now</span> is safe to press at any time.</li>
+    <li><b>Email</b>: Zoho Mail settings. Choose <i>Zoho Mail · US (own domain)</i>, mailbox <code>info@auvetric.com</code>, and an <b>app-specific password</b> if the Zoho account uses two-factor sign-in. Press <span class="btn">Send test email</span> to check. The message templates per document type support placeholders such as <code>{{number}}</code>, <code>{{total}}</code> and <code>{{due_date}}</code>.</li>
+    <li><b>Backups</b>: a full backup every night, kept 35 days, plus one per month for a year. <span class="btn">Back up now</span> and download buttons. Backups exclude passwords and 2FA secrets.</li>
+  </ul>
+
+  <h2>Integrations</h2>
+  <figure><img src="img/27-integrations.png" alt="Integrations"><figcaption>Integrations: the token n8n uses to deliver enquiries and job listings, and when it last connected.</figcaption></figure>
+  <p>If the automation stops delivering, check <i>last used</i> here. To replace the token, use <span class="btn">New token</span>, paste it into the n8n credential, then <span class="btn">Revoke</span> the old one. The token is shown only once.</p>
+
+  <h2>Audit log</h2>
+  <figure><img src="img/28-audit.png" alt="Audit log"><figcaption>Audit log: every sign-in, failed attempt and financial change, with person, area, record and details.</figcaption></figure>
+  <p>Filter by person, area, record type and dates. Use it to answer "who changed this invoice?" or "did someone try to sign in as me?".</p>
+</section>
+
+<!-- 19 -->
+<section class="chapter" id="workflows">
+  <h1>19. Everyday workflows</h1>
+  <h2>A new website enquiry</h2>
+  <ol>
+    <li>The email alert arrives. Open <b>Enquiries</b> and read the AI summary and the original message.</li>
+    <li>Spam? Press <span class="btn">Spam</span>. Otherwise, adjust the draft reply and send it (<span class="btn">Open in mail</span>).</li>
+    <li>Press <span class="btn">Convert to lead</span>. On the lead, set the value, owner and next follow-up.</li>
+  </ol>
+  <h2>From lead to paid project</h2>
+  <ol>
+    <li>Lead: <span class="btn">Create client</span>, then <span class="btn">New quote</span>. Add services and proposal sections, then email the quote and mark it sent. Move the lead to <i>Proposal sent</i>.</li>
+    <li>The client accepts (in the portal, or you press <span class="btn">Accepted</span>). Move the lead to <i>Won</i> and press <span class="btn">Start project</span>.</li>
+    <li>During the work, log <b>time</b> and <b>expenses</b> against the project and tick off checklist items and milestones.</li>
+    <li>To bill: for a fixed price, <span class="btn">Convert to invoice</span> on the quote (or invoice a deposit). For hourly work, use Time → <span class="btn">Invoice selected</span>. Add re-billable expenses, check the draft, then email it.</li>
+    <li>The money arrives: <span class="btn">Record payment</span> with the bank reference. The invoice becomes Paid.</li>
+  </ol>
+  <h2>Weekly routine (15 minutes)</h2>
+  <ul>
+    <li>Dashboard: tasks due, overdue invoices, projects due soon.</li>
+    <li>Opportunities: shortlist or skip the new listings.</li>
+    <li>Leads: move cards and set the next follow-up on each open lead.</li>
+    <li>Time: make sure the week's hours are logged.</li>
+  </ul>
+  <h2>Month-end routine</h2>
+  <ul>
+    <li>Retainers: check this month's drafts (created automatically), then send them.</li>
+    <li>Time and expenses: invoice everything unbilled.</li>
+    <li>Payments: match the bank statement; handle portal notices.</li>
+    <li>Debtors: chase anything 30+ days and send statements.</li>
+    <li>Marketplace: record platform payouts.</li>
+    <li>Reports → Last month: review revenue, cash flow and utilisation; export CSVs for the accountant.</li>
+  </ul>
+</section>
+
+<!-- 20 -->
+<section class="chapter" id="rules">
+  <h1>20. Rules worth knowing &amp; troubleshooting</h1>
+  <h2>Built-in rules</h2>
+  <ul>
+    <li><b>Totals are always calculated by the system.</b> You enter quantities and rates; the CRM works out lines, discount, VAT and totals.</li>
+    <li><b>Paid, cancelled and invoiced documents are locked.</b> To change one, cancel it and duplicate it. Only drafts can be deleted, so the number sequence stays complete for the accountant.</li>
+    <li><b>A payment can't exceed the balance</b>, can't be dated in the future, and can't be recorded on a draft or cancelled invoice.</li>
+    <li><b>Invoiced time and expenses are read-only.</b> Remove the invoice line first to free them.</li>
+    <li><b>Foreign-currency amounts need an exchange rate</b> so every report can be shown in N$.</li>
+    <li><b>Quotes accepted in the portal can't be edited</b>, because the client agreed to that version. Duplicate it to send a revised quote.</li>
+  </ul>
+  <h2>Troubleshooting</h2>
+  <table>
+    <tr><th>Problem</th><th>What to do</th></tr>
+    <tr><td>Lost or new phone, no codes</td><td>The other admin presses <span class="btn">Reset 2FA</span> in Users; you link the authenticator again at the next sign-in.</td></tr>
+    <tr><td>"Account locked"</td><td>Wait 15 minutes, or ask the other admin to press <span class="btn">Unlock</span>.</td></tr>
+    <tr><td>Forgot password</td><td>The other admin presses <span class="btn">New password</span> and gives you the one-time password by phone.</td></tr>
+    <tr><td>Email won't send</td><td>Settings → Email → <span class="btn">Send test email</span>. The error shows Zoho's reason. The usual causes are a wrong app password, or SMTP access disabled in the Zoho admin console.</td></tr>
+    <tr><td>Client didn't get the portal link</td><td>Check that the portal is switched on and their address is on the client or a contact. Ask them to check spam and request a new link (three requests per 15 minutes).</td></tr>
+    <tr><td>No new enquiries or job listings</td><td>Check Integrations → last used. The n8n automation runs on Jakes's PC and must be running. Website enquiries still arrive in the CRM directly.</td></tr>
+    <tr><td>Retainer invoice missing</td><td>Check the retainer is active and set to auto, then Settings → Daily job → <span class="btn">Run now</span>.</td></tr>
+    <tr><td>Something was changed unexpectedly</td><td>Admin → Audit log, filtered by the record or the date.</td></tr>
+  </table>
+  <h2>Data &amp; privacy</h2>
+  <ul>
+    <li>The data is stored in a private Postgres database (Supabase, Ireland) that is closed to the public internet APIs. Files and backups are in Netlify storage.</li>
+    <li>Website enquiries are sent to Anthropic's Claude for triage, as stated in the website's privacy notice.</li>
+    <li>For an erasure request, delete the enquiry and the related lead or contact.</li>
+  </ul>
+  <p class="muted" style="margin-top:10mm">Auvetric Data Solutions · Windhoek, Namibia · info@auvetric.com</p>
+</section>
+
+</body>
+</html>
