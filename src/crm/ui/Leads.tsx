@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -231,6 +232,7 @@ function LeadModal({ initial, onClose, onSaved }: { initial: Partial<Lead>; onCl
               <Timeline entity="lead" entityId={f.id} items={d.activities} onChange={loadDetail} />
             </section>
           )}
+          {f.id && <AttachmentsPanel entity="lead" entityId={f.id} />}
         </div>
         {f.id && (
           <div className="stack">

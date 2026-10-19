@@ -11,6 +11,8 @@ import { todayISO, uid } from "@/crm/shared/calc";
 import { DEFAULT_PROJECT_COLUMNS, INVOICE_STATUSES, QUOTE_STATUSES, type BoardColumn } from "@/crm/shared/types";
 import { randomInt } from "node:crypto";
 import { recomputeInvoice, releaseRemovedLines } from "../finance";
+import { purgeAttachments } from "../attachments";
+import { buildExport } from "../backup";
 
 const sql = () => db();
 
@@ -107,6 +109,7 @@ route("DELETE", "/clients/:id", async ({ params, session, meta }) => {
   }
   await sql()`delete from activities where entity = 'client' and entity_id = ${cid}`;
   await sql()`delete from clients where id = ${cid}`;
+  await purgeAttachments("client", [cid]);
   await audit(session.user.id, "client.delete", meta, {}, "client", cid);
   return { ok: true, archived: false };
 });
@@ -188,7 +191,7 @@ route("GET", "/documents", async ({ query }) => {
       ${like ? s`and (number ilike ${like} or data->'client'->>'name' ilike ${like} or data->>'remarks' ilike ${like})` : s``}
     order by date desc, id desc limit ${Math.min(Number(query.get("limit")) || 1000, 5000)}`;
 });
-async function loadDoc(docId: string) {
+export async function loadDoc(docId: string) {
   const [d] = await sql()`select * from documents where id = ${id(docId, "Document")}`;
   if (!d) throw new HttpError(404, "Document not found.");
   return d;
@@ -219,7 +222,7 @@ route("PUT", "/documents/:id", async ({ req, params, session, meta }) => {
   return d;
 });
 const StatusBody = z.object({ status: z.string().max(20) });
-async function setStatus(docId: string, status: string, userId: string, meta: Parameters<typeof audit>[2]) {
+export async function setStatus(docId: string, status: string, userId: string, meta: Parameters<typeof audit>[2]) {
   const d = await loadDoc(docId);
   const allowed: readonly string[] = d.type === "invoice" ? INVOICE_STATUSES : QUOTE_STATUSES;
   if (!allowed.includes(status)) throw new HttpError(400, "Invalid status.");
@@ -269,6 +272,7 @@ route("DELETE", "/documents/:id", async ({ params, session, meta }) => {
   const d = await loadDoc(params.id);
   if (d.status !== "draft") throw new HttpError(409, d.type === "invoice" ? "Only drafts can be deleted. Cancel the invoice instead so the number stays accounted for." : "Only draft quotes can be deleted.");
   await sql()`delete from documents where id = ${d.id}`;
+  await purgeAttachments("document", [String(d.id)]);
   await audit(session.user.id, `${d.type}.delete`, meta, { number: d.number, total: d.total }, "document", d.id);
   return { ok: true };
 });
@@ -455,6 +459,7 @@ route("DELETE", "/projects/:id", async ({ params }) => {
   const pid = id(params.id, "Project");
   await sql()`delete from activities where entity = 'project' and entity_id = ${pid}`;
   await sql()`delete from projects where id = ${pid}`;
+  await purgeAttachments("project", [pid]);
   return { ok: true };
 });
 
@@ -471,7 +476,7 @@ route("PUT", "/settings/project_columns", async ({ req }) => {
   return out;
 }, { admin: true });
 
-route("GET", "/users", async () => sql()`select id, email, name, role, totp_enabled, disabled, last_login_at,
+route("GET", "/users", async () => sql()`select id, email, name, role, totp_enabled, disabled, last_login_at, weekly_hours,
   (locked_until is not null and locked_until > now()) as locked from users order by id`);
 function oneTimePassword() {
   const a = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
@@ -519,18 +524,9 @@ route("POST", "/users/:id/reset", async ({ req, params, session, meta }) => {
 }, { admin: true });
 
 route("GET", "/export", async ({ session, meta }) => {
-  const s = sql();
-  const [companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks] = await Promise.all([
-    s`select * from companies`, s`select * from clients`, s`select * from contacts`, s`select * from services`, s`select * from retainers`,
-    s`select * from projects`, s`select * from documents`, s`select * from activities`, s`select * from settings`,
-    s`select id, email, name, role, totp_enabled, disabled, created_at from users`,
-    s`select * from enquiries`, s`select * from opportunities`, s`select * from leads`, s`select * from tasks`,
-  ]);
-  const [payments, time_entries, expenses, marketplace_earnings] = await Promise.all([
-    s`select * from payments`, s`select * from time_entries`, s`select * from expenses`, s`select * from marketplace_earnings`,
-  ]);
-  await audit(session.user.id, "backup.export", meta, { documents: documents.length, leads: leads.length });
-  return { exported_at: new Date().toISOString(), schema: "auvetric-crm/3", companies, clients, contacts, services, retainers, projects, documents, activities, settings, users, enquiries, opportunities, leads, tasks, payments, time_entries, expenses, marketplace_earnings };
+  const exp = await buildExport();
+  await audit(session.user.id, "backup.export", meta, { documents: (exp.documents as unknown[]).length, leads: (exp.leads as unknown[]).length });
+  return exp;
 }, { admin: true });
 
 route("POST", "/run-daily", async ({ session, meta }) => {

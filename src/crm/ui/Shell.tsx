@@ -56,6 +56,27 @@ export function CrmShell({ user, children }: { user: Me; children: ReactNode }) 
   const [open, setOpen] = useState(false);
   const online = useOnline();
   useEffect(() => setOpen(false), [pathname]);
+  // Keyboard access for clickable rows/cards (`.click` elements open a record): focusable, Enter/Space activates.
+  useEffect(() => {
+    const root = document.getElementById("main");
+    if (!root) return;
+    const mark = () => root.querySelectorAll<HTMLElement>(".click:not([tabindex])").forEach((el) => { el.tabIndex = 0; });
+    mark();
+    const mo = new MutationObserver(mark);
+    mo.observe(root, { childList: true, subtree: true });
+    const key = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if ((e.key === "Enter" || e.key === " ") && t.classList?.contains("click") && t === document.activeElement) { e.preventDefault(); t.click(); }
+    };
+    root.addEventListener("keydown", key);
+    return () => { mo.disconnect(); root.removeEventListener("keydown", key); };
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
 
   const slug = pathname.replace(/^\/crm\/?/, "").split("/")[0] ?? "";
   const current = NAV.flatMap((g) => g.items).find((i) => i.slug === slug);
@@ -67,6 +88,7 @@ export function CrmShell({ user, children }: { user: Me; children: ReactNode }) 
 
   return (
     <div className="shell">
+      <a href="#main" className="skip-link">Skip to content</a>
       {open && <div className="scrim" onClick={() => setOpen(false)} />}
       <aside className={"side" + (open ? " open" : "")} aria-label="CRM navigation">
         <Link href="/crm" className="brand" style={{ textDecoration: "none" }}>
@@ -102,13 +124,13 @@ export function CrmShell({ user, children }: { user: Me; children: ReactNode }) 
       <div className="main">
         {!online && <div className="offline">Offline. Changes need a connection.</div>}
         <header className="topbar">
-          <button className="menu icon" onClick={() => setOpen(true)} aria-label="Open menu"><Menu /></button>
+          <button className="menu icon" onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open}><Menu /></button>
           <span className="crumb">{current?.label ?? "CRM"}</span>
           <div className="grow" />
           <Link href="/" className="dim" style={{ fontSize: 12 }}>auvetric.com ↗</Link>
           <ThemeToggle />
         </header>
-        <main className="content" id="main">{children}</main>
+        <main className="content" id="main" tabIndex={-1}>{children}</main>
       </div>
       <Toasts />
     </div>

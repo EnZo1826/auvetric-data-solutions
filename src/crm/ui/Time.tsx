@@ -103,7 +103,7 @@ export function TimeScreen() {
       <div className="card flush">
         {rows === null ? <Empty>Loading…</Empty> : !rows.length ? <Empty>No time logged in this period.</Empty> : (
           <div className="tbl-wrap"><table className="tbl">
-            <thead><tr><th style={{ width: 28 }} /><th>Date</th><th>Who</th><th>Project / client</th><th>Work</th><th className="r">Hours</th><th className="r">Value</th><th>Billing</th><th /></tr></thead>
+            <thead><tr><th style={{ width: 28 }}><span className="sr-only">Select</span></th><th>Date</th><th>Who</th><th>Project / client</th><th>Work</th><th className="r">Hours</th><th className="r">Value</th><th>Billing</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>{rows.map((t) => (
               <tr key={t.id}>
                 <td>{rw && selectable(t) && <input type="checkbox" checked={sel.has(t.id)} aria-label="Select for invoicing"

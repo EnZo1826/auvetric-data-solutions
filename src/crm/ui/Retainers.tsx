@@ -73,7 +73,7 @@ export function RetainersScreen() {
       <div className="card flush">
         {rows === null ? <Empty>Loading…</Empty> : !rows.length ? <Empty>No retainers yet. Create one, or open an invoice and choose “Make monthly retainer”.</Empty> : (
           <div className="tbl-wrap"><table className="tbl">
-            <thead><tr><th>Retainer</th><th>Client</th><th>Type</th><th>Bills on</th><th className="r">Monthly</th><th>{period}</th><th></th></tr></thead>
+            <thead><tr><th>Retainer</th><th>Client</th><th>Type</th><th>Bills on</th><th className="r">Monthly</th><th>{period}</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>
               {rows.map((r) => {
                 const s = st.get(r.id);

@@ -25,13 +25,18 @@
     "crm:test:api": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-api.mjs",
     "crm:test:supabase": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-supabase.mjs",
     "crm:test:sales": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-sales.mjs",
-    "crm:test:finance": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-finance.mjs"
+    "crm:test:finance": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-finance.mjs",
+    "crm:test:insights": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-insights.mjs",
+    "crm:restore": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/restore.mjs"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.4",
     "@react-three/fiber": "^9.8.2",
     "lucide-react": "^1.59.0",
     "motion": "^14.3.0",
     "next": "15.5.28",
+    "nodemailer": "^10.1.7",
+    "pdf-lib": "^1.17.1",
     "postgres": "^3.4.9",
     "qrcode": "^1.5.4",
     "react": "19.1.0",
@@ -44,6 +49,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Copy, Eye, EyeOff, FileOutput, FolderKanban, Printer, Repeat, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Download, Eye, EyeOff, FileOutput, FolderKanban, Mail, Printer, Repeat, Save, Trash2 } from "lucide-react";
 import { crmFetch } from "./api";
 import { canWrite, errText, useCrm } from "./store";
 import { confirmAction, Empty, Field, StatusBadge } from "./ui";
 import { LineEditor } from "./LineEditor";
 import { DocumentPrint } from "./DocumentPrint";
 import { PaymentsPanel } from "./Payments";
+import { AttachmentsPanel } from "./Attachments";
+import { EmailDialog } from "./EmailDialog";
 import { addDays, computeTotals, formatMoney, todayISO } from "@/crm/shared/calc";
 import { CURRENCIES, INVOICE_STATUSES, PROPOSAL_FIELDS, QUOTE_STATUSES, type ClientSnapshot, type Contact, type Currency, type Doc, type DocData, type DocType, type Project } from "@/crm/shared/types";
 
@@ -31,6 +33,7 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [mailing, setMailing] = useState(false);
   const [preview, setPreview] = useState(false);
   const [snapOpen, setSnapOpen] = useState(false);
   const isNew = docId === "new";
@@ -151,7 +154,9 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
         {!isNew && <StatusBadge s={meta.status} />}
         {dirty && <span className="badge warn">unsaved</span>}
         <button className="ghost" onClick={() => setPreview((p) => !p)}>{preview ? <><EyeOff /> Edit</> : <><Eye /> Preview</>}</button>
-        {!isNew && <Link className="btn" href={`/crm/print?ids=${docId}`} target="_blank"><Printer /> Print / PDF</Link>}
+        {!isNew && <Link className="btn" href={`/crm/print?ids=${docId}`} target="_blank"><Printer /> Print</Link>}
+        {!isNew && <a className="btn" href={`/api/crm/documents/${docId}/pdf`} download><Download /> PDF</a>}
+        {!isNew && rw && meta.status !== "cancelled" && <button onClick={() => (dirty ? toast("Save your changes before emailing.", "err") : setMailing(true))}><Mail /> Email</button>}
         {rw && <button className="primary" disabled={busy} onClick={save}><Save /> {busy ? "Saving…" : "Save"}</button>}
       </div>
 
@@ -297,6 +302,8 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
               }} />
             )}
 
+            {!isNew && doc.id && <section className="card"><AttachmentsPanel entity="document" entityId={doc.id} /></section>}
+
             {!isNew && (meta.source || meta.derived.length > 0 || doc.retainer_id) && (
               <section className="card stack" style={{ fontSize: 13 }}>
                 <h2 style={{ margin: 0 }}>Linked</h2>
@@ -308,6 +315,7 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
           </aside>
         </div>
       )}
+      {mailing && docId && <EmailDialog kind="document" docId={docId} onClose={() => setMailing(false)} onSent={(st) => { setMailing(false); if (st) setMeta((m) => ({ ...m, status: st as typeof m.status })); }} />}
     </>
   );
 }

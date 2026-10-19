@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { audit, handle, HttpError, json } from "@/crm/server/http";
 import { dailyRun } from "@/crm/server/documents";
+import { runBackup } from "@/crm/server/backup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,5 +21,16 @@ export const POST = handle(async (req: NextRequest) => {
   }
   const r = await dailyRun();
   await audit(null, "cron.daily", null, { created: r.retainers.created.map((x) => x.number), skipped: r.retainers.skipped.length, overdue: r.overdue });
-  return json(r);
+  // Nightly backup. A failure is recorded (and shows in Settings → Backups as a missing night) but doesn't fail the daily job.
+  let backup: { id: string; size: number; pruned: number } | { error: string };
+  try {
+    const b = await runBackup("nightly", null);
+    backup = { id: String(b.id), size: Number(b.size), pruned: b.pruned };
+    await audit(null, "backup.nightly", null, backup);
+  } catch (e) {
+    console.error("[crm] nightly backup failed", e);
+    backup = { error: (e as Error).message.slice(0, 300) };
+    await audit(null, "backup.failed", null, backup);
+  }
+  return json({ ...r, backup });
 });

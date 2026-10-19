@@ -73,7 +73,7 @@ export function IntegrationsScreen() {
         </div>
         {!s.tokens.length ? <Empty>No tokens yet. Create one and paste it into n8n.</Empty> : (
           <div className="tbl-wrap"><table className="tbl">
-            <thead><tr><th>Name</th><th>Token</th><th>Created</th><th>Last used</th><th /></tr></thead>
+            <thead><tr><th>Name</th><th>Token</th><th>Created</th><th>Last used</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>{s.tokens.map((t) => (
               <tr key={t.id} style={t.revoked_at ? { opacity: 0.5 } : undefined}>
                 <td><KeyRound style={{ width: 14, height: 14, verticalAlign: -2, marginRight: 6 }} />{t.name}{t.revoked_at && <span className="badge" style={{ marginLeft: 6 }}>revoked</span>}</td>

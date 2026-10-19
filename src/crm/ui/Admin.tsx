@@ -6,6 +6,7 @@ import { crmFetch } from "./api";
 import { canWrite, errText, useCrm } from "./store";
 import { confirmAction, Empty, Field, Modal, PageHead } from "./ui";
 import { DocumentPrint } from "./DocumentPrint";
+import { BackupsCard, MailSettingsCard } from "./MailSettings";
 import { formatDocNumber, todayISO } from "@/crm/shared/calc";
 import { CURRENCIES, PLACEHOLDER, type BoardColumn, type CompanyData, type Currency, type UserRow } from "@/crm/shared/types";
 
@@ -113,7 +114,7 @@ export function UsersScreen() {
     <>
       <PageHead title="Users">{admin && <button className="primary" onClick={() => setAdd(true)}><Plus /> Add user</button>}</PageHead>
       <div className="card flush"><div className="tbl-wrap"><table className="tbl">
-        <thead><tr><th>Name</th><th>Role</th><th>Two-factor</th><th>Last sign-in</th><th>Status</th>{admin && <th></th>}</tr></thead>
+        <thead><tr><th>Name</th><th>Role</th><th>Two-factor</th><th>Last sign-in</th><th>Status</th><th className="r" title="Used for utilisation in Reports">Hours / week</th>{admin && <th><span className="sr-only">Actions</span></th>}</tr></thead>
         <tbody>{users.map((u) => (
           <tr key={u.id}>
             <td><b>{u.name}</b>{u.id === me?.id && <span className="badge info" style={{ marginLeft: 6 }}>you</span>}<div className="dim" style={{ fontSize: 12 }}>{u.email}</div></td>
@@ -121,6 +122,9 @@ export function UsersScreen() {
             <td>{u.totp_enabled ? <span className="badge ok">enabled</span> : <span className="badge warn">pending enrolment</span>}</td>
             <td className="muted">{u.last_login_at ? new Intl.DateTimeFormat("en-NA", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Windhoek" }).format(new Date(u.last_login_at)) : "never"}</td>
             <td>{u.disabled ? <span className="badge err">disabled</span> : u.locked ? <span className="badge warn">locked</span> : <span className="badge ok">active</span>}</td>
+            <td className="r">{admin ? <input type="number" min={0} max={80} step={1} defaultValue={Number(u.weekly_hours ?? 40)} aria-label={`Working hours per week for ${u.name}`} style={{ width: 70, textAlign: "right" }}
+              onBlur={async (e) => { const v = Number(e.target.value); if (v === Number(u.weekly_hours ?? 40)) return; try { await crmFetch(`/api/crm/users/${u.id}/capacity`, { method: "PATCH", body: { weekly_hours: v } }); toast(`${u.name}: ${v} h/week`); reload("users"); } catch (x) { toast(errText(x), "err"); } }} />
+              : <span className="tabular">{Number(u.weekly_hours ?? 40)}</span>}</td>
             {admin && <td className="r nowrap">{u.id !== me?.id && <>
               {u.locked && <button className="sm" onClick={() => act(u, "unlock")}>Unlock</button>}
               <button className="sm" onClick={() => act(u, "password")}>New password</button>
@@ -201,8 +205,8 @@ export function SettingsScreen() {
           <h2 style={{ margin: 0 }}>Project board columns</h2>
           {cols.map((c, i) => (
             <div key={c.key + i} className="row" style={{ flexWrap: "nowrap" }}>
-              <input type="color" value={c.color} disabled={!admin} aria-label="Colour" style={{ width: 44, padding: 2, height: 34 }} onChange={(e) => setCols(cols.map((x, j) => (j === i ? { ...x, color: e.target.value } : x)))} />
-              <input value={c.label} readOnly={!admin} onChange={(e) => setCols(cols.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
+              <input type="color" value={c.color} disabled={!admin} aria-label={`Column ${i + 1} colour`} style={{ width: 44, padding: 2, height: 34 }} onChange={(e) => setCols(cols.map((x, j) => (j === i ? { ...x, color: e.target.value } : x)))} />
+              <input value={c.label} readOnly={!admin} aria-label={`Column ${i + 1} name`} onChange={(e) => setCols(cols.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} />
               {admin && <><button className="ghost icon sm" aria-label="Up" onClick={() => move(i, -1)}><ArrowUp /></button><button className="ghost icon sm" aria-label="Down" onClick={() => move(i, 1)}><ArrowDown /></button>
                 <button className="ghost icon sm danger" aria-label="Remove" onClick={() => setCols(cols.filter((_, j) => j !== i))}><Trash2 /></button></>}
             </div>
@@ -212,12 +216,14 @@ export function SettingsScreen() {
         </section>
         <section className="card stack">
           <h2 style={{ margin: 0 }}>Data</h2>
-          <p className="muted" style={{ margin: 0, fontSize: 13 }}>Download every client, contact, service, retainer, project, quote, invoice and note as one JSON file. Keep it somewhere safe; it contains client details.</p>
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>Download every record (clients, documents, payments, time, leads, the audit log…) as one JSON file now. Nightly backups are listed under Backups below. Keep downloads somewhere safe; they contain client details.</p>
           <div className="row">{admin ? <button onClick={exportAll}><Download /> Download backup</button> : <span className="dim" style={{ fontSize: 12 }}>Admins only.</span>}</div>
           <h2 style={{ margin: "10px 0 0" }}>Daily job</h2>
           <p className="muted" style={{ margin: 0, fontSize: 13 }}>Runs automatically at 06:00 Windhoek on the live site. Running it now is safe: it never invoices a retainer twice.</p>
           <div className="row">{canWrite(me?.role) && admin && <button onClick={runDaily}><Play /> Run now</button>}</div>
         </section>
+        {admin && <MailSettingsCard />}
+        {admin && <BackupsCard />}
       </div>
     </>
   );

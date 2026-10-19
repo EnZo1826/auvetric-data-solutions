@@ -54,7 +54,7 @@ export function MarketplaceScreen() {
       <div className="card flush">
         {rows === null ? <Empty>Loading…</Empty> : !rows.length ? <Empty>No platform earnings recorded for {year}.</Empty> : (
           <div className="tbl-wrap"><table className="tbl">
-            <thead><tr><th>Date</th><th>Platform</th><th>Client / contract</th><th className="r">Gross</th><th className="r">Fee</th><th className="r">Net</th><th className="r">Net NAD</th><th /></tr></thead>
+            <thead><tr><th>Date</th><th>Platform</th><th>Client / contract</th><th className="r">Gross</th><th className="r">Fee</th><th className="r">Net</th><th className="r">Net NAD</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>{rows.map((e) => (
               <tr key={e.id} className="click" onClick={() => setEdit(e)}>
                 <td className="nowrap">{formatDate(e.date)}</td>

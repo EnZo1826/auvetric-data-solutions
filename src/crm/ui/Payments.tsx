@@ -148,7 +148,7 @@ function Ageing() {
       </div>
       {!d.clients.length ? <Empty>Nobody owes you anything right now.</Empty> : (
         <div className="tbl-wrap"><table className="tbl">
-          <thead><tr><th>Client</th><th>Cur.</th>{cols.map(([k, l]) => <th key={k} className="r">{l}</th>)}<th className="r">Total</th><th /></tr></thead>
+          <thead><tr><th>Client</th><th>Cur.</th>{cols.map(([k, l]) => <th key={k} className="r">{l}</th>)}<th className="r">Total</th><th><span className="sr-only">Actions</span></th></tr></thead>
           <tbody>{d.clients.map((c) => {
             const key = `${c.client_id}|${c.currency}`;
             return [

@@ -265,4 +265,5 @@ export interface UserRow {
   disabled: boolean;
   last_login_at: string | null;
   locked: boolean;
+  weekly_hours?: number;
 }

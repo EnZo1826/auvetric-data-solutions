@@ -135,7 +135,7 @@ export async function clientStatement(cid: string, fromQ: string | null, toQ: st
         union all
         select p.date, 'payment', d.number, 'Payment received' || case when p.reference <> '' then ' · ' || p.reference else '' end, 0, p.amount, d.id
           from payments p join documents d on d.id = p.document_id where d.client_id = ${cid} and d.currency = ${cur} and d.status <> 'cancelled' and p.date between ${from} and ${to}
-      ) t order by date, kind desc, ref`;
+      ) t order by date, case kind when 'invoice' then 0 else 1 end, ref`; // same day: invoice before its payment
     let bal = Number(opening);
     const lines = rows.map((t) => { bal = r2(bal + Number(t.debit) - Number(t.credit)); return { date: String(t.date), kind: String(t.kind), ref: String(t.ref), description: String(t.description), doc_id: String(t.doc_id), debit: Number(t.debit), credit: Number(t.credit), balance: bal }; });
     const [age] = await sql`select

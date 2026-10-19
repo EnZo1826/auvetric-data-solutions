@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentsPanel } from "./Attachments";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -75,7 +76,7 @@ export function ExpensesScreen() {
       <div className="card flush">
         {rows === null ? <Empty>Loading…</Empty> : !rows.length ? <Empty>No expenses in this period.</Empty> : (
           <div className="tbl-wrap"><table className="tbl">
-            <thead><tr><th style={{ width: 28 }} /><th>Date</th><th>Supplier</th><th>Category</th><th>Client / project</th><th className="r">Amount</th><th>Re-bill</th><th /></tr></thead>
+            <thead><tr><th style={{ width: 28 }}><span className="sr-only">Select</span></th><th>Date</th><th>Supplier</th><th>Category</th><th>Client / project</th><th className="r">Amount</th><th>Re-bill</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>{rows.map((e) => (
               <tr key={e.id}>
                 <td>{rw && e.billable && !e.invoice_id && <input type="checkbox" checked={sel.has(e.id)} aria-label="Select for re-billing"
@@ -138,6 +139,7 @@ function ExpenseModal({ initial, onClose, onSaved }: { initial: Partial<Expense>
           <Field label="Receipt reference"><input disabled={locked} value={f.receipt_ref ?? ""} onChange={(e) => set({ receipt_ref: e.target.value })} placeholder="Invoice no. or file name" /></Field>
         </div>
         <Field label="Notes"><textarea rows={2} disabled={locked} value={f.notes ?? ""} onChange={(e) => set({ notes: e.target.value })} /></Field>
+        {f.id ? <AttachmentsPanel entity="expense" entityId={f.id} title="Receipts" /> : <div className="dim" style={{ fontSize: 12 }}>Save the expense, then open it again to attach the receipt.</div>}
       </div>
     </Modal>
   );
