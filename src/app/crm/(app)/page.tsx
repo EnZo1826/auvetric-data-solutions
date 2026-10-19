@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireSession } from "@/crm/server/page-auth";
 import { db } from "@/crm/server/db";
 import { formatDate, formatMoney, todayISO } from "@/crm/shared/calc";
+import { entityHref } from "@/crm/shared/sales";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
@@ -46,6 +47,27 @@ export default async function Dashboard() {
                (select count(*)::int from login_attempts where not ok and at > now() - interval '24 hours') as failed24`,
   ]);
 
+  // Sales (Phase 2). Pipeline in NAD: USD leads at the company rate; probability falls back to the stage default.
+  const [co] = await sql`select (data->>'usdToNad')::numeric as usd from companies where is_default`;
+  const usd = Number(co?.usd ?? 18.5);
+  const [[sales], topJobs, myTasks] = await Promise.all([
+    sql`select
+          (select count(*)::int from enquiries where status = 'new') as new_enquiries,
+          (select count(*)::int from enquiries where triage_status in ('pending','claimed') and status <> 'spam') as awaiting_triage,
+          (select count(*)::int from leads where stage in ('new','qualified','discovery','proposal','negotiation')) as open_leads,
+          (select coalesce(sum(coalesce(value, 0) * case when currency = 'USD' then ${usd}::numeric else 1 end), 0) from leads
+             where stage in ('new','qualified','discovery','proposal','negotiation')) as pipeline,
+          (select coalesce(sum(coalesce(value, 0) * case when currency = 'USD' then ${usd}::numeric else 1 end
+             * coalesce(probability, case stage when 'new' then 10 when 'qualified' then 25 when 'discovery' then 40 when 'proposal' then 60 else 80 end) / 100.0), 0)
+             from leads where stage in ('new','qualified','discovery','proposal','negotiation')) as weighted,
+          (select count(*)::int from leads where stage not in ('won','lost') and next_follow_up <= ${today}) as follow_ups_due,
+          (select count(*)::int from opportunities where status = 'new' and fit_score >= 70 and received_at > now() - interval '7 days') as strong_jobs`,
+    sql`select id, title, source, fit_score, budget from opportunities where status in ('new','shortlisted') and received_at > now() - interval '7 days'
+        order by fit_score desc, received_at desc limit 6`,
+    sql`select t.id, t.title, t.due_date, t.entity, t.entity_id from tasks t where not t.done and t.assignee_user_id = ${user.id}
+          and (t.due_date is null or t.due_date <= ${today}::date + 7) order by t.due_date nulls last limit 8`,
+  ]);
+
   const months: { key: string; label: string; total: number }[] = [];
   const [y, m] = period.split("-").map(Number);
   for (let i = 11; i >= 0; i--) {
@@ -73,6 +95,21 @@ export default async function Dashboard() {
       )}
 
       <div className="grid4" style={{ marginBottom: 12 }}>
+        <Link href="/crm/enquiries" className="card kpi" style={{ textDecoration: "none", color: "inherit", ...(sales.new_enquiries ? { borderColor: "color-mix(in srgb, var(--brand) 55%, transparent)" } : {}) }}>
+          <span className="l">New enquiries</span><span className="v">{sales.new_enquiries}</span>
+          <span className="s">{sales.awaiting_triage ? `${sales.awaiting_triage} awaiting AI triage` : "all triaged"}</span>
+        </Link>
+        <Link href="/crm/leads" className="card kpi" style={{ textDecoration: "none", color: "inherit" }}>
+          <span className="l">Open pipeline</span><span className="v">{N(sales.pipeline)}</span>
+          <span className="s">{sales.open_leads} lead(s) · weighted {N(sales.weighted)}</span>
+        </Link>
+        <Link href="/crm/opportunities" className="card kpi" style={{ textDecoration: "none", color: "inherit" }}>
+          <span className="l">Strong job matches</span><span className="v">{sales.strong_jobs}</span><span className="s">new, fit ≥ 70, last 7 days</span>
+        </Link>
+        <Link href="/crm/tasks" className="card kpi" style={{ textDecoration: "none", color: "inherit", ...(sales.follow_ups_due ? { borderColor: "color-mix(in srgb, var(--warn) 45%, transparent)" } : {}) }}>
+          <span className="l">My tasks · 7 days</span><span className="v">{myTasks.length}</span>
+          <span className="s">{sales.follow_ups_due ? `${sales.follow_ups_due} lead follow-up(s) due` : "no follow-ups due"}</span>
+        </Link>
         <Link href="/crm/invoices" className="card kpi" style={{ textDecoration: "none", color: "inherit" }}>
           <span className="l">Outstanding</span><span className="v">{N(inv.outstanding)}</span><span className="s">{inv.outstanding_n} invoice(s) awaiting payment</span>
         </Link>
@@ -91,6 +128,32 @@ export default async function Dashboard() {
           <span className="l">Retainers · {MONTHS[m - 1]}</span><span className="v">{ret.done} / {ret.total}</span><span className="s">{ret.total - ret.done > 0 ? `${ret.total - ret.done} still to invoice` : ret.total ? "all invoiced" : "none set up"}</span>
         </Link>
         <div className="card kpi"><span className="l">Two-factor</span><span className="v" style={{ fontSize: 16 }}>{user.totpEnabled ? <span className="badge ok">enabled</span> : <span className="badge err">not set</span>}</span><span className="s"><Link href="/crm/account">My account</Link></span></div>
+      </div>
+
+      <div className="grid2" style={{ marginBottom: 12 }}>
+        <section className="card">
+          <h2>Top job matches <span className="dim" style={{ fontSize: 12, fontWeight: 400 }}>last 7 days</span></h2>
+          {!topJobs.length ? <div className="dim" style={{ fontSize: 13 }}>No new listings this week.</div> : (
+            <table className="tbl"><tbody>{topJobs.map((o) => (
+              <tr key={o.id}>
+                <td className="r tabular" style={{ width: 36, fontWeight: 700, color: o.fit_score >= 75 ? "var(--ok)" : o.fit_score >= 50 ? "var(--warn)" : "var(--dim)" }}>{o.fit_score}</td>
+                <td><Link href={`/crm/opportunities?open=${o.id}`}>{o.title}</Link><div className="dim" style={{ fontSize: 12, textTransform: "capitalize" }}>{o.source}{o.budget ? ` · ${o.budget}` : ""}</div></td>
+              </tr>
+            ))}</tbody></table>
+          )}
+        </section>
+        <section className="card">
+          <h2>My tasks</h2>
+          {!myTasks.length ? <div className="dim" style={{ fontSize: 13 }}>Nothing due in the next 7 days.</div> : (
+            <table className="tbl"><tbody>{myTasks.map((t) => {
+              const href = entityHref(t.entity, t.entity_id) ?? "/crm/tasks";
+              return (
+                <tr key={t.id}><td><Link href={href}>{t.title}</Link></td>
+                  <td className="r nowrap" style={t.due_date && t.due_date < today ? { color: "var(--err)" } : undefined}>{t.due_date ? formatDate(t.due_date) : "—"}</td></tr>
+              );
+            })}</tbody></table>
+          )}
+        </section>
       </div>
 
       <div className="grid2" style={{ marginBottom: 12 }}>

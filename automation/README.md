@@ -27,6 +27,8 @@ Website form ─► Web3Forms ─────┘                                
 | `auvJobsDigest001` | 11 Jobs · daily digest | 07:30 Africa/Windhoek | Emails all undigested jobs, highest fit first, then marks them digested. |
 | `auvEnquiries0001` | 20 Website · process enquiries | Called by router | Decodes the form payload, skips duplicates, classifies (project / consultation / vendor pitch / spam …), writes a summary, key requirements, questions to ask and a draft reply, stores, emails partners (reply-to = client). Spam score ≥ 70 is stored but not emailed. |
 | `auvSetupTables01` | 00 Setup · create data tables | Manual | Creates `auvetric_jobs` and `auvetric_enquiries`. Safe to re-run. |
+| `auvCrmSync00001` | 12 CRM · push jobs and relay enquiries | Every 5 min | Pushes job rows changed since the last successful push to the CRM (`/api/ingest/opportunities`, upsert by `job_key`) and relay enquiries (`/api/ingest/enquiries`, by `submission_id`). The cursor only advances after the CRM accepts a batch, so an outage is retried automatically. |
+| `auvCrmTriage0001` | 21 CRM · triage website enquiries | Every 5 min | Claims up to 3 website enquiries awaiting triage from the CRM, runs the local model, writes the result back and emails both partners (link to the CRM record). After 3 failed model attempts the CRM still asks for the alert, so no enquiry waits unseen. Spam (score ≥ 70) is not emailed. |
 
 ## One-time setup (you)
 
@@ -53,6 +55,16 @@ Website form ─► Web3Forms ─────┘                                
 > n8n's IMAP credential has no built-in test, so "No testing function found for this credential" in the editor is normal. Verify by sending a test email and checking *05 Mail · inbox router → Executions*.
 
 **Zoho Mail (auvetric.com):** IMAP `imappro.zoho.com:993` SSL; SMTP `smtppro.zoho.com:465` SSL; user `info@auvetric.com`. IMAP access must be enabled in Zoho Mail settings, and with two-factor sign-in on you must use an app password. Set `fromAddress` to the same mailbox.
+
+## CRM link (auvetric.com/crm)
+
+The CRM is the system of record. The website form stores enquiries **in the CRM** (`CONTACT_PROVIDER=crm`), so they are kept even when this PC is off; workflow 21 triages them when the PC is back. The PC only makes outgoing HTTPS calls.
+
+- **Credential** `Auvetric CRM (ingest token)` (Header Auth, id `auvCrmIngest001`): name `Authorization`, value `Bearer <token>`. Create or revoke tokens in CRM → Admin → Integrations (tokens are shown once and stored hashed).
+- **Config** `crmUrl` (default `https://auvetric.com`) lives in the Config node of every workflow (`build_workflows.py`).
+- **Cursors** for workflow 12 live in its static data (`jobsCursor`, `enqCursor`). Production started them at go-live so the GreenMail/TEST rows were never pushed. To re-push everything, import a copy with `"staticData": {}`.
+- **Rehearsal** against a local CRM: `python automation/test/e2e_crm_link.py` (mock model on :11435, partner email disabled). It leaves test copies imported, so re-import the production workflows afterwards.
+- CRM → Integrations shows the last call time, enquiries waiting and failures. If enquiries pile up there, n8n or the model is down on this PC.
 
 ## Operating
 

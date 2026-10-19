@@ -1,11 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enquirySchema, INTENTS, type Enquiry } from "@/lib/contact-schema";
+import { assertEnquiryRate, storeEnquiry } from "@/crm/server/enquiries";
+import { HttpError } from "@/crm/server/http";
 
 export const runtime = "nodejs";
 
 /**
  * Project enquiry endpoint.
- * Delivery provider is chosen by CONTACT_PROVIDER ("resend" | "webhook").
+ * Delivery provider is chosen by CONTACT_PROVIDER ("crm" | "resend" | "webhook").
+ * "crm" stores the enquiry in the CRM database (auvetric.com/crm → Enquiries); n8n on the partners' PC
+ * later claims it for AI triage and emails the partners, so nothing depends on that PC being on.
  * Success is returned ONLY after the provider confirms acceptance.
  */
 
@@ -23,7 +27,7 @@ function rateLimited(ip: string) {
 }
 
 function clientIp(req: NextRequest) {
-  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  return req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
 }
 
 async function verifyTurnstile(token: string | null, ip: string) {
@@ -52,8 +56,23 @@ function render(e: Enquiry) {
   ].join("\n");
 }
 
-async function deliver(e: Enquiry): Promise<{ ok: true; ref?: string } | { ok: false; status: number; error: string }> {
+async function deliver(e: Enquiry, ip: string): Promise<{ ok: true; ref?: string } | { ok: false; status: number; error: string }> {
   const provider = process.env.CONTACT_PROVIDER;
+
+  if (provider === "crm") {
+    try {
+      await assertEnquiryRate(ip);
+    } catch (err) {
+      if (err instanceof HttpError) return { ok: false, status: err.status, error: err.message };
+      throw err;
+    }
+    const { enquiry } = await storeEnquiry({
+      source: "website", name: e.name, organisation: e.organisation, email: e.email, phone: e.phone, intent: INTENTS[e.intent],
+      interest: e.interest, budget: e.budget, timeline: e.timeline, message: e.description,
+    }, ip);
+    return { ok: true, ref: `AUV-${String(enquiry.id).padStart(5, "0")}` };
+  }
+
   const subject = `[${INTENTS[e.intent]}] ${e.name}${e.organisation ? ` — ${e.organisation}` : ""}`;
 
   if (provider === "resend") {
@@ -132,7 +151,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await deliver(parsed.data);
+    const res = await deliver(parsed.data, ip);
     if (!res.ok) return NextResponse.json({ error: res.error }, { status: res.status });
     return NextResponse.json({ ok: true, ref: res.ref ?? null });
   } catch (err) {

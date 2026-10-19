@@ -1,0 +1,331 @@
+{
+  "id": "auvCrmSync00001",
+  "name": "12 CRM \u00b7 push jobs and relay enquiries",
+  "nodes": [
+    {
+      "id": "b8512e06-846f-4861-98d9-81355fbd06cd",
+      "name": "Every 5 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a99b9ebf-fd86-4a4b-bd47-7d8cccbe401c",
+      "name": "Run now (localhost webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "auvetric-crm-sync",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "auvetric-crm-sync"
+    },
+    {
+      "id": "f552e239-f444-4059-9bb3-c9f9e475377e",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// \u2500\u2500 Edit these values, then save. Shared settings for this workflow. \u2500\u2500\nreturn [{ json: {\n  ollamaUrl: 'http://host.docker.internal:11434',\n  model: 'qwen3:8b',\n  alertTo: 'jakes9na@gmail.com, alexanderp6009@gmail.com',  // Jakes and Alex\n  fromAddress: 'info@auvetric.com',         // must be the SMTP mailbox address (Zoho only sends as owned addresses)\n  alertThreshold: 70,                       // jobs scoring >= this are emailed immediately\n  timezone: 'Africa/Windhoek',\n  crmUrl: 'https://auvetric.com',          // CRM base URL (ingest API at /api/ingest)\n}}];"
+      }
+    },
+    {
+      "id": "8b5b328c-3b20-4683-b636-dc83e15886f6",
+      "name": "All jobs",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "auvetric_jobs"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9d4e7a19-4dc6-433a-8a82-e27e7269a7f5",
+      "name": "Jobs changed since last push",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\n// Rows changed since the last successful push (cursor in workflow static data; empty = backfill everything).\nconst st = $getWorkflowStaticData('global');\nconst cursor = st.jobsCursor || '1970-01-01T00:00:00.000Z';\nconst rows = $input.all().map(i => i.json).filter(r => r && r.job_key && String(r.updatedAt || r.createdAt || '') > cursor);\nif (!rows.length) return [];\nconst items = rows.map(r => ({\n  job_key: r.job_key, source: r.source, url: r.url, title: r.title, company: r.company, location: r.location, remote: r.remote,\n  employment_type: r.employment_type, budget: r.budget, skills: r.skills, experience_level: r.experience_level, summary: r.summary,\n  fit_score: r.fit_score, practice: r.practice, reasons: r.reasons, red_flags: r.red_flags, action: r.action,\n  extraction_status: r.extraction_status, received_at: r.received_at || r.createdAt,\n}));\nconst max = rows.map(r => String(r.updatedAt || r.createdAt)).sort().pop();\nconst out = [];\nfor (let i = 0; i < items.length; i += 100) out.push({ json: { items: items.slice(i, i + 100), max } });\nreturn out;\n"
+      }
+    },
+    {
+      "id": "d3fa5104-765f-4315-81fa-fcb0ca94f8d3",
+      "name": "Push jobs to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.crmUrl }}/api/ingest/opportunities",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ items: $json.items }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "auvCrmIngest001",
+          "name": "Auvetric CRM (ingest token)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "8b0ffe46-d1ca-46ad-82c2-b0724b250bb2",
+      "name": "Advance jobs cursor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Only reached when every push above succeeded, so a failed push is retried next run.\nconst st = $getWorkflowStaticData('global');\nconst max = $('Jobs changed since last push').all().map(i => i.json.max).sort().pop();\nif (max && (!st.jobsCursor || max > st.jobsCursor)) st.jobsCursor = max;\nreturn [{ json: { jobsCursor: st.jobsCursor, pushed: $('Jobs changed since last push').all().reduce((n, i) => n + i.json.items.length, 0) } }];"
+      }
+    },
+    {
+      "id": "b54dbd33-300d-4d29-90a4-ca6639b2d7a3",
+      "name": "All relay enquiries",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        220
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "auvetric_enquiries"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "da351443-bb14-4bf1-8ac0-cc701359394d",
+      "name": "Enquiries changed since last push",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        220
+      ],
+      "parameters": {
+        "jsCode": "\n// Web3Forms-relay enquiries (already triaged by workflow 20) \u2192 CRM, as source 'relay'. Idempotent by submission_id.\nconst st = $getWorkflowStaticData('global');\nconst cursor = st.enqCursor || '1970-01-01T00:00:00.000Z';\nconst rows = $input.all().map(i => i.json).filter(r => r && r.enquiry_key && r.name && String(r.updatedAt || r.createdAt || '') > cursor);\nif (!rows.length) return [];\nconst ok = r => String(r.extraction_status || '') === 'ok';\nconst items = rows.map(r => ({\n  submission_id: r.enquiry_key, source: 'relay', submitted_at: r.submitted_at, name: r.name, organisation: r.organisation, email: r.email,\n  phone: r.phone, intent: r.intent, interest: r.interest, budget: r.budget, timeline: r.timeline, message: r.message,\n  ai: ok(r) ? { category: r.category, practice: r.practice, priority: r.priority, spam_score: r.spam_score, summary: r.summary,\n               key_requirements: r.key_requirements, questions_to_ask: r.questions_to_ask, suggested_reply: r.suggested_reply } : undefined,\n}));\nconst max = rows.map(r => String(r.updatedAt || r.createdAt)).sort().pop();\nconst out = [];\nfor (let i = 0; i < items.length; i += 100) out.push({ json: { items: items.slice(i, i + 100), max } });\nreturn out;\n"
+      }
+    },
+    {
+      "id": "17486cf9-fe38-4b31-ae6a-b97a4e2e5a5d",
+      "name": "Push enquiries to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        220
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.crmUrl }}/api/ingest/enquiries",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ items: $json.items }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "auvCrmIngest001",
+          "name": "Auvetric CRM (ingest token)"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "ca445804-19d2-4d84-b17f-efd01d32edcb",
+      "name": "Advance enquiries cursor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        220
+      ],
+      "parameters": {
+        "jsCode": "// Only reached when every push above succeeded, so a failed push is retried next run.\nconst st = $getWorkflowStaticData('global');\nconst max = $('Enquiries changed since last push').all().map(i => i.json.max).sort().pop();\nif (max && (!st.enqCursor || max > st.enqCursor)) st.enqCursor = max;\nreturn [{ json: { enqCursor: st.enqCursor, pushed: $('Enquiries changed since last push').all().reduce((n, i) => n + i.json.items.length, 0) } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Every 5 minutes": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run now (localhost webhook)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "All jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "All relay enquiries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All jobs": {
+      "main": [
+        [
+          {
+            "node": "Jobs changed since last push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jobs changed since last push": {
+      "main": [
+        [
+          {
+            "node": "Push jobs to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Push jobs to CRM": {
+      "main": [
+        [
+          {
+            "node": "Advance jobs cursor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All relay enquiries": {
+      "main": [
+        [
+          {
+            "node": "Enquiries changed since last push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enquiries changed since last push": {
+      "main": [
+        [
+          {
+            "node": "Push enquiries to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Push enquiries to CRM": {
+      "main": [
+        [
+          {
+            "node": "Advance enquiries cursor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Windhoek",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

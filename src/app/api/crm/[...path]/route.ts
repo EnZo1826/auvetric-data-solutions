@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { handle, json } from "@/crm/server/http";
 import { dispatch } from "@/crm/server/router";
 import "@/crm/server/api/routes";
+import "@/crm/server/api/sales";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
