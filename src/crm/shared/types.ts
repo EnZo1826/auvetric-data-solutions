@@ -84,6 +84,7 @@ export interface Doc {
   vat: number;
   discount: number;
   total: number;
+  amount_paid?: number;
   sent_at: string | null;
   paid_at: string | null;
   created_at?: string;
@@ -100,6 +101,7 @@ export interface DocListRow {
   currency: Currency;
   fx_rate: number | null;
   total: number;
+  amount_paid?: number;
   client_id: string | null;
   client_name: string;
   project_id: string | null;

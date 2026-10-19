@@ -103,7 +103,7 @@ export function ClientsScreen() {
 type Detail = {
   client: Client;
   contacts: Contact[];
-  documents: { id: string; type: "invoice" | "quote"; number: string; status: string; date: string; due_date: string; currency: Currency; fx_rate: number | null; total: number }[];
+  documents: { id: string; type: "invoice" | "quote"; number: string; status: string; date: string; due_date: string; currency: Currency; fx_rate: number | null; total: number; amount_paid?: number }[];
   projects: { id: string; title: string; status: string; priority: string; due_date: string | null }[];
   retainers: { id: string; name: string; kind: RetainerKind; currency: Currency; active: boolean; auto: boolean }[];
   activities: Activity[];
@@ -171,7 +171,7 @@ export function ClientDetail({ id }: { id: string }) {
   if (!d) return <Empty>Loading…</Empty>;
   const c = d.client;
   const outstanding = d.documents.filter((x) => x.type === "invoice" && ["sent", "overdue"].includes(x.status));
-  const byCur = (rows: typeof d.documents) => rows.reduce<Record<string, number>>((m, x) => ({ ...m, [x.currency]: (m[x.currency] ?? 0) + Number(x.total) }), {});
+  const byCur = (rows: typeof d.documents) => rows.reduce<Record<string, number>>((m, x) => ({ ...m, [x.currency]: (m[x.currency] ?? 0) + Number(x.total) - Number(x.amount_paid ?? 0) }), {});
 
   const removeClient = async () => {
     if (!confirmAction(`Delete ${c.name}? Clients with documents, projects or retainers are archived instead.`)) return;
@@ -195,6 +195,7 @@ export function ClientDetail({ id }: { id: string }) {
         {rw && <>
           <Link className="btn" href={`/crm/quotes/new?client_id=${c.id}`}><FileText /> New quote</Link>
           <Link className="btn" href={`/crm/invoices/new?client_id=${c.id}`}><FileText /> New invoice</Link>
+          <Link className="btn" href={`/crm/print/statement?client_id=${c.id}`}><FileText /> Statement</Link>
           <button onClick={() => setEdit(true)}><Pencil /> Edit</button>
         </>}
       </div>
@@ -249,11 +250,12 @@ export function ClientDetail({ id }: { id: string }) {
         <div className="card flush">
           {!d.documents.length ? <Empty>No quotes or invoices yet.</Empty> : (
             <div className="tbl-wrap"><table className="tbl">
-              <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Due / valid</th><th>Status</th><th className="r">Total</th></tr></thead>
+              <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Due / valid</th><th>Status</th><th className="r">Total</th><th className="r">Balance</th></tr></thead>
               <tbody>{d.documents.map((x) => (
                 <tr key={x.id} className="click" onClick={() => router.push(`/crm/${x.type}s/${x.id}`)}>
                   <td className="mono">{x.number}</td><td style={{ textTransform: "capitalize" }}>{x.type}</td><td>{formatDate(x.date)}</td><td>{formatDate(x.due_date)}</td>
                   <td><StatusBadge s={x.status} /></td><td className="r"><Money v={Number(x.total)} c={x.currency} /></td>
+                  <td className="r">{x.type === "invoice" && ["sent", "overdue"].includes(x.status) ? <Money v={Number(x.total) - Number(x.amount_paid ?? 0)} c={x.currency} /> : <span className="dim">—</span>}</td>
                 </tr>))}</tbody>
             </table></div>
           )}
