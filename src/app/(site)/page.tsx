@@ -107,7 +107,7 @@ export default function HomePage() {
             <SectionHeading
               id="work-title"
               title="Work that runs in the real world."
-              intro="Engineering projects, data and BI experience, and clearly labelled concepts that show what the two disciplines can do together. Client names are withheld; statuses are shown as verified or pending."
+              intro="Engineering projects, data and BI experience, and clearly labelled concepts that show what the two disciplines can do together. Client names are withheld."
             />
             <Link href="/work" className="inline-flex items-center gap-2 text-sm text-ink hover:underline">All work <ArrowRight className="size-4" aria-hidden /></Link>
           </div>

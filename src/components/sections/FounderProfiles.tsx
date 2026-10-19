@@ -59,7 +59,7 @@ function Profile({ f, compact }: { f: Founder; compact: boolean }) {
           {(compact ? f.bio.slice(0, 1) : f.bio).map((p) => <p key={p.slice(0, 20)}>{p}</p>)}
         </div>
 
-          <p className="mt-6 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-dim">Working philosophy · proposed profile wording</p>
+          <p className="mt-6 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-dim">Working philosophy</p>
           <p className={cx("mt-2 border-l pl-4 font-display text-lg leading-snug text-ink", eng ? "border-eng" : "border-data")}>
             {f.philosophy}
           </p>

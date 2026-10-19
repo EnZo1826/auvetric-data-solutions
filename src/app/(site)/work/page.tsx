@@ -14,7 +14,7 @@ export default function WorkPage() {
     <>
       <PageHero
         title={<>Work, evidence<br /><span className="text-mute">and honest labels.</span></>}
-        intro="Engineering projects, data and BI experience, and agency concepts that show what the two disciplines can build together. Client identities are withheld. Statuses marked “pending verification” are being confirmed before launch, and concepts are never presented as delivered projects."
+        intro="Engineering projects, data and BI experience, and agency concepts that show what the two disciplines can build together. Client identities are withheld."
       />
       <Section className="pt-14 sm:pt-16">
         <Container>

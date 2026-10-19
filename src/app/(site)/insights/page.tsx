@@ -36,7 +36,7 @@ export default function InsightsPage() {
                   <h3 className="mt-2 font-display text-xl leading-snug tracking-[-0.01em] text-ink">{i.title}</h3>
                   <p className="mt-1.5 text-sm text-mute">{i.summary}</p>
                 </div>
-                <p className="text-sm text-dim md:text-right">{i.author.map((a) => founderById(a).displayName).join(" & ")} · <span className="text-warn">{i.status === "drafting" ? "Drafting" : "Proposed"}</span></p>
+                <p className="text-sm text-dim md:text-right">{i.author.map((a) => founderById(a).displayName).join(" & ")} · <span className="text-warn">{i.status === "drafting" ? "In progress" : "Upcoming"}</span></p>
               </li>
             ))}
           </ul>

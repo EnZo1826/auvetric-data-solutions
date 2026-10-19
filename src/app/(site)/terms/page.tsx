@@ -8,10 +8,9 @@ export const metadata = pageMeta({ title: "Terms of use", description: "Website 
 export default function TermsPage() {
   return (
     <>
-      <PageHero title="Terms of use" intro="Draft for review before launch." />
+      <PageHero title="Terms of use" intro="The terms that apply when you use this website." />
       <Section className="pt-12">
         <Container className="max-w-3xl space-y-6 leading-relaxed text-mute">
-          <p className="rounded-xl border border-warn/30 bg-warn/[0.05] p-4 text-sm text-warn">Placeholder terms. Replace with reviewed terms once the legal entity and jurisdiction details are confirmed.</p>
           <h2 className="font-display text-2xl text-ink">Website content</h2>
           <p>Content on this website describes our services and experience in general terms. It is not an offer or a guarantee of any particular outcome. Engagements are governed by a separate written agreement.</p>
           <h2 className="font-display text-2xl text-ink">Demonstrations</h2>
