@@ -12,6 +12,7 @@ import { DocumentPrint } from "./DocumentPrint";
 import { PaymentsPanel } from "./Payments";
 import { AttachmentsPanel } from "./Attachments";
 import { EmailDialog } from "./EmailDialog";
+import { NoticesPanel } from "./PortalAdmin";
 import { addDays, computeTotals, formatMoney, todayISO } from "@/crm/shared/calc";
 import { CURRENCIES, INVOICE_STATUSES, PROPOSAL_FIELDS, QUOTE_STATUSES, type ClientSnapshot, type Contact, type Currency, type Doc, type DocData, type DocType, type Project } from "@/crm/shared/types";
 
@@ -296,6 +297,16 @@ export function DocEditor({ type, docId }: { type: DocType; docId: string }) {
               </section>
             )}
 
+            {!isNew && type === "quote" && doc.data.acceptance && ["accepted", "invoiced"].includes(meta.status) && (
+              <section className="card" style={{ fontSize: 13, borderColor: "var(--ok)" }}>
+                <h2 style={{ margin: "0 0 6px" }}>Accepted by the client</h2>
+                <b>{doc.data.acceptance.name}</b> ({doc.data.acceptance.email})<br />
+                {new Date(doc.data.acceptance.at).toLocaleString("en-NA", { timeZone: "Africa/Windhoek", dateStyle: "medium", timeStyle: "short" })} via the client portal{doc.data.acceptance.ip ? ` · IP ${doc.data.acceptance.ip}` : ""}
+              </section>
+            )}
+            {!isNew && type === "invoice" && meta.status !== "draft" && doc.id && <NoticesPanel docId={doc.id} onRecorded={async () => {
+              try { const d = await crmFetch<Loaded>(`/api/crm/documents/${docId}`); setDoc({ ...d }); setMeta((m) => ({ ...m, status: d.status })); setDirty(false); } catch (e) { toast(errText(e), "err"); }
+            }} />}
             {!isNew && type === "invoice" && meta.status !== "draft" && doc.id && (
               <PaymentsPanel invoice={{ id: doc.id, number: doc.number, status: meta.status, currency: doc.currency, total: totals?.total ?? 0 }} onChange={async () => {
                 try { const d = await crmFetch<Loaded>(`/api/crm/documents/${docId}`); setDoc({ ...d }); setMeta((m) => ({ ...m, status: d.status })); setDirty(false); } catch (e) { toast(errText(e), "err"); }

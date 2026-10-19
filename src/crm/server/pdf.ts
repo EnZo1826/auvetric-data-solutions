@@ -272,6 +272,7 @@ export async function documentPdf(doc: PdfDoc, company: { name: string; data: Co
   pdf.totals(rows);
   const blocks: { title: string; body: string; signature?: boolean }[] = [];
   if (!isQuote) blocks.push({ title: "Payment details", body: bankLines(c).concat(`Reference: ${doc.number}`).join("\n") });
+  else if (d.acceptance && ["accepted", "invoiced"].includes(doc.status ?? "")) blocks.push({ title: "Acceptance", body: `Accepted electronically by ${d.acceptance.name} (${d.acceptance.email}) on ${new Date(d.acceptance.at).toLocaleString("en-NA", { timeZone: "Africa/Windhoek", dateStyle: "medium", timeStyle: "short" })} via the Auvetric client portal.` });
   else blocks.push({ title: "Acceptance", body: "To accept, reply to this quotation or sign below.", signature: true });
   if (c.terms) blocks.push({ title: "Terms", body: c.terms });
   pdf.foot(blocks);

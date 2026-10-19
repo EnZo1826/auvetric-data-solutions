@@ -27,7 +27,8 @@
     "crm:test:sales": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-sales.mjs",
     "crm:test:finance": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-finance.mjs",
     "crm:test:insights": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-insights.mjs",
-    "crm:restore": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/restore.mjs"
+    "crm:restore": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/restore.mjs",
+    "crm:test:portal": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/crm/test-portal.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.4",
